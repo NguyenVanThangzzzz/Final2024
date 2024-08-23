@@ -1,0 +1,51 @@
+.wrapper {
+  height: auto;
+  box-shadow: 0 0 10px rgb(0 0 0 / 84%);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.header-top-area {
+  height: 56px;
+  width: 1280px;
+  background-color: #22272b;
+}
+
+// css main header
+.main-header-area {
+  width: 1280px;
+  height: 82px;
+  background-color: white;
+}
+.container-main-header {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 95% !important;
+}
+.row {
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+@media (min-width: 992px) {
+  .col-lg-3 {
+    -webkit-box-flex: 0;
+
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+.site-logo {
+  margin: 5px 0;
+  position: relative;
+  z-index: 9999;
+}
+.site-logo img {
+  max-width: 180px;
+}
