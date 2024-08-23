@@ -25,7 +25,7 @@
   margin-left: auto;
   max-width: 95% !important;
 }
-.row {
+.row-header-main {
   display: flex;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
@@ -33,14 +33,6 @@
   margin-left: -15px;
 }
 
-@media (min-width: 992px) {
-  .col-lg-3 {
-    -webkit-box-flex: 0;
-
-    flex: 0 0 25%;
-    max-width: 25%;
-  }
-}
 .site-logo {
   margin: 5px 0;
   position: relative;
@@ -48,4 +40,33 @@
 }
 .site-logo img {
   max-width: 180px;
+}
+
+.main-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  nav {
+    ul {
+      display: flex;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      padding-left: 200px;
+    }
+
+    li {
+      margin: 0 15px; // Tạo khoảng cách đều giữa các mục menu
+      a {
+        text-decoration: none;
+        color: black;
+        font-weight: 500;
+        padding: 10px 0;
+        &:hover {
+          color: #007bff; // Màu khi hover
+        }
+      }
+    }
+  }
 }
