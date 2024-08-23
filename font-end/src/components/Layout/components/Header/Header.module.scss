@@ -8,9 +8,26 @@
 .header-top-area {
   height: 56px;
   width: 1280px;
-  background-color: #22272b;
+}
+.container-header-top {
+  display: flex;
+  width: 100%;
 }
 
+.header-top-social,
+.header-top-menu {
+  width: 50%;
+}
+
+.header-top-social {
+  display: flex;
+  justify-content: flex-start; /* Căn về bên trái */
+}
+
+.header-top-menu {
+  display: flex;
+  justify-content: flex-end; /* Căn về bên phải */
+}
 // css main header
 .main-header-area {
   width: 1280px;

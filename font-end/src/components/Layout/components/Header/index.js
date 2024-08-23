@@ -9,11 +9,15 @@ function Header() {
       <div className={cx("header-top-area")}>
         <div>
           <div className={cx("container-header-top")}>
-            <div className="row-header-top"></div>
+            <div className={cx("header-top-social")}>
+              <h1>asd</h1>
+            </div>
+
+            <div className={cx("header-top-menu")}>
+              <h1>asdad</h1>
+            </div>
           </div>
         </div>
-        {/* Logo*/}
-        {/* Search*/}
       </div>
 
       <div className={cx("main-header-area")}>
