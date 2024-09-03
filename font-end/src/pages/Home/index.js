@@ -1,7 +1,8 @@
+import "react-slideshow-image/dist/styles.css";
 function Home() {
   return (
     <div>
-      <h1>Home 1</h1>
+      <h1>Home 1asdasd</h1>
     </div>
   );
 }

@@ -1,6 +1,9 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import classNames from "classnames/bind";
+import Button from "~/components/Button";
 import styles from "./Header.module.scss";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faCoffee } from "@fortawesome/free-solid-svg-icons";
 const cx = classNames.bind(styles);
 
 function Header() {
@@ -14,7 +17,12 @@ function Header() {
             </div>
 
             <div className={cx("header-top-menu")}>
-              <h1>asdad</h1>
+              <div className={cx("actions")}>
+                <Button>Đăng nhập</Button>
+              </div>
+              <div className={cx("actions")}>
+                <Button>Đăng Ký</Button>
+              </div>
             </div>
           </div>
         </div>

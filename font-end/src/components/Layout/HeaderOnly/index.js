@@ -1,6 +1,5 @@
 import Header from "~/components/Layout/components/Header";
 
-
 // 1280x56 ----1280x82
 
 function HeaderOnly({ children }) {
