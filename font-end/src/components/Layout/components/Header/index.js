@@ -1,3 +1,11 @@
+import {
+  faFacebookF,
+  faGooglePlusG,
+  faLinkedinIn,
+  faPinterestP,
+  faTwitter,
+} from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "bootstrap/dist/css/bootstrap.min.css";
 import classNames from "classnames/bind";
 import Button from "~/components/Button";
@@ -13,7 +21,27 @@ function Header() {
         <div>
           <div className={cx("container-header-top")}>
             <div className={cx("header-top-social")}>
-              <h1>asd</h1>
+              <Button href="https://facebook.com" className={cx("social-icon")}>
+                <FontAwesomeIcon icon={faFacebookF} />
+              </Button>
+              <Button href="/" className={cx("social-icon")}>
+                <FontAwesomeIcon icon={faTwitter} />
+              </Button>
+              <Button
+                href="https://plus.google.com"
+                className={cx("social-icon")}
+              >
+                <FontAwesomeIcon icon={faGooglePlusG} />
+              </Button>
+              <Button href="https://linkedin.com" className={cx("social-icon")}>
+                <FontAwesomeIcon icon={faLinkedinIn} />
+              </Button>
+              <Button
+                href="https://pinterest.com"
+                className={cx("social-icon")}
+              >
+                <FontAwesomeIcon icon={faPinterestP} />
+              </Button>
             </div>
 
             <div className={cx("header-top-menu")}>
