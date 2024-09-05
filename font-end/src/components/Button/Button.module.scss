@@ -1,6 +1,27 @@
 .wrapper {
   padding: 2px 5px 2px 5px;
-
-  border-radius: 5px;
+  font-size: 1.7rem;
+  border-radius: 4px;
   color: #fff !important;
+  text-decoration: none;
+  user-select: none;
+  + .wrapper {
+    margin-left: 10px;
+  }
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
 }
+
+//button types
+.primary {
+  background-color: var(--primary);
+  &:hover {
+    background-color: #d95c1c;
+  }
+}
+
+//disabled button
+
+//button size

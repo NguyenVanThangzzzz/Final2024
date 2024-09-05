@@ -46,10 +46,8 @@ function Header() {
 
             <div className={cx("header-top-menu")}>
               <div className={cx("actions")}>
-                <Button>Đăng nhập</Button>
-              </div>
-              <div className={cx("actions")}>
-                <Button>Đăng Ký</Button>
+                <Button primary>Đăng nhập</Button>
+                <Button primary>Đăng Ký</Button>
               </div>
             </div>
           </div>
@@ -74,7 +72,7 @@ function Header() {
                     <a href="/san-pham">Sản phẩm</a>
                   </li>
                   <li>
-                    <a href="/gioi-thieu">Giới thiệu</a>
+                    <a href="/upload">Giới thiệu</a>
                   </li>
                   <li>
                     <a href="/tin-tuc">Tin tức</a>
