@@ -11,10 +11,43 @@ import classNames from "classnames/bind";
 import Button from "~/components/Button";
 import styles from "./Header.module.scss";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faCoffee } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faEarthAsia,
+  faCircleQuestion,
+  faKeyboard,
+} from "@fortawesome/free-solid-svg-icons";
+import Menu from "../../../Popper/Menu/Index";
+//import "tippy.js/dist/tippy.css"; // optional
+
+// import { useEffect, useState } from "react";
+
 const cx = classNames.bind(styles);
+const MENU_ITEMS = [
+  {
+    icon: <FontAwesomeIcon icon={faEarthAsia} />,
+    title: "Tiếng Việt",
+  },
+  {
+    icon: <FontAwesomeIcon icon={faCircleQuestion} />,
+    title: "Feedback and Help",
+    to: '/feedback'
+  },
+  {
+    icon: <FontAwesomeIcon icon={faKeyboard} />,
+    title: "Keyborad Shortcuts",
+  },
+];
 
 function Header() {
+  // const [searchResult, setSearchResult] = useState([]);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setSearchResult([1, 2, 3]);
+  //   }, 2000);
+  // }, []);
+  const currenUser = false;
+
   return (
     <header className={cx("wrapper")}>
       <div className={cx("header-top-area")}>
@@ -46,8 +79,21 @@ function Header() {
 
             <div className={cx("header-top-menu")}>
               <div className={cx("actions")}>
-                <Button primary>Đăng nhập</Button>
-                <Button primary>Đăng Ký</Button>
+                {currenUser ? (
+                  <>
+                    <Button primary>Đăng xuất</Button>
+                    <img
+                      className={cx("user-avatar")}
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw6juIAFATO3bJZFAppnE0pWLCyaXZPDRc9g&s"
+                      alt="Nguyen Van T"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Button primary>Đăng nhập</Button>
+                    <Button primary>Đăng Ký</Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -80,6 +126,11 @@ function Header() {
                 </ul>
               </nav>
             </div>
+            <Menu items={MENU_ITEMS}>
+              <button className={cx("more-btn")}>
+                <FontAwesomeIcon icon={faBars} />
+              </button>
+            </Menu>
           </div>
         </div>
       </div>
