@@ -9,6 +9,9 @@
   text-decoration: none;
   user-select: none;
   margin-left: 8px;
+
+  color: var(--text-color);
+
   + .wrapper {
     margin-left: 10px;
   }
@@ -33,9 +36,8 @@
 //button types
 .primary {
   background-color: var(--primary);
-  &:hover {
-    background-color: #d95c1c;
-  }
+  background-color: #f37737 !important;
+  color: #fff;
 }
 
 //disabled button
