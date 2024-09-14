@@ -1,19 +1,23 @@
 .wrapper {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 5px 2px 5px;
-  font-size: 1.7rem;
+  min-width: 100px;
+  padding: 5px 16px;
   border-radius: 4px;
+  font-size: 1.6rem;
+  font-weight: 700;
   background-color: #fff !important;
   text-decoration: none;
   user-select: none;
   margin-left: 8px;
+  border: 1px solid transparent;
+  user-select: none;
 
   color: var(--text-color);
 
   + .wrapper {
-    margin-left: 10px;
+    margin-left: 8px;
   }
 
   &.disabled {
@@ -30,7 +34,6 @@
   display: inline-block;
   width: 24px;
   text-align: center;
-  padding: 5px;
 }
 
 //button types
