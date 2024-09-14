@@ -13,12 +13,15 @@ import styles from "./Header.module.scss";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
-  faEarthAsia,
   faCircleQuestion,
+  faEarthAsia,
+  faGear,
   faKeyboard,
+  faSignOut,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import "tippy.js/dist/tippy.css"; // optional
 import Menu from "../../../Popper/Menu/Index";
-//import "tippy.js/dist/tippy.css"; // optional
 
 // import { useEffect, useState } from "react";
 
@@ -27,11 +30,26 @@ const MENU_ITEMS = [
   {
     icon: <FontAwesomeIcon icon={faEarthAsia} />,
     title: "Tiếng Việt",
+    children: {
+      title: "Language",
+      data: [
+        {
+          type: "language",
+          code: "en",
+          title: "English",
+        },
+        {
+          type: "language",
+          code: "vi",
+          title: "Tieng VIet",
+        },
+      ],
+    },
   },
   {
     icon: <FontAwesomeIcon icon={faCircleQuestion} />,
     title: "Feedback and Help",
-    to: '/feedback'
+    to: "/feedback",
   },
   {
     icon: <FontAwesomeIcon icon={faKeyboard} />,
@@ -46,7 +64,54 @@ function Header() {
   //     setSearchResult([1, 2, 3]);
   //   }, 2000);
   // }, []);
-  const currenUser = false;
+
+  const handleMenuChange = (menuItem) => {
+    switch (menuItem.type) {
+      case "language":
+        break;
+      default:
+    }
+  };
+
+  ///USER
+  const currenUser = true;
+  const userMenu = [
+    {
+      icon: <FontAwesomeIcon icon={faUser} />,
+      title: "View Profile",
+      to: "/@thang",
+    },
+    {
+      icon: <FontAwesomeIcon icon={faEarthAsia} />,
+      title: "Tiếng Việt",
+      children: {
+        title: "Language",
+        data: [
+          {
+            type: "language",
+            code: "en",
+            title: "English",
+          },
+          {
+            type: "language",
+            code: "vi",
+            title: "Tieng VIet",
+          },
+        ],
+      },
+    },
+    {
+      icon: <FontAwesomeIcon icon={faGear} />,
+      title: "Settings",
+      to: "/setting",
+    },
+    {
+      icon: <FontAwesomeIcon icon={faSignOut} />,
+      title: "Log out",
+      to: "/logout",
+      separate: true,
+    },
+  ];
 
   return (
     <header className={cx("wrapper")}>
@@ -81,12 +146,13 @@ function Header() {
               <div className={cx("actions")}>
                 {currenUser ? (
                   <>
-                    <Button primary>Đăng xuất</Button>
-                    <img
-                      className={cx("user-avatar")}
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw6juIAFATO3bJZFAppnE0pWLCyaXZPDRc9g&s"
-                      alt="Nguyen Van T"
-                    />
+                    <Menu items={userMenu} onChange={handleMenuChange}>
+                      <img
+                        className={cx("user-avatar")}
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw6juIAFATO3bJZFAppnE0pWLCyaXZPDRc9g&s"
+                        alt="Nguyen Van T"
+                      />
+                    </Menu>
                   </>
                 ) : (
                   <>
@@ -126,7 +192,7 @@ function Header() {
                 </ul>
               </nav>
             </div>
-            <Menu items={MENU_ITEMS}>
+            <Menu items={MENU_ITEMS} onChange={handleMenuChange}>
               <button className={cx("more-btn")}>
                 <FontAwesomeIcon icon={faBars} />
               </button>
