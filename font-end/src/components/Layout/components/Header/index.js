@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "bootstrap/dist/css/bootstrap.min.css";
 import classNames from "classnames/bind";
 import Button from "~/components/Button";
+import Image from "~/components/Image";
 import styles from "./Header.module.scss";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -65,15 +66,6 @@ function Header() {
   //   }, 2000);
   // }, []);
 
-  const handleMenuChange = (menuItem) => {
-    switch (menuItem.type) {
-      case "language":
-        break;
-      default:
-    }
-  };
-
-  ///USER
   const currenUser = true;
   const userMenu = [
     {
@@ -112,6 +104,15 @@ function Header() {
       separate: true,
     },
   ];
+  const handleMenuChange = (menuItem) => {
+    switch (menuItem.type) {
+      case "language":
+        break;
+      default:
+    }
+  };
+
+  ///USER
 
   return (
     <header className={cx("wrapper")}>
@@ -147,10 +148,11 @@ function Header() {
                 {currenUser ? (
                   <>
                     <Menu items={userMenu} onChange={handleMenuChange}>
-                      <img
+                      <Image
                         className={cx("user-avatar")}
                         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw6juIAFATO3bJZFAppnE0pWLCyaXZPDRc9g&s"
                         alt="Nguyen Van T"
+                        fallback="https://lh3.googleusercontent.com/a/ACg8ocJEXhQvsKqohBcyi15XDZX7ncMlCo7AicFZp54un9WicVkDcqjW=s288-c-no"
                       />
                     </Menu>
                   </>
