@@ -1,17 +1,11 @@
-import {
-  faFacebookF,
-  faGooglePlusG,
-  faLinkedinIn,
-  faPinterestP,
-  faTwitter,
-} from "@fortawesome/free-brands-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "bootstrap/dist/css/bootstrap.min.css";
 import classNames from "classnames/bind";
 import Button from "~/components/Button";
 import Image from "~/components/Image";
 import styles from "./Header.module.scss";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "tippy.js/dist/tippy.css"; // optional
+import Menu from "../../../Popper/Menu/Index";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
   faCircleQuestion,
@@ -21,9 +15,15 @@ import {
   faSignOut,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import "tippy.js/dist/tippy.css"; // optional
-import Menu from "../../../Popper/Menu/Index";
+import {
+faFacebookF,
+faGooglePlusG,
+faLinkedinIn,
+  faPinterestP,
+  faTwitter,
+} from "@fortawesome/free-brands-svg-icons";
 
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { useEffect, useState } from "react";
 
 const cx = classNames.bind(styles);
