@@ -20,7 +20,7 @@
 .header-top-social,
 .header-top-menu {
   width: 47%;
-  color: white;
+  color: black;
   margin-top: 10px;
 }
 
@@ -30,7 +30,7 @@
   justify-content: flex-start;
   align-items: center;
   gap: 15px;
-  color: var(--text-color);
+  color: var(--text-color-menu);
 }
 .header-top-social .svg-inline--fa {
   font-size: 20px; /* Kích thước của icon */
@@ -100,7 +100,7 @@
       margin: 0 15px; // Tạo khoảng cách đều giữa các mục menu
       a {
         text-decoration: none;
-        color: var(--text-color);
+        color: var(--text-color-menu);
         font-weight: 500;
         padding: 10px 0;
         margin-right: 40px;

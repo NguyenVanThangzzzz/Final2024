@@ -4,7 +4,8 @@
 :root {
   --primary: #e97242;
   --black: #000;
-  --text-color: #333;
+  --text-color: #fff;
+  --text-color-menu: #13212d;
 }
 * {
   box-sizing: border-box;
@@ -22,7 +23,6 @@ body {
   line-height: 1.5;
   text-rendering: optimizeSpeed;
   color: var(--text-color);
-
   background-image: url("https://starlight.vn/Content/img/bgs6.jpg");
 }
 

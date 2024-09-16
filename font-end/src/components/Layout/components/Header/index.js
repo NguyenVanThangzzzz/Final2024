@@ -1,11 +1,10 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import classNames from "classnames/bind";
-import Button from "~/components/Button";
-import Image from "~/components/Image";
-import styles from "./Header.module.scss";
-import "tippy.js/dist/tippy.css"; // optional
-import Menu from "../../../Popper/Menu/Index";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faFacebookF,
+  faGooglePlusG,
+  faLinkedinIn,
+  faPinterestP,
+  faTwitter,
+} from "@fortawesome/free-brands-svg-icons";
 import {
   faBars,
   faCircleQuestion,
@@ -15,13 +14,14 @@ import {
   faSignOut,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-faFacebookF,
-faGooglePlusG,
-faLinkedinIn,
-  faPinterestP,
-  faTwitter,
-} from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "bootstrap/dist/css/bootstrap.min.css";
+import classNames from "classnames/bind";
+import "tippy.js/dist/tippy.css"; // optional
+import Button from "~/components/Button";
+import Image from "~/components/Image";
+import Menu from "../../../Popper/Menu/Index";
+import styles from "./Header.module.scss";
 
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { useEffect, useState } from "react";
@@ -66,7 +66,7 @@ function Header() {
   //   }, 2000);
   // }, []);
 
-  const currenUser = true;
+  const currenUser = false;
   const userMenu = [
     {
       icon: <FontAwesomeIcon icon={faUser} />,
@@ -158,7 +158,9 @@ function Header() {
                   </>
                 ) : (
                   <>
-                    <Button primary>Đăng nhập</Button>
+                    <Button primary to={"/login"}>
+                      Đăng nhập
+                    </Button>
                     <Button primary>Đăng Ký</Button>
                   </>
                 )}
