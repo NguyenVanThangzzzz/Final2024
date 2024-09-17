@@ -1,4 +1,4 @@
-import Header from "~/components/Layout/components/Header";
+import Header from "~/layouts/components/Header";
 
 // 1280x56 ----1280x82
 
@@ -7,7 +7,6 @@ function HeaderOnly({ children }) {
     <div>
       <Header />
       <div className="container">
-        
         <div className="content">{children}</div>
       </div>
     </div>

@@ -1,8 +1,6 @@
-import config from '~/config';
-
-
+import config from "~/config";
 //Layout
-import { HeaderOnly } from "~/components/Layout";
+import { HeaderOnly } from "~/layouts";
 //Pages
 
 import Home from "~/pages/Home";
@@ -14,9 +12,11 @@ import Upload from "~/pages/Upload";
 
 //publicRoutes
 const publicRoutes = [
-  { path: "/", component: Home },
+  { path: config.routes.home, component: Home },
+  { path: config.routes.login, component: Login, layout: HeaderOnly },
+
+  //////////////////////////////////////////////////////////////
   { path: "/showtime", component: Showtime },
-  { path: "/login", component: Login, layout: null },
   { path: "/profile", component: Profile },
   { path: "/upload", component: Upload, layout: HeaderOnly },
   { path: "/search", component: Search, layout: null },

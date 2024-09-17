@@ -17,10 +17,12 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "bootstrap/dist/css/bootstrap.min.css";
 import classNames from "classnames/bind";
+import { Link } from "react-router-dom";
 import "tippy.js/dist/tippy.css"; // optional
 import Button from "~/components/Button";
 import Image from "~/components/Image";
-import Menu from "../../../Popper/Menu/Index";
+import routesConfig from "~/config/routes";
+import Menu from "../../../components/Popper/Menu/Index";
 import styles from "./Header.module.scss";
 
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -174,9 +176,9 @@ function Header() {
         <div className={cx("container-main-header")}>
           <div className={cx("row-header-main")}>
             <div className={cx("site-logo")}>
-              <a href="/">
+              <Link to={routesConfig.home}>
                 <img src="https://starlight.vn/Content/img/logo.png" alt="" />
-              </a>
+              </Link>
             </div>
             <div className={cx("main-menu")}>
               <nav>
