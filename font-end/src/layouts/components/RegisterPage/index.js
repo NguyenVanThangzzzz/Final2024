@@ -2,22 +2,20 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// import classNames from "classnames/bind";
-// const cx = classNames.bind(styles);
 
-function LoginPage() {
+
+function RegisterPage() {
+  const [name, setName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  const navigate = useNavigate();
+const navigate = useNavigate();
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("http://localhost:3000/login", { email, password })
+      .post("http://localhost:3000/register", { name, email, password })
       .then((result) => {
-        console.log(result);
-        if (result.data === "Login successful") {
-          navigate("/");
-        }
+        console.log(result)
+        navigate('/login')
       })
       .catch((err) => console.log(err));
   };
@@ -29,6 +27,18 @@ function LoginPage() {
       <hr />
 
       <form onSubmit={handleSubmit}>
+        <label htmlFor="name">
+          <b>Name</b>
+        </label>
+        <input
+          type="text"
+          placeholder="Enter Name"
+          name="name"
+          id="name"
+          required
+          onChange={(e) => setName(e.target.value)}
+        />
+
         <label htmlFor="email">
           <b>Email</b>
         </label>
@@ -53,14 +63,34 @@ function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
+        {/* <label htmlFor="psw-repeat">
+          <b>Repeat Password</b>
+        </label>
+        <input
+          type="password"
+          placeholder="Repeat Password"
+          name="psw-repeat"
+          id="psw-repeat"
+          required
+        /> */}
         <hr />
 
-        <button type="submit" className="loginbtn">
-          Login
+        <p>
+          By creating an account you agree to our{" "}
+          <a href="/">Terms & Privacy</a>.
+        </p>
+        <button type="submit" className="registerbtn">
+          Register
         </button>
       </form>
+
+      <div className="container signin">
+        <p>
+          Already have an account? <a href="/">Sign in</a>.
+        </p>
+      </div>
     </div>
   );
 }
 
-export default LoginPage;
+export default RegisterPage;

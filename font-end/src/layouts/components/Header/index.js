@@ -163,7 +163,9 @@ function Header() {
                     <Button primary to={"/login"}>
                       Đăng nhập
                     </Button>
-                    <Button primary>Đăng Ký</Button>
+                    <Button primary to={"/register"}>
+                      Đăng Ký
+                    </Button>
                   </>
                 )}
               </div>
