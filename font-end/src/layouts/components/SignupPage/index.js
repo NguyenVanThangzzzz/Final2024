@@ -1,40 +1,63 @@
-import axios from "axios";
 import classNames from "classnames/bind";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { handleError, handleSuccess } from "../../../utils/index";
 import styles from "./SignupPage.module.scss";
 
 const cx = classNames.bind(styles);
 
+// const [error, setError] = useState("");
 function SignupPage() {
-  const [data, setData] = useState({
+  const [signupInfo, setSignupInfo] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  const handleChange = ({ currentTarget: input }) => {
-    setData({ ...data, [input.name]: input.value });
+  const navigate = useNavigate();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name, value);
+    const conpySignupInfo = { ...signupInfo };
+    conpySignupInfo[name] = value;
+    setSignupInfo(conpySignupInfo);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { firstName, lastName, email, password } = signupInfo;
+    if ((!firstName, !lastName, !email || !password)) {
+      return handleError(
+        "First Name, Last Name, Email and password are required"
+      );
+    }
     try {
-      const url = "http://localhost:8080/api/users";
-      const { data: res } = await axios.post(url, data);
-      navigate("/login");
-      console.log(res.message);
-    } catch (error) {
-      if (
-        error.response &&
-        error.response.status >= 400 &&
-        error.response.status <= 500
-      ) {
-        setError(error.response.data.message);
+      const url = "http://localhost:8080/auth/signup";
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(signupInfo),
+      });
+      const result = await response.json();
+      const { success, message, error } = result;
+      if (success) {
+        handleSuccess(message);
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+      } else if (error) {
+        const details = error?.details[0].message;
+        handleError(details);
+      } else if (!success) {
+        handleError(message);
       }
+      console.log(result);
+    } catch (err) {
+      handleError(err);
     }
   };
 
@@ -53,12 +76,11 @@ function SignupPage() {
           <form className={cx("form_container")} onSubmit={handleSubmit}>
             <h1>Create Account</h1>
             <input
+              onChange={handleChange}
               type="text"
               placeholder="First Name"
               name="firstName"
-              onChange={handleChange}
-              value={data.firstName}
-              required
+              value={signupInfo.firstName}
               className={cx("input")}
             />
             <input
@@ -66,8 +88,7 @@ function SignupPage() {
               placeholder="Last Name"
               name="lastName"
               onChange={handleChange}
-              value={data.lastName}
-              required
+              value={signupInfo.lastName}
               className={cx("input")}
             />
             <input
@@ -75,8 +96,7 @@ function SignupPage() {
               placeholder="Email"
               name="email"
               onChange={handleChange}
-              value={data.email}
-              required
+              value={signupInfo.email}
               className={cx("input")}
             />
             <input
@@ -84,15 +104,15 @@ function SignupPage() {
               placeholder="Password"
               name="password"
               onChange={handleChange}
-              value={data.password}
-              required
+              value={signupInfo.password}
               className={cx("input")}
             />
-            {error && <div className={cx("error_msg")}>{error}</div>}
+            {/* {error && <div className={cx("error_msg")}>{error}</div>} */}
             <button type="submit" className={cx("green_btn")}>
               Sign Up
             </button>
           </form>
+          <ToastContainer />
         </div>
       </div>
     </div>

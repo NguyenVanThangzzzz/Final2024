@@ -163,7 +163,7 @@ function Header() {
                     <Button primary to={"/login"}>
                       Đăng nhập
                     </Button>
-                    <Button primary to={"/singup"}>
+                    <Button primary to={"/signup"}>
                       Đăng Ký
                     </Button>
                   </>
