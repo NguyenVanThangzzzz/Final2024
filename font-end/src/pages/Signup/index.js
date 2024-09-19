@@ -1,18 +1,19 @@
+import SignupPage from "../../layouts/components/SignupPage/index";
+
 import classNames from "classnames/bind";
-import RegisterPage from "../../layouts/components/RegisterPage/index";
-import styles from "./Register.module.scss";
+import styles from "./Signup.module.scss";
 const cx = classNames.bind(styles);
 
-function Register() {
+function Signup() {
   return (
     <div className={cx("wrapper")}>
       <div className={cx("container")}>
         <div className={cx("content")}>
-          <RegisterPage />
+          <SignupPage />
         </div>
       </div>
     </div>
   );
 }
 
-export default Register;
+export default Signup;

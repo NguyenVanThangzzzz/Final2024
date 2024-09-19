@@ -1,10 +1,8 @@
 const routes = {
   home: "/",
   login: "/login",
-  register: "/register",
+  signup: "/signup",
 
-
-  
   profile: "/@:nickname",
   upload: "/upload",
   search: "/search",
