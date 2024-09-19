@@ -2,8 +2,10 @@ const routes = {
   home: "/",
   login: "/login",
   signup: "/signup",
+  profile: "/profile",
 
-  profile: "/@:nickname",
+  // profile: "/@:nickname",
+
   upload: "/upload",
   search: "/search",
   live: "/live",

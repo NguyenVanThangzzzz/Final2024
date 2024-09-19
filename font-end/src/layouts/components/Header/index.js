@@ -17,11 +17,13 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "bootstrap/dist/css/bootstrap.min.css";
 import classNames from "classnames/bind";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "tippy.js/dist/tippy.css"; // optional
 import Button from "~/components/Button";
 import Image from "~/components/Image";
 import routesConfig from "~/config/routes";
+import { handleSuccess } from "~/utils/index";
 import Menu from "../../../components/Popper/Menu/Index";
 import styles from "./Header.module.scss";
 
@@ -61,14 +63,20 @@ const MENU_ITEMS = [
 ];
 
 function Header() {
-  // const [searchResult, setSearchResult] = useState([]);
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setSearchResult([1, 2, 3]);
-  //   }, 2000);
-  // }, []);
+  const [loogedInUser, setLoggedInUser] = useState("");
+  const navigate = useNavigate();
+  useEffect(() => {
+    setLoggedInUser(localStorage.getItem("loggedInUser"));
+  }, []);
 
-  const currenUser = false;
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("loggedInUser");
+    handleSuccess("Logout successfully");
+    setLoggedInUser("");
+    navigate("/");
+  };
+
   const userMenu = [
     {
       icon: <FontAwesomeIcon icon={faUser} />,
@@ -102,7 +110,7 @@ function Header() {
     {
       icon: <FontAwesomeIcon icon={faSignOut} />,
       title: "Log out",
-      to: "/logout",
+      onClick: handleLogout,
       separate: true,
     },
   ];
@@ -147,7 +155,7 @@ function Header() {
 
             <div className={cx("header-top-menu")}>
               <div className={cx("actions")}>
-                {currenUser ? (
+                {loogedInUser ? (
                   <>
                     <Menu items={userMenu} onChange={handleMenuChange}>
                       <Image
@@ -157,6 +165,7 @@ function Header() {
                         fallback="https://lh3.googleusercontent.com/a/ACg8ocJEXhQvsKqohBcyi15XDZX7ncMlCo7AicFZp54un9WicVkDcqjW=s288-c-no"
                       />
                     </Menu>
+                    <Button onClick={handleLogout}>Logout</Button>
                   </>
                 ) : (
                   <>

@@ -40,7 +40,6 @@ function Button({
   const classes = cx("wrapper", {
     primary,
     disabled,
-
   });
 
   return (

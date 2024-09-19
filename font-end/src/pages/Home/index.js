@@ -20,7 +20,6 @@ function Home() {
     }, 1000);
   };
 
-  
   return (
     <div>
       <h1>{loogedInUser}</h1>
@@ -31,3 +30,9 @@ function Home() {
 }
 
 export default Home;
+
+// function Home() {
+//   return <div>hello</div>;
+// }
+
+// export default Home;

@@ -18,10 +18,10 @@ const publicRoutes = [
   { path: config.routes.home, component: Home },
   { path: config.routes.login, component: Login, layout: HeaderOnly },
   { path: config.routes.signup, component: Signup, layout: HeaderOnly },
+  { path: config.routes.profile, component: Profile, layout: HeaderOnly },
 
   //////////////////////////////////////////////////////////////
   { path: "/showtime", component: Showtime },
-  { path: "/profile", component: Profile },
   { path: "/upload", component: Upload, layout: HeaderOnly },
   { path: "/search", component: Search, layout: null },
 ];
