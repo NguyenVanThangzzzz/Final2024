@@ -1,54 +1,88 @@
-const UserModel = require("../models/User");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+import bcryptjs from "bcryptjs";
+import { sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
+import { User } from "../models/user.js";
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 
-const signup = async (req, res) => {
+// Sign up
+export const signup = async (req, res) => {
+  const { name, email, password } = req.body;
+
   try {
-    const { firstName, lastName, email, password } = req.body;
-    const user = await UserModel.findOne({ email });
-    if (user) {
-      res.status(409).json({ message: "User already exists", success: false });
+    if (!name || !email || !password) {
+      throw new Error("Please fill all fields");
     }
-    const userModel = new UserModel({ firstName, lastName, email, password });
-    userModel.password = await bcrypt.hash(password, 10);
-    await userModel.save();
-    res.status(201).json({ message: "Signup Successfully", success: true });
-  } catch (err) {
-    res.status(500).json({ message: "Internal server error", success: false });
-  }
-};
-
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await UserModel.findOne({ email });
-    const errorMsg = "Auth failed email or password is wrong";
-    if (!user) {
-      res.status(403).json({ message: errorMsg, success: false });
+    const userAlreadyExists = await User.findOne({ email });
+    console.log("userAlreadyExists", userAlreadyExists);
+    if (userAlreadyExists) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
     }
-    const isPassEqual = await bcrypt.compare(password, user.password);
-    if (!isPassEqual) {
-      res.status(403).json({ message: errorMsg, success: false });
-    }
-    const jwtToken = jwt.sign(
-      { email: user.email, _id: user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "24h",
-      }
-    );
-
-    res.status(200).json({
-      message: "Login Success",
-      success: true,
-      jwtToken,
+    const hashedPassword = await bcryptjs.hash(password, 10);
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    const user = new User({
+      name,
       email,
-      // ở đây trả về tên đăng nhập
-      name: user.firstName,
+      password: hashedPassword,
+      verificationToken,
+      verificationTokenExpire: Date.now() + 24 * 60 * 60 * 1000,
     });
-  } catch (err) {
-    res.status(500).json({ message: "Internal server error", success: false });
+    await user.save();
+    //jwt
+    generateTokenAndSetCookie(res, user._id);
+    await sendVerificationEmail(user.email, verificationToken);
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-module.exports = { signup, login };
+export const verifyEmail = async (req, res) => {
+  // - - - - - setup verification email - - - - -
+  const { code } = req.body;
+  try {
+    const user = await User.findOne({
+      verificationToken: code,
+      verificationTokenExpire: { $gt: Date.now() },
+    });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired verification code",
+      });
+    }
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpire = undefined;
+    await user.save();
+    await sendWelcomeEmail(user.email, user.name);
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    console.error("Error verifying email", error);
+    res.status(400).json({ success: false, message: "Server error" });
+  }
+};
+
+export const login = async (req, res) => {
+  res.send("Login page");
+};
+
+export const logout = async (req, res) => {
+  res.send("Logout page");
+};

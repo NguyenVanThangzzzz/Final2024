@@ -1,18 +1,18 @@
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const AuthRouter = require("./routes/AuthRouter");
+import dotenv from "dotenv";
+import express from "express";
 
-require("dotenv").config();
-require("./models/db");
+import { connectDB } from "./db/connectDB.js";
+import authRoutes from "./routes/auth.route.js";
+
+dotenv.config();
+const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.use(bodyParser.json());
-app.use(cors());
-app.use("/auth", AuthRouter);
 
+app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  connectDB();
+  console.log("Server is running on port: ", PORT);
 });

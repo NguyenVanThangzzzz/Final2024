@@ -1,26 +1,34 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import mongoose from "mongoose";
 
-// Thiếu tên đăng nhập
+const userSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    verificationToken: String,
+    verificationTokenExpire: Date,
+  },
+  { Timestamps: true }
+);
 
-const UserSchema = new Schema({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-});
-
-const UserModel = mongoose.model("users", UserSchema);
-module.exports = UserModel;
+export const User = mongoose.model("User", userSchema);
