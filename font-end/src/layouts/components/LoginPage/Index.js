@@ -1,7 +1,7 @@
 import classNames from "classnames/bind";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../../store/authStore";
 import styles from "./LoginPage.module.scss";
 
 const cx = classNames.bind(styles);
@@ -9,7 +9,19 @@ const cx = classNames.bind(styles);
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const handleLogin = async (e) => {};
+
+  const navigate = useNavigate();
+  const { login, error, isLoading } = useAuthStore();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className={cx("login_container")}>
@@ -33,11 +45,16 @@ function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <button type="submit" className={cx("green_btn")}>
-              Sign In
+            <Link to="/forgot-password">Forgot password?</Link>
+            {error && <p className={cx("error")}>{error}</p>}
+            <button
+              type="submit"
+              className={cx("green_btn")}
+              disabled={isLoading}
+            >
+              {isLoading ? "Login up..." : "Login up"}
             </button>
           </form>
-          <ToastContainer />
         </div>
         <div className={cx("right")}>
           <h1>New Here?</h1>
@@ -46,7 +63,6 @@ function LoginPage() {
               Sign Up
             </button>
           </Link>
-          <Link to="/forgot-password">Fogot password</Link>
         </div>
       </div>
     </div>

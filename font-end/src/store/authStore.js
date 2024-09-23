@@ -29,6 +29,28 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  login: async (email, password) => {
+    set({ isLoading: true, error: null });
+    try {
+      const reponse = await axios.post(`${API_URL}/login`, {
+        email,
+        password,
+      });
+      set({
+        user: reponse.data.user,
+        isAuthenticated: true,
+        error: null,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({
+        error: error.response.data.message || "Error Logging in",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
   verifyEmail: async (code) => {
     set({ isLoading: true, error: null });
     try {
@@ -49,4 +71,49 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   },
+
+  checkAuth: async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    set({ isCheckingAuth: true, error: null });
+    try {
+      const response = await axios.get(`${API_URL}/check-auth`);
+      set({
+        user: response.data.user,
+        isAuthenticated: true,
+        isCheckingAuth: false,
+      });
+    } catch (error) {
+      set({ error: null, isCheckingAuth: false, isAuthenticated: false });
+    }
+  },
+
+  // Check-Auth nếu muốn sài
+  //  const { isCheckingAuth, checkAuth, isAuthenticated, user } = useAuthStore();
+  //  useEffect(() => {
+  //    checkAuth();
+  //  }, [checkAuth]);
+  //  console.log("isAuthenticated", isAuthenticated);
+  //  console.log("user", user);
+
+  //  // protect routes that require authentication
+  //  const ProtectedRoute = ({ children }) => {
+  //    const { isAuthenticated, user } = useAuthStore();
+  //    if (!isAuthenticated) {
+  //      return <Navigate to="/login" replace />;
+  //    }
+
+  //    if (!user.isVerified) {
+  //      return <Navigate to="/verify-email" replace />;
+  //    }
+  //    return children;
+  //  };
+
+  //  // redirect authenticated users to the home page
+  //  const RedirectAuthenticatedUser = ({ children }) => {
+  //    const { isAuthenticated, user } = useAuthStore();
+  //    if (isAuthenticated && user.isVerified) {
+  //      return <Navigate to="/" replace />;
+  //    }
+  //    return children;
+  //  };
 }));

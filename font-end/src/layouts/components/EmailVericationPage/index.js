@@ -1,10 +1,11 @@
 import classNames from "classnames/bind";
 import { useEffect, useRef, useState } from "react";
-
 import { useNavigate } from "react-router-dom";
-
-import styles from "./EmailVerication.module.scss";
+// import { ToastContainer } from "react-toastify";
+// import { handleSuccess } from "../../../utils/index";
+import toast from "react-hot-toast";
 import { useAuthStore } from "../../../store/authStore";
+import styles from "./EmailVerication.module.scss";
 
 const cx = classNames.bind(styles);
 
@@ -86,7 +87,7 @@ function EmailVerificationPage() {
               />
             ))}
           </div>
-          {/* {error && <p className={cx("error")}>{error}</p>} */}
+          {error && <p className={cx("error")}>{error}</p>}
           <button
             type="submit"
             disabled={isLoading || code.some((digit) => !digit)}
@@ -94,6 +95,7 @@ function EmailVerificationPage() {
           >
             {isLoading ? "Verifying..." : "Verify Email"}
           </button>
+          {/* <ToastContainer /> */}
         </form>
       </div>
     </div>

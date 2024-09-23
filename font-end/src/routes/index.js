@@ -18,7 +18,7 @@ const publicRoutes = [
   { path: config.routes.home, component: Home },
   { path: config.routes.login, component: Login, layout: HeaderOnly },
   { path: config.routes.signup, component: Signup, layout: HeaderOnly },
-  { path: config.routes.profile, component: Profile, layout: HeaderOnly },
+
   {
     path: config.routes.emailVerication,
     component: EmailVerication,
@@ -31,6 +31,8 @@ const publicRoutes = [
   { path: "/search", component: Search, layout: null },
 ];
 
-const privateRoutes = [];
+const privateRoutes = [
+  { path: config.routes.profile, component: Profile, layout: HeaderOnly },
+];
 
 export { privateRoutes, publicRoutes };

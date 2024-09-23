@@ -1,7 +1,6 @@
 import classNames from "classnames/bind";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 
 import PasswordStrengthMeter from "../../../components/PasswordStrengMeter/index";
 import { useAuthStore } from "../../../store/authStore";
@@ -77,7 +76,6 @@ function SignupPage() {
               {isLoading ? "Signing up..." : "Sign up"}
             </button>
           </form>
-          <ToastContainer />
         </div>
       </div>
     </div>
