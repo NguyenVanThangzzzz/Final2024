@@ -3,7 +3,8 @@ const routes = {
   login: "/login",
   signup: "/signup",
   profile: "/profile",
-
+  emailVerication: "/verify-email",
+  
   // profile: "/@:nickname",
 
   upload: "/upload",

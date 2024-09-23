@@ -2,62 +2,28 @@ import classNames from "classnames/bind";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { handleError, handleSuccess } from "../../../utils/index";
+
+import PasswordStrengthMeter from "../../../components/PasswordStrengMeter/index";
+import { useAuthStore } from "../../../store/authStore";
 import styles from "./SignupPage.module.scss";
 
 const cx = classNames.bind(styles);
 
 // const [error, setError] = useState("");
 function SignupPage() {
-  const [signupInfo, setSignupInfo] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-  });
-
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    console.log(name, value);
-    const conpySignupInfo = { ...signupInfo };
-    conpySignupInfo[name] = value;
-    setSignupInfo(conpySignupInfo);
-  };
+  const { signup, error, isLoading } = useAuthStore();
 
-  const handleSubmit = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    const { firstName, lastName, email, password } = signupInfo;
-    if ((!firstName, !lastName, !email || !password)) {
-      return handleError(
-        "First Name, Last Name, Email and password are required"
-      );
-    }
     try {
-      const url = "http://localhost:8080/auth/signup";
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(signupInfo),
-      });
-      const result = await response.json();
-      const { success, message, error } = result;
-      if (success) {
-        handleSuccess(message);
-        setTimeout(() => {
-          navigate("/login");
-        }, 1000);
-      } else if (error) {
-        const details = error?.details[0].message;
-        handleError(details);
-      } else if (!success) {
-        handleError(message);
-      }
-      console.log(result);
-    } catch (err) {
-      handleError(err);
+      await signup(email, password, name);
+      navigate("/verify-email");
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -68,48 +34,47 @@ function SignupPage() {
           <h1>Welcome Back</h1>
           <Link to="/login">
             <button type="button" className={cx("white_btn")}>
-              Sign in
+              Login Page
             </button>
           </Link>
         </div>
         <div className={cx("right")}>
-          <form className={cx("form_container")} onSubmit={handleSubmit}>
+          <form className={cx("form_container")} onSubmit={handleSignup}>
             <h1>Create Account</h1>
             <input
-              onChange={handleChange}
               type="text"
-              placeholder="First Name"
-              name="firstName"
-              value={signupInfo.firstName}
+              placeholder="Username"
+              name="username"
               className={cx("input")}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
-            <input
-              type="text"
-              placeholder="Last Name"
-              name="lastName"
-              onChange={handleChange}
-              value={signupInfo.lastName}
-              className={cx("input")}
-            />
+
             <input
               type="email"
               placeholder="Email"
               name="email"
-              onChange={handleChange}
-              value={signupInfo.email}
               className={cx("input")}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <input
               type="password"
               placeholder="Password"
               name="password"
-              onChange={handleChange}
-              value={signupInfo.password}
               className={cx("input")}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-            {/* {error && <div className={cx("error_msg")}>{error}</div>} */}
-            <button type="submit" className={cx("green_btn")}>
-              Sign Up
+            {error && <p className={cx("error")}>{error}</p>}
+            {/* Password strength meter */}
+            <PasswordStrengthMeter password={password} />
+            <button
+              type="submit"
+              className={cx("green_btn")}
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing up..." : "Sign up"}
             </button>
           </form>
           <ToastContainer />

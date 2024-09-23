@@ -1,0 +1,103 @@
+.container {
+  max-width: 35rem;
+  width: 100%;
+  background-color: rgba(31, 41, 55, 0.8); // bg-gray-800 opacity-50
+  backdrop-filter: blur(10px); // blur effect
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  margin: 0 auto;
+  margin-top: 200px;
+  /* Căn giữa phần nội dung theo cả trục ngang và dọc */
+  justify-content: center;
+  align-items: center;
+}
+
+.content {
+  padding: 5rem;
+  background-color: rgba(31, 41, 55, 0.8); // bg-gray-800
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(to right, #22c55e, #16a34a);
+
+  /* Thuộc tính chuẩn */
+  background-clip: text;
+
+  /* Thuộc tính với tiền tố -webkit- để hỗ trợ các trình duyệt cũ */
+  -webkit-background-clip: text;
+
+  color: transparent;
+}
+
+.subtitle {
+  text-align: center;
+  color: rgba(209, 213, 219); // text-gray-300
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputGroup {
+  display: flex;
+  justify-content: space-between;
+}
+
+.inputBox {
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background-color: rgba(75, 85, 99); // bg-gray-700
+  color: white;
+  border: 2px solid rgba(107, 114, 128); // border-gray-600
+  border-radius: 0.5rem;
+
+  &:focus {
+    border-color: #22c55e; // focus:border-green-500
+    outline: none;
+  }
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(
+    to right,
+    #22c55e,
+    #16a34a
+  ); // from-green-500 to-emerald-600
+  color: white;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background: linear-gradient(
+      to right,
+      #16a34a,
+      #15803d
+    ); // hover:from-green-600 to-emerald-700
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.error {
+  color: #ef4444; // text-red-500
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
