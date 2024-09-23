@@ -17,14 +17,15 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "bootstrap/dist/css/bootstrap.min.css";
 import classNames from "classnames/bind";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import "tippy.js/dist/tippy.css"; // optional
 import Button from "~/components/Button";
 import Image from "~/components/Image";
+import LoadingSpinner from "~/components/LoadingSpinner";
 import routesConfig from "~/config/routes";
-import { handleSuccess } from "~/utils/index";
 import Menu from "../../../components/Popper/Menu/Index";
+import { useAuthStore } from "../../../store/authStore";
 import styles from "./Header.module.scss";
 
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -63,25 +64,15 @@ const MENU_ITEMS = [
 ];
 
 function Header() {
-  const [loogedInUser, setLoggedInUser] = useState("");
-  const navigate = useNavigate();
-  useEffect(() => {
-    setLoggedInUser(localStorage.getItem("loggedInUser"));
-  }, []);
+  const { isAuthenticated, logout, user } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("loggedInUser");
-    handleSuccess("Logout successfully");
-    setLoggedInUser("");
-    navigate("/");
-  };
-
+  //user Menu
   const userMenu = [
     {
       icon: <FontAwesomeIcon icon={faUser} />,
-      title: "View Profile",
-      to: "/@thang",
+      title: user?.name || "User",
+      to: "/profile",
     },
     {
       icon: <FontAwesomeIcon icon={faEarthAsia} />,
@@ -110,19 +101,31 @@ function Header() {
     {
       icon: <FontAwesomeIcon icon={faSignOut} />,
       title: "Log out",
-      onClick: handleLogout,
+      type: "logout",
       separate: true,
     },
   ];
   const handleMenuChange = (menuItem) => {
     switch (menuItem.type) {
       case "language":
+        // Xử lý thay đổi ngôn ngữ
+        break;
+      case "logout":
+        handleLogout(); // Gọi hàm handleLogout
         break;
       default:
+        // Các xử lý khác nếu cần
+        break;
     }
   };
-
-  ///USER
+  const handleLogout = async () => {
+    setIsLoading(true); // Đặt trạng thái loading là true
+    await logout(); // Gọi hàm logout
+    setIsLoading(false); // Đặt trạng thái loading về false sau khi logout
+  };
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <header className={cx("wrapper")}>
@@ -155,7 +158,7 @@ function Header() {
 
             <div className={cx("header-top-menu")}>
               <div className={cx("actions")}>
-                {loogedInUser ? (
+                {isAuthenticated ? (
                   <>
                     <Menu items={userMenu} onChange={handleMenuChange}>
                       <Image
@@ -165,7 +168,6 @@ function Header() {
                         fallback="https://lh3.googleusercontent.com/a/ACg8ocJEXhQvsKqohBcyi15XDZX7ncMlCo7AicFZp54un9WicVkDcqjW=s288-c-no"
                       />
                     </Menu>
-                    <Button onClick={handleLogout}>Logout</Button>
                   </>
                 ) : (
                   <>
