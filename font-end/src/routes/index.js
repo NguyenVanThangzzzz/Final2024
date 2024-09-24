@@ -6,9 +6,11 @@ import { HeaderOnly } from "~/layouts";
 import EmailVerication from "~/pages/EmailVerication";
 import Home from "~/pages/Home";
 import Login from "~/pages/Login";
-import Signup from "~/pages/Signup";
-//////////////////////////////////////////////////////////////
 import Profile from "~/pages/Profile";
+import ResetPassword from "~/pages/ResetPassword";
+import Signup from "~/pages/Signup";
+import ForgotPassword from "~/pages/ForgotPassword";
+//////////////////////////////////////////////////////////////
 import Search from "~/pages/Search";
 import Showtime from "~/pages/Showtime";
 import Upload from "~/pages/Upload";
@@ -22,6 +24,16 @@ const publicRoutes = [
   {
     path: config.routes.emailVerication,
     component: EmailVerication,
+    layout: HeaderOnly,
+  },
+  {
+    path: config.routes.resetpassword,
+    component: ResetPassword,
+    layout: HeaderOnly,
+  },
+  {
+    path: config.routes.forgotpassword,
+    component: ForgotPassword,
     layout: HeaderOnly,
   },
 

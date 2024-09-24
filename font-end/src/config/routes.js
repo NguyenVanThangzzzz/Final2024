@@ -4,7 +4,8 @@ const routes = {
   signup: "/signup",
   profile: "/profile",
   emailVerication: "/verify-email",
-  
+  forgotpassword: "/forgot-password",
+  resetpassword: "/reset-password",
   // profile: "/@:nickname",
 
   upload: "/upload",

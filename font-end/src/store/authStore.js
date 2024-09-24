@@ -108,6 +108,23 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  forgotPassword: async (email) => {
+    set({ isLoading: true, error: null, message: null });
+    try {
+      const response = await axios.post(`${API_URL}/forgot-password`, {
+        email,
+      });
+      set({ message: response.data.message, isLoading: false });
+    } catch (error) {
+      set({
+        error:
+          error.response.data.message || "Error sending reset password email",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
   // Check-Auth nếu muốn sài
   //  const { isCheckingAuth, checkAuth, isAuthenticated, user } = useAuthStore();
   //  useEffect(() => {
