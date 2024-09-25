@@ -4,12 +4,12 @@ import { HeaderOnly } from "~/layouts";
 //Pages
 
 import EmailVerication from "~/pages/EmailVerication";
+import ForgotPassword from "~/pages/ForgotPassword";
 import Home from "~/pages/Home";
 import Login from "~/pages/Login";
 import Profile from "~/pages/Profile";
 import ResetPassword from "~/pages/ResetPassword";
 import Signup from "~/pages/Signup";
-import ForgotPassword from "~/pages/ForgotPassword";
 //////////////////////////////////////////////////////////////
 import Search from "~/pages/Search";
 import Showtime from "~/pages/Showtime";
@@ -27,13 +27,13 @@ const publicRoutes = [
     layout: HeaderOnly,
   },
   {
-    path: config.routes.resetpassword,
-    component: ResetPassword,
+    path: config.routes.forgotpassword,
+    component: ForgotPassword,
     layout: HeaderOnly,
   },
   {
-    path: config.routes.forgotpassword,
-    component: ForgotPassword,
+    path: config.routes.resetpassword,
+    component: ResetPassword,
     layout: HeaderOnly,
   },
 

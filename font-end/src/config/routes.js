@@ -5,7 +5,7 @@ const routes = {
   profile: "/profile",
   emailVerication: "/verify-email",
   forgotpassword: "/forgot-password",
-  resetpassword: "/reset-password",
+  resetpassword: "/reset-password/:token",
   // profile: "/@:nickname",
 
   upload: "/upload",
