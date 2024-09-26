@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { connectDB } from "./db/connectDB.js";
+import adminRoutes from "./routes/admin.route.js";
 import authRoutes from "./routes/auth.route.js";
 
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(express.json()); // allows us to parse incoming requests: req.body
 app.use(cookieParser()); // allows us to parse cookies
 
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(PORT, () => {
   connectDB();
