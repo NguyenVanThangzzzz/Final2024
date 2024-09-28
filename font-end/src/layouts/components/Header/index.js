@@ -62,8 +62,6 @@ const MENU_ITEMS = [
   },
 ];
 
-
-
 function Header() {
   const { isAuthenticated, logout, user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -164,7 +162,7 @@ function Header() {
                     <Menu items={userMenu} onChange={handleMenuChange}>
                       <Image
                         className={cx("user-avatar")}
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw6juIAFATO3bJZFAppnE0pWLCyaXZPDRc9g&s"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw6juIAFATO3bJZFAppnE0pWLCyaXZPDRc9g&s"  
                         alt="Nguyen Van T"
                         fallback="https://lh3.googleusercontent.com/a/ACg8ocJEXhQvsKqohBcyi15XDZX7ncMlCo7AicFZp54un9WicVkDcqjW=s288-c-no"
                       />
