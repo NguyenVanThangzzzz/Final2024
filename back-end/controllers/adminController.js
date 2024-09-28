@@ -154,6 +154,41 @@ export const getProfile = async (req, res) => {
   }
 };
 
+export const createUser = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    // Kiểm tra xem email đã tồn tại trong hệ thống hay chưa
+    const existingUser = await Admin.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    // Tạo người dùng mới
+    const newUser = new Admin({
+      name,
+      email,
+      password,
+      role, // Role có thể được truyền từ req.body hoặc mặc định là 'user' trong model
+    });
+
+    // Lưu người dùng mới vào cơ sở dữ liệu
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      data: newUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 export const getAllUser = async (req, res) => {
   try {
     const users = await Admin.find().select("-password"); // Không trả về trường password
@@ -178,7 +213,7 @@ export const searchUser = async (req, res) => {
     const queryObject = {};
 
     if (name) {
-      queryObject.name = { $regex: name, $options: "i" };
+      queryObject.name = { $regex: name, $options: "i" }; // Tìm kiếm không phân biệt hoa thường
     }
 
     if (email) {
@@ -189,8 +224,16 @@ export const searchUser = async (req, res) => {
       queryObject.role = role;
     }
 
-    // Thực hiện tìm kiếm
+    
     const users = await Admin.find(queryObject).select("-password");
+
+    // Kiểm tra nếu không có người dùng nào phù hợp
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `No users found with name: ${name}`,
+      });
+    }
 
     // Trả về danh sách kết quả tìm kiếm
     res.status(200).json({
