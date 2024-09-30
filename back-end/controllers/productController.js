@@ -36,8 +36,16 @@ export const getFeaturedProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, description, imageUrl, isFeatured, director, actor } =
-      req.body;
+    const {
+      name,
+      price,
+      description,
+      imageUrl,
+      isFeatured,
+      category,
+      director,
+      actor,
+    } = req.body;
     let cloudinaryResponse = null;
 
     if (imageUrl) {
@@ -56,6 +64,7 @@ export const createProduct = async (req, res) => {
       isFeatured,
       director,
       actor,
+      category,
     });
     res.status(201).json({ product });
   } catch (error) {
