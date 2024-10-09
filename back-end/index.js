@@ -6,6 +6,7 @@ import { connectDB } from "./db/connectDB.js";
 import adminRoutes from "./routes/admin.route.js";
 import authRoutes from "./routes/auth.route.js";
 import productRoutes from "./routes/product.route.js";
+import cartRoutes from "./routes/cart.route.js";
 
 dotenv.config();
 const app = express();
@@ -18,6 +19,7 @@ app.use(cookieParser()); // allows us to parse cookies
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
 
 app.listen(PORT, () => {
   connectDB();
