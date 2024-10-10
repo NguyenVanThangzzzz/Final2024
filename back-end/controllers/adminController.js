@@ -68,29 +68,29 @@ const setCookies = (res, accessToken, refreshToken) => {
 //   }
 // };
 
-// export const login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const admin = await Admin.findOne({ email });
-//     if (admin && (await admin.comparePassword(password))) {
-//       const { accessToken, refreshToken } = generateTokens(admin._id);
-//       await storeRefreshToken(refreshToken, admin._id);
-//       setCookies(res, accessToken, refreshToken);
+export const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ email });
+    if (admin && (await admin.comparePassword(password))) {
+      const { accessToken, refreshToken } = generateTokens(admin._id);
+      await storeRefreshToken(refreshToken, admin._id);
+      setCookies(res, accessToken, refreshToken);
 
-//       res.json({
-//         _id: admin._id,
-//         name: admin.name,
-//         email: admin.email,
-//         role: admin.role,
-//       });
-//     } else {
-//       res.status(400).json({ message: "Invalid email or password" });
-//     }
-//   } catch (error) {
-//     console.log("Error in login controller", error.message);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+      res.json({
+        _id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+      });
+    } else {
+      res.status(400).json({ message: "Invalid email or password" });
+    }
+  } catch (error) {
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 export const logout = async (req, res) => {
   try {
@@ -331,29 +331,29 @@ export const adminSignup = async (req, res) => {
   }
 };
 
-export const adminLogin = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await Admin.findOne({ email, role: { $in: ["admin", "manager"] } });
-    if (user && (await user.comparePassword(password))) {
-      const { accessToken, refreshToken } = generateTokens(user._id);
-      await storeRefreshToken(refreshToken, user._id);
-      setCookies(res, accessToken, refreshToken);
+// export const adminLogin = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     const user = await Admin.findOne({ email, role: { $in: ["admin", "manager"] } });
+//     if (user && (await user.comparePassword(password))) {
+//       const { accessToken, refreshToken } = generateTokens(user._id);
+//       await storeRefreshToken(refreshToken, user._id);
+//       setCookies(res, accessToken, refreshToken);
 
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
-    } else {
-      res.status(400).json({ message: "Invalid email or password" });
-    }
-  } catch (error) {
-    console.log("Error in admin login controller", error.message);
-    res.status(500).json({ message: error.message });
-  }
-};
+//       res.json({
+//         _id: user._id,
+//         name: user.name,
+//         email: user.email,
+//         role: user.role,
+//       });
+//     } else {
+//       res.status(400).json({ message: "Invalid email or password" });
+//     }
+//   } catch (error) {
+//     console.log("Error in admin login controller", error.message);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 // Thêm controller mới để cấp quyền
 export const assignRole = async (req, res) => {
@@ -370,7 +370,9 @@ export const assignRole = async (req, res) => {
     }
 
     if (user.role === "admin") {
-      return res.status(400).json({ message: "Cannot change role of an admin" });
+      return res
+        .status(400)
+        .json({ message: "Cannot change role of an admin" });
     }
 
     user.role = role;
