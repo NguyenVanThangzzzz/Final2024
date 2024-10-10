@@ -41,3 +41,12 @@ export const adminRoute = (req, res, next) => {
     return res.status(403).json({ message: "Access denied - Admin only" });
   }
 };
+
+// Thêm middleware mới cho manager
+export const managerRoute = (req, res, next) => {
+  if (req.admin && (req.admin.role === "admin" || req.admin.role === "manager")) {
+    next();
+  } else {
+    return res.status(403).json({ message: "Access denied - Admin or Manager only" });
+  }
+};

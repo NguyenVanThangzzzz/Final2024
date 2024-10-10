@@ -1,8 +1,8 @@
 import config from "~/config";
-//Layout
 import { HeaderOnly } from "~/layouts";
 //Pages
 
+import AdminLogin from "~/pages/AdminLogin";
 import EmailVerication from "~/pages/EmailVerication";
 import ForgotPassword from "~/pages/ForgotPassword";
 import Home from "~/pages/Home";
@@ -36,11 +36,15 @@ const publicRoutes = [
     component: ResetPassword,
     layout: HeaderOnly,
   },
+  {
+    path: config.routes.adminLogin,
+    component: AdminLogin,
+  },
 
   //////////////////////////////////////////////////////////////
   { path: "/showtime", component: Showtime },
   { path: "/upload", component: Upload, layout: HeaderOnly },
-  { path: "/search", component: Search, layout: null },
+  { path: "/search", component: Search, layout: HeaderOnly },
 ];
 
 const privateRoutes = [

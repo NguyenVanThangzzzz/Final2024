@@ -1,43 +1,38 @@
 import express from "express";
-
 import {
-  deleteAllUser,
-  deleteUser,
-  getAllUser,
-  getProfile,
-  login,
+  adminSignup,
+  adminLogin,
   logout,
   refreshToken,
-  searchUser,
-  signup,
-  updateUser,
+  getProfile,
   createUser,
+  getAllUser,
+  searchUser,
+  deleteUser,
+  deleteAllUser,
+  updateUser,
+  assignRole, // Thêm controller mới
 } from "../controllers/adminController.js";
+import { protectRoute, adminRoute, managerRoute } from "../Middlewares/adminMiddlewares.js";
 
 const router = express.Router();
 
-// CRUD User
-router.get("/profile", getProfile); // get profile page
+// Admin authentication routes
+router.post("/signup", adminSignup);
+router.post("/login", adminLogin);
+router.post("/logout", logout);
+router.post("/refresh-token", refreshToken);
+router.get("/profile", protectRoute, managerRoute, getProfile);
 
-router.get("/search", searchUser);  // search user page
+// User management routes (chỉ admin mới có quyền CRUD)
+router.post("/users", protectRoute, adminRoute, createUser);
+router.get("/users", protectRoute, managerRoute, getAllUser);
+router.get("/users/search", protectRoute, managerRoute, searchUser);
+router.delete("/users/:id", protectRoute, adminRoute, deleteUser);
+router.delete("/users", protectRoute, adminRoute, deleteAllUser);
+router.put("/users/:id", protectRoute, adminRoute, updateUser);
 
-router.get("/getAll", getAllUser); // get allUser page
-
-router.post("/createUser", createUser); // create user page
-
-router.put("/update/:id", updateUser); // update user page
-
-router.delete("/delete/:id", deleteUser); // delete user page
-
-router.delete("/deleteAll", deleteAllUser); // delete all user page
-
-//////////////////////////////////////////////////////
-router.post("/signup", signup); // signup page
-
-router.post("/login", login); // login page
-
-router.post("/logout", logout); // logout page
-
-router.post("/refresh-token", refreshToken); // refresh token page
+// Route for assigning roles (chỉ admin mới có quyền)
+router.post("/assign-role", protectRoute, adminRoute, assignRole);
 
 export default router;

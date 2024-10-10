@@ -6,6 +6,7 @@ const routes = {
   emailVerication: "/verify-email",
   forgotpassword: "/forgot-password",
   resetpassword: "/reset-password/:token",
+  adminLogin: "/admin/login",
   // profile: "/@:nickname",
 
   upload: "/upload",

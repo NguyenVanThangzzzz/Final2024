@@ -9,7 +9,7 @@ import {
   toggleFeaturedProduct,
 } from "../controllers/productController.js";
 
-import { adminRoute, protectRoute } from "../Middlewares/admin.js";
+import { adminRoute, protectRoute } from "../Middlewares/adminMiddlewares.js";
 const router = express.Router();
 
 router.get("/", protectRoute, adminRoute, getAllProducts); // get all products page

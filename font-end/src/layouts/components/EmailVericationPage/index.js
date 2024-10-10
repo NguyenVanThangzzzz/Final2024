@@ -1,5 +1,5 @@
 import classNames from "classnames/bind";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // import { ToastContainer } from "react-toastify";
 // import { handleSuccess } from "../../../utils/index";
@@ -45,24 +45,27 @@ function EmailVerificationPage() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const verificationCode = code.join("");
-    console.log(`Verification code: ${verificationCode}`);
-    try {
-      await verifyEmail(verificationCode);
-      navigate("/");
-      toast.success("Email verified successfully");
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const handleSubmit = useCallback(
+    async (e) => {
+      if (e) e.preventDefault();
+      const verificationCode = code.join("");
+      console.log(`Verification code: ${verificationCode}`);
+      try {
+        await verifyEmail(verificationCode);
+        navigate("/");
+        toast.success("Email verified successfully");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [code, verifyEmail, navigate]
+  );
 
   useEffect(() => {
     if (code.every((digit) => digit !== "")) {
-      handleSubmit(new Event("submit"));
+      handleSubmit();
     }
-  }, [code]);
+  }, [code, handleSubmit]);
 
   return (
     <div className={cx("container")}>

@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { redis } from "../db/redis.js";
 import Admin from "../models/admin.js";
+import { User } from "../models/user.js";
 
 const generateTokens = (adminId) => {
   const accessToken = jwt.sign({ adminId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -36,60 +37,60 @@ const setCookies = (res, accessToken, refreshToken) => {
   });
 };
 
-export const signup = async (req, res) => {
-  const { email, password, name } = req.body;
+// export const signup = async (req, res) => {
+//   const { email, password, name } = req.body;
 
-  try {
-    const adminExists = await Admin.findOne({ email });
-    if (adminExists) {
-      res.status(400);
-      throw new Error("Admin already exists");
-    }
-    const admin = await Admin.create({
-      name,
-      email,
-      password,
-    });
-    //authenticate
-    const { accessToken, refreshToken } = generateTokens(admin._id);
-    await storeRefreshToken(refreshToken, admin._id);
-    setCookies(res, accessToken, refreshToken);
+//   try {
+//     const adminExists = await Admin.findOne({ email });
+//     if (adminExists) {
+//       res.status(400);
+//       throw new Error("Admin already exists");
+//     }
+//     const admin = await Admin.create({
+//       name,
+//       email,
+//       password,
+//     });
+//     //authenticate
+//     const { accessToken, refreshToken } = generateTokens(admin._id);
+//     await storeRefreshToken(refreshToken, admin._id);
+//     setCookies(res, accessToken, refreshToken);
 
-    res.status(201).json({
-      _id: admin._id,
-      name: admin.name,
-      email: admin.email,
-      role: admin.role,
-    });
-  } catch (error) {
-    console.log("Error in signup controller", error.message);
-    res.status(500).json({ message: error.message });
-  }
-};
+//     res.status(201).json({
+//       _id: admin._id,
+//       name: admin.name,
+//       email: admin.email,
+//       role: admin.role,
+//     });
+//   } catch (error) {
+//     console.log("Error in signup controller", error.message);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const admin = await Admin.findOne({ email });
-    if (admin && (await admin.comparePassword(password))) {
-      const { accessToken, refreshToken } = generateTokens(admin._id);
-      await storeRefreshToken(refreshToken, admin._id);
-      setCookies(res, accessToken, refreshToken);
+// export const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     const admin = await Admin.findOne({ email });
+//     if (admin && (await admin.comparePassword(password))) {
+//       const { accessToken, refreshToken } = generateTokens(admin._id);
+//       await storeRefreshToken(refreshToken, admin._id);
+//       setCookies(res, accessToken, refreshToken);
 
-      res.json({
-        _id: admin._id,
-        name: admin.name,
-        email: admin.email,
-        role: admin.role,
-      });
-    } else {
-      res.status(400).json({ message: "Invalid email or password" });
-    }
-  } catch (error) {
-    console.log("Error in login controller", error.message);
-    res.status(500).json({ message: error.message });
-  }
-};
+//       res.json({
+//         _id: admin._id,
+//         name: admin.name,
+//         email: admin.email,
+//         role: admin.role,
+//       });
+//     } else {
+//       res.status(400).json({ message: "Invalid email or password" });
+//     }
+//   } catch (error) {
+//     console.log("Error in login controller", error.message);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 export const logout = async (req, res) => {
   try {
@@ -156,23 +157,19 @@ export const getProfile = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
-    // Kiểm tra xem email đã tồn tại trong hệ thống hay chưa
-    const existingUser = await Admin.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
-    // Tạo người dùng mới
-    const newUser = new Admin({
+    const newUser = new User({
       name,
       email,
       password,
-      role, // Role có thể được truyền từ req.body hoặc mặc định là 'user' trong model
     });
 
-    // Lưu người dùng mới vào cơ sở dữ liệu
     await newUser.save();
 
     res.status(201).json({
@@ -191,7 +188,7 @@ export const createUser = async (req, res) => {
 
 export const getAllUser = async (req, res) => {
   try {
-    const users = await Admin.find().select("-password"); // Không trả về trường password
+    const users = await User.find().select("-password");
     res.status(200).json({
       success: true,
       count: users.length,
@@ -208,34 +205,27 @@ export const getAllUser = async (req, res) => {
 
 export const searchUser = async (req, res) => {
   try {
-    const { name, email, role } = req.query;
+    const { name, email } = req.query;
 
     const queryObject = {};
 
     if (name) {
-      queryObject.name = { $regex: name, $options: "i" }; // Tìm kiếm không phân biệt hoa thường
+      queryObject.name = { $regex: name, $options: "i" };
     }
 
     if (email) {
       queryObject.email = email;
     }
 
-    if (role) {
-      queryObject.role = role;
-    }
+    const users = await User.find(queryObject).select("-password");
 
-    
-    const users = await Admin.find(queryObject).select("-password");
-
-    // Kiểm tra nếu không có người dùng nào phù hợp
     if (users.length === 0) {
       return res.status(404).json({
         success: false,
-        message: `No users found with name: ${name}`,
+        message: "No users found",
       });
     }
 
-    // Trả về danh sách kết quả tìm kiếm
     res.status(200).json({
       success: true,
       count: users.length,
@@ -254,8 +244,7 @@ export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Tìm và xóa người dùng theo id
-    const user = await Admin.findByIdAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
 
     if (!user) {
       return res.status(404).json({
@@ -267,7 +256,7 @@ export const deleteUser = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "User deleted successfully",
-      data: user, // Có thể trả về thông tin người dùng vừa bị xóa nếu cần
+      data: user,
     });
   } catch (error) {
     res.status(500).json({
@@ -277,10 +266,10 @@ export const deleteUser = async (req, res) => {
     });
   }
 };
+
 export const deleteAllUser = async (req, res) => {
   try {
-    // Xóa tất cả người dùng
-    const result = await Admin.deleteMany({});
+    const result = await User.deleteMany({});
 
     res.status(200).json({
       success: true,
@@ -294,20 +283,102 @@ export const deleteAllUser = async (req, res) => {
     });
   }
 };
+
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, role } = req.body;
-    const user = await Admin.findById(id);
+    const { name, email } = req.body;
+    const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     user.name = name || user.name;
     user.email = email || user.email;
-    user.role = role || user.role;
     await user.save();
     res.json({ message: "User updated successfully" });
   } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const adminSignup = async (req, res) => {
+  const { email, password, name } = req.body;
+
+  try {
+    const userExists = await Admin.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+    const user = await Admin.create({
+      name,
+      email,
+      password,
+      role: "user", // Mặc định là user thông thường
+    });
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    await storeRefreshToken(refreshToken, user._id);
+    setCookies(res, accessToken, refreshToken);
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.log("Error in admin signup controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await Admin.findOne({ email, role: { $in: ["admin", "manager"] } });
+    if (user && (await user.comparePassword(password))) {
+      const { accessToken, refreshToken } = generateTokens(user._id);
+      await storeRefreshToken(refreshToken, user._id);
+      setCookies(res, accessToken, refreshToken);
+
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
+    } else {
+      res.status(400).json({ message: "Invalid email or password" });
+    }
+  } catch (error) {
+    console.log("Error in admin login controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Thêm controller mới để cấp quyền
+export const assignRole = async (req, res) => {
+  try {
+    const { userId, role } = req.body;
+
+    if (role !== "manager") {
+      return res.status(400).json({ message: "Can only assign manager role" });
+    }
+
+    const user = await Admin.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role === "admin") {
+      return res.status(400).json({ message: "Cannot change role of an admin" });
+    }
+
+    user.role = role;
+    await user.save();
+
+    res.json({ message: "Role assigned successfully", user });
+  } catch (error) {
+    console.log("Error in assign role controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
