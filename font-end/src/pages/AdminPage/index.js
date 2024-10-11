@@ -1,5 +1,5 @@
 import classNames from "classnames/bind";
-import AdminHomePage from "../../layouts/components/AdminHomePage/index";
+import AdminHomePage from "../../layouts/components/AdminComponents/AdminHomePage/index";
 import styles from "./AdminPage.module.scss";
 const cx = classNames.bind(styles);
 

@@ -48,7 +48,7 @@ const publicRoutes = [
   {
     path: config.routes.adminPage,
     component: AdminPage,
-    layout: null,
+    layout: HeaderOnly,
   },
 
   //////////////////////////////////////////////////////////////

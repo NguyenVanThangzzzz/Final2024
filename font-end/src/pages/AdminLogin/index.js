@@ -1,5 +1,5 @@
 import classNames from "classnames/bind";
-import AdminLoginPage from "../../layouts/components/AdminLoginPage/index";
+import AdminLoginPage from "../../layouts/components/AdminComponents/AdminLoginPage/index";
 import styles from "./AdminLogin.module.scss";
 const cx = classNames.bind(styles);
 

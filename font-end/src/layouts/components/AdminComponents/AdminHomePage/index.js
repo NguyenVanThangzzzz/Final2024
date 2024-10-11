@@ -1,12 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useAdminStore } from '../../../store/adminStore';
-import styles from './AdminHomePage.module.scss';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAdminStore } from "../../../../store/adminStore";
+import styles from "./AdminHomePage.module.scss";
 
 function AdminHomePage() {
-  const { admin, users, loading, getUsers, createUser, updateUser, deleteUser, searchUsers, assignRole, logout } = useAdminStore();
-  const [newUser, setNewUser] = useState({ name: '', email: '', password: '' });
-  const [searchQuery, setSearchQuery] = useState('');
+  const {
+    admin,
+    users,
+    loading,
+    getUsers,
+    createUser,
+    updateUser,
+    deleteUser,
+    searchUsers,
+    assignRole,
+    logout,
+  } = useAdminStore();
+  const [newUser, setNewUser] = useState({ name: "", email: "", password: "" });
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,7 +32,7 @@ function AdminHomePage() {
     e.preventDefault();
     try {
       await createUser(newUser);
-      setNewUser({ name: '', email: '', password: '' });
+      setNewUser({ name: "", email: "", password: "" });
     } catch (error) {
       console.error("Create user error:", error);
     }
@@ -29,7 +40,9 @@ function AdminHomePage() {
 
   const handleUpdateUser = async (userId) => {
     const newName = prompt("Enter new name:");
-    const newPassword = prompt("Enter new password (leave blank to keep current):");
+    const newPassword = prompt(
+      "Enter new password (leave blank to keep current):"
+    );
 
     const updatedData = {};
     if (newName) updatedData.name = newName;
@@ -57,7 +70,7 @@ function AdminHomePage() {
 
   const handleAssignRole = async (userId) => {
     const newRole = prompt("Enter new role (user, manager, admin):");
-    if (newRole && ['user', 'manager', 'admin'].includes(newRole)) {
+    if (newRole && ["user", "manager", "admin"].includes(newRole)) {
       try {
         await assignRole(userId, newRole);
       } catch (error) {
@@ -71,7 +84,7 @@ function AdminHomePage() {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/admin/login'); // Chuyển hướng về trang đăng nhập sau khi đăng xuất
+      navigate("/admin/login"); // Chuyển hướng về trang đăng nhập sau khi đăng xuất
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -85,7 +98,9 @@ function AdminHomePage() {
     <div className={styles.adminHomePage}>
       <div className={styles.header}>
         <h2>Welcome, {admin.name}</h2>
-        <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
+        <button onClick={handleLogout} className={styles.logoutButton}>
+          Logout
+        </button>
       </div>
 
       <form onSubmit={handleSearch} className={styles.searchForm}>
@@ -132,10 +147,10 @@ function AdminHomePage() {
         <ul className={styles.userList}>
           {users.map((user) => (
             <li key={user._id} className={styles.userItem}>
-              <span>{user.name} ({user.email}) - Role: {user.role}</span>
-              <button onClick={() => handleUpdateUser(user._id)}>
-                Update
-              </button>
+              <span>
+                {user.name} ({user.email}) - Role: {user.role}
+              </span>
+              <button onClick={() => handleUpdateUser(user._id)}>Update</button>
               <button onClick={() => handleAssignRole(user._id)}>
                 Assign Role
               </button>

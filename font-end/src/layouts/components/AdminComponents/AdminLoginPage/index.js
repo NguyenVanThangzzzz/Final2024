@@ -1,7 +1,7 @@
 import classNames from "classnames/bind";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAdminStore } from "../../../store/adminStore";
+import { useAdminStore } from "../../../../store/adminStore";
 import styles from "./AdminLoginPage.module.scss";
 const cx = classNames.bind(styles);
 function AdminLoginPage() {
