@@ -167,7 +167,7 @@ export const createUser = async (req, res) => {
     const newUser = new User({
       name,
       email,
-      password,
+      password, // Mật khẩu sẽ được hash tự động bởi middleware pre-save của Mongoose
     });
 
     await newUser.save();
@@ -175,7 +175,7 @@ export const createUser = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "User created successfully",
-      data: newUser,
+      data: { _id: newUser._id, name: newUser.name, email: newUser.email },
     });
   } catch (error) {
     res.status(500).json({
@@ -287,15 +287,17 @@ export const deleteAllUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email } = req.body;
+    const { name, password } = req.body;
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    user.name = name || user.name;
-    user.email = email || user.email;
+    if (name) user.name = name;
+    if (password) {
+      user.password = password; // Mật khẩu sẽ được hash tự động bởi middleware pre-save của Mongoose
+    }
     await user.save();
-    res.json({ message: "User updated successfully" });
+    res.json({ message: "User updated successfully", user: { _id: user._id, name: user.name, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -360,25 +362,19 @@ export const assignRole = async (req, res) => {
   try {
     const { userId, role } = req.body;
 
-    if (role !== "manager") {
-      return res.status(400).json({ message: "Can only assign manager role" });
+    if (!['user', 'manager', 'admin'].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
     }
 
-    const user = await Admin.findById(userId);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
-    }
-
-    if (user.role === "admin") {
-      return res
-        .status(400)
-        .json({ message: "Cannot change role of an admin" });
     }
 
     user.role = role;
     await user.save();
 
-    res.json({ message: "Role assigned successfully", user });
+    res.json({ message: "Role assigned successfully", user: { _id: user._id, name: user.name, email: user.email, role: user.role } });
   } catch (error) {
     console.log("Error in assign role controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });

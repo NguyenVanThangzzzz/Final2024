@@ -43,10 +43,12 @@ const publicRoutes = [
   {
     path: config.routes.adminLogin,
     component: AdminLogin,
+    layout: null,
   },
   {
     path: config.routes.adminPage,
     component: AdminPage,
+    layout: null,
   },
 
   //////////////////////////////////////////////////////////////
