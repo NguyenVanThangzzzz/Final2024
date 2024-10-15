@@ -37,36 +37,6 @@ const setCookies = (res, accessToken, refreshToken) => {
   });
 };
 
-// export const signup = async (req, res) => {
-//   const { email, password, name } = req.body;
-
-//   try {
-//     const adminExists = await Admin.findOne({ email });
-//     if (adminExists) {
-//       res.status(400);
-//       throw new Error("Admin already exists");
-//     }
-//     const admin = await Admin.create({
-//       name,
-//       email,
-//       password,
-//     });
-//     //authenticate
-//     const { accessToken, refreshToken } = generateTokens(admin._id);
-//     await storeRefreshToken(refreshToken, admin._id);
-//     setCookies(res, accessToken, refreshToken);
-
-//     res.status(201).json({
-//       _id: admin._id,
-//       name: admin.name,
-//       email: admin.email,
-//       role: admin.role,
-//     });
-//   } catch (error) {
-//     console.log("Error in signup controller", error.message);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
 
 export const adminLogin = async (req, res) => {
   try {
@@ -92,6 +62,36 @@ export const adminLogin = async (req, res) => {
   }
 };
 
+export const adminSignup = async (req, res) => {
+  const { email, password, name } = req.body;
+
+  try {
+    const userExists = await Admin.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+    const user = await Admin.create({
+      name,
+      email,
+      password,
+      role: "user", // Mặc định là user thông thường
+    });
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    await storeRefreshToken(refreshToken, user._id);
+    setCookies(res, accessToken, refreshToken);
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.log("Error in admin signup controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const logout = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
@@ -108,6 +108,37 @@ export const logout = async (req, res) => {
     res.json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const assignRole = async (req, res) => {
+  try {
+    const { userId, role } = req.body;
+
+    if (!["user", "manager", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.role = role;
+    await user.save();
+
+    res.json({
+      message: "Role assigned successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.log("Error in assign role controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -297,86 +328,11 @@ export const updateUser = async (req, res) => {
       user.password = password; // Mật khẩu sẽ được hash tự động bởi middleware pre-save của Mongoose
     }
     await user.save();
-    res.json({ message: "User updated successfully", user: { _id: user._id, name: user.name, email: user.email } });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-export const adminSignup = async (req, res) => {
-  const { email, password, name } = req.body;
-
-  try {
-    const userExists = await Admin.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-    const user = await Admin.create({
-      name,
-      email,
-      password,
-      role: "user", // Mặc định là user thông thường
-    });
-    const { accessToken, refreshToken } = generateTokens(user._id);
-    await storeRefreshToken(refreshToken, user._id);
-    setCookies(res, accessToken, refreshToken);
-
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+    res.json({
+      message: "User updated successfully",
+      user: { _id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
-    console.log("Error in admin signup controller", error.message);
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// export const adminLogin = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const user = await Admin.findOne({ email, role: { $in: ["admin", "manager"] } });
-//     if (user && (await user.comparePassword(password))) {
-//       const { accessToken, refreshToken } = generateTokens(user._id);
-//       await storeRefreshToken(refreshToken, user._id);
-//       setCookies(res, accessToken, refreshToken);
-
-//       res.json({
-//         _id: user._id,
-//         name: user.name,
-//         email: user.email,
-//         role: user.role,
-//       });
-//     } else {
-//       res.status(400).json({ message: "Invalid email or password" });
-//     }
-//   } catch (error) {
-//     console.log("Error in admin login controller", error.message);
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// Thêm controller mới để cấp quyền
-export const assignRole = async (req, res) => {
-  try {
-    const { userId, role } = req.body;
-
-    if (!['user', 'manager', 'admin'].includes(role)) {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.role = role;
-    await user.save();
-
-    res.json({ message: "Role assigned successfully", user: { _id: user._id, name: user.name, email: user.email, role: user.role } });
-  } catch (error) {
-    console.log("Error in assign role controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

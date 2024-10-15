@@ -1,59 +1,137 @@
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import { redis } from "../db/redis.js";
 import {
   sendPasswordResetEmail,
   sendResetSuccessEmail,
-  sendVerificationEmail,
   sendWelcomeEmail,
+  sendVerificationEmail,
 } from "../mailtrap/emails.js";
 import { User } from "../models/user.js";
-import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 
-// Sign up
+const generateTokens = (userId) => {
+  const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15m",
+  });
+  const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
+  return { accessToken, refreshToken };
+};
+
+const storeRefreshToken = async (refreshToken, userId) => {
+  await redis.set(
+    `refresh_token:${userId}`,
+    refreshToken,
+    "ex",
+    7 * 24 * 60 * 60
+  ); // 7 days
+};
+
+const setCookies = (res, accessToken, refreshToken) => {
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000, // 15 mins
+  });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
+
 export const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { email, password, name } = req.body;
 
   try {
-    if (!name || !email || !password) {
-      throw new Error("Please fill all fields");
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
     }
-    const userAlreadyExists = await User.findOne({ email });
-    console.log("userAlreadyExists", userAlreadyExists);
-    if (userAlreadyExists) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
-    }
-    const hashedPassword = await bcryptjs.hash(password, 10);
-    const verificationToken = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-    const user = new User({
+
+    // Tạo mã xác minh 6 chữ số
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const user = await User.create({
       name,
       email,
-      password: hashedPassword,
-      verificationToken,
-      verificationTokenExpire: Date.now() + 24 * 60 * 60 * 1000,
+      password,
+      role: "user", // Mặc định là user thông thường
+      verificationToken, // Sử dụng mã xác minh 6 chữ số
+      verificationTokenExpire: Date.now() + 24 * 60 * 60 * 1000, // Hết hạn sau 1 ngày
     });
-    await user.save();
-    //jwt
-    generateTokenAndSetCookie(res, user._id);
-    await sendVerificationEmail(user.email, verificationToken);
+    await sendVerificationEmail(user.email, verificationToken); // Gửi email xác minh
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    await storeRefreshToken(refreshToken, user._id);
+    setCookies(res, accessToken, refreshToken);
+
     res.status(201).json({
-      success: true,
-      message: "User created successfully",
-      user: {
-        ...user._doc,
-        password: undefined,
-      },
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    console.log("Error in user signup controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    if (!user.isVerified) { // Kiểm tra xem email đã được xác minh chưa
+      return res.status(403).json({ message: "Email not verified" });
+    }
+    if (await user.comparePassword(password)) {
+      const { accessToken, refreshToken } = generateTokens(user._id);
+      await storeRefreshToken(refreshToken, user._id);
+      setCookies(res, accessToken, refreshToken);
+
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
+    } else {
+      res.status(400).json({ message: "Invalid email or password" });
+    }
+  } catch (error) {
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+      await redis.del(`refresh_token:${decoded.userId}`);
+    }
+
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 export const verifyEmail = async (req, res) => {
-  // - - - - - setup verification email - - - - -
   const { code } = req.body;
   try {
     const user = await User.findOne({
@@ -85,53 +163,13 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
-export const login = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid credentials" });
-    }
-    const isPasswordValid = await bcryptjs.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid credentials" });
-    }
-    //jwt
-    generateTokenAndSetCookie(res, user._id);
-    user.lastLogin = new Date();
-    await user.save();
-    res.status(200).json({
-      success: true,
-      message: "Logged in successfully",
-      user: {
-        ...user._doc,
-        password: undefined,
-      },
-    });
-  } catch (error) {
-    console.log("Error in login", error);
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-export const logout = async (req, res) => {
-  res.clearCookie("token");
-  res.status(200).json({ success: true, message: "Logged out successfully" });
-};
-
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+      return res.status(400).json({ success: false, message: "User not found" });
     }
     // Generate reset token
     const resetToken = crypto.randomBytes(20).toString("hex");
@@ -151,7 +189,7 @@ export const forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in forgotPassword", error);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -159,30 +197,33 @@ export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
+
+    // Tìm người dùng dựa trên mã thông báo reset
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpire: { $gt: Date.now() },
     });
-    if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid or expired token" });
-    }
-    // Update password
-    const hashedPassword = await bcryptjs.hash(password, 10);
 
-    user.password = hashedPassword;
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Invalid or expired token" });
+    }
+
+    // Cập nhật mật khẩu mà không cần mã hóa lại
+    user.password = password; // Chỉ cần gán mật khẩu mới
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
+
+    // Gửi email thông báo thành công
     await sendResetSuccessEmail(user.email);
+
     res.status(200).json({
       success: true,
       message: "Password reset successfully",
     });
   } catch (error) {
     console.log("Error in resetPassword", error);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
