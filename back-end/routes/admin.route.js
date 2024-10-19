@@ -31,7 +31,7 @@ router.get("/profile", protectRoute, getProfile);
 // User management routes (chỉ admin mới có quyền CRUD)
 router.post("/users", protectRoute, adminRoute, createUser);
 router.get("/users", protectRoute, managerRoute, getAllUser);
-router.get("/users/search", protectRoute, managerRoute, searchUser);
+router.get("/users/search", protectRoute, managerRoute, searchUser, adminRoute);
 router.delete("/users/:id", protectRoute, adminRoute, deleteUser);
 router.delete("/users", protectRoute, adminRoute, deleteAllUser);
 router.put("/users/:id", protectRoute, adminRoute, updateUser);

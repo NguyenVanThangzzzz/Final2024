@@ -141,9 +141,7 @@ export const useAdminStore = create((set, get) => ({
       });
       set((state) => ({
         users: state.users.map((user) =>
-          user._id === userId
-            ? { ...user, role: response.data.user.role }
-            : user
+          user._id === userId ? { ...user, role: response.data.user.role } : user
         ),
         loading: false,
       }));
