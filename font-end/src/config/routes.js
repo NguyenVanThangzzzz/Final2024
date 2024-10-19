@@ -7,10 +7,10 @@ const routes = {
   forgotpassword: "/forgot-password",
   resetpassword: "/reset-password/:token",
 
-
   ///Admin routes
   adminPage: "/admin",
   adminLogin: "/admin/login",
+  adminProducts: "/admin/products",
   // profile: "/@:nickname",
 
   upload: "/upload",

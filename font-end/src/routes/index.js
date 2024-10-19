@@ -3,8 +3,9 @@ import { HeaderOnly } from "~/layouts";
 //Pages
 
 // Admin Pages
-import AdminLogin from "~/pages/AdminLogin";
-import AdminPage from "~/pages/AdminPage";
+import AdminLogin from "~/pages/Admin/AdminLogin";
+import AdminPage from "~/pages/Admin/AdminPage";
+import AdminProducts from "~/pages/Admin/AdminProducts";
 
 // User Pages
 import EmailVerication from "~/pages/EmailVerication";
@@ -48,6 +49,11 @@ const publicRoutes = [
   {
     path: config.routes.adminPage,
     component: AdminPage,
+    layout: HeaderOnly,
+  },
+  {
+    path: config.routes.adminProducts,
+    component: AdminProducts,
     layout: HeaderOnly,
   },
 

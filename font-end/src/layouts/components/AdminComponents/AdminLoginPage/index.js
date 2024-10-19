@@ -18,7 +18,7 @@ function AdminLoginPage() {
     try {
       await login(email, password);
       // Redirect to admin page after successful login
-      navigate("/admin");
+      navigate("/admin/products");
     } catch (error) {
       setError("Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.");
     }
