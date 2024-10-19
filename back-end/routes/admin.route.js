@@ -1,19 +1,23 @@
 import express from "express";
 import {
-  adminSignup,
   adminLogin,
+  adminSignup,
+  assignRole,
+  createUser,
+  deleteAllUser,
+  deleteUser,
+  getAllUser,
+  getProfile,
   logout,
   refreshToken,
-  getProfile,
-  createUser,
-  getAllUser,
   searchUser,
-  deleteUser,
-  deleteAllUser,
   updateUser,
-  assignRole, // Thêm controller mới
 } from "../controllers/adminController.js";
-import { protectRoute, adminRoute, managerRoute } from "../Middlewares/adminMiddlewares.js";
+import {
+  adminRoute,
+  managerRoute,
+  protectRoute,
+} from "../Middlewares/adminMiddlewares.js";
 
 const router = express.Router();
 
@@ -22,7 +26,7 @@ router.post("/signup", adminSignup);
 router.post("/login", adminLogin);
 router.post("/logout", logout);
 router.post("/refresh-token", refreshToken);
-router.get("/profile", protectRoute, managerRoute, getProfile);
+router.get("/profile", protectRoute, getProfile);
 
 // User management routes (chỉ admin mới có quyền CRUD)
 router.post("/users", protectRoute, adminRoute, createUser);
