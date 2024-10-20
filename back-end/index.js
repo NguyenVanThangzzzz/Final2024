@@ -30,7 +30,7 @@ app.use(
   })
 );
 
-app.use(express.json()); // Parse incoming requests as JSON
+app.use(express.json({ limit: '10mb' })); // Tăng giới hạn kích thước payload lên 10MB
 app.use(cookieParser()); // Parse cookies
 
 // Routes

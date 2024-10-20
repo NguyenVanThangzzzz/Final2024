@@ -33,16 +33,27 @@ export const useAdminStore = create((set, get) => ({
     }
   },
 
+  // checkAuth: async () => {
+  //   set({ checkingAuth: true });
+  //   try {
+  //     const response = await axios.get(`${API_URL}/profile`);
+  //     // Kiểm tra xem người dùng có vai trò admin không
+  //     if (response.data.role === "admin") {
+  //       set({ user: response.data, checkingAuth: false });
+  //     } else {
+  //       set({ checkingAuth: false, user: null }); // Nếu không phải admin, đặt user về null
+  //     }
+  //   } catch (error) {
+  //     console.log(error.message);
+  //     set({ checkingAuth: false, user: null });
+  //   }
+  // },
+
   checkAuth: async () => {
     set({ checkingAuth: true });
     try {
       const response = await axios.get(`${API_URL}/profile`);
-      // Kiểm tra xem người dùng có vai trò admin không
-      if (response.data.role === "admin") {
-        set({ user: response.data, checkingAuth: false });
-      } else {
-        set({ checkingAuth: false, user: null }); // Nếu không phải admin, đặt user về null
-      }
+      set({ user: response.data, checkingAuth: false });
     } catch (error) {
       console.log(error.message);
       set({ checkingAuth: false, user: null });
@@ -141,7 +152,9 @@ export const useAdminStore = create((set, get) => ({
       });
       set((state) => ({
         users: state.users.map((user) =>
-          user._id === userId ? { ...user, role: response.data.user.role } : user
+          user._id === userId
+            ? { ...user, role: response.data.user.role }
+            : user
         ),
         loading: false,
       }));

@@ -40,16 +40,17 @@ export const createProduct = async (req, res) => {
       name,
       price,
       description,
-      imageUrl,
+      image, // Đổi từ imageUrl thành image
       isFeatured,
       category,
       director,
-      actor,
+      actors,
     } = req.body;
     let cloudinaryResponse = null;
 
-    if (imageUrl) {
-      cloudinaryResponse = await cloudinary.uploader.upload(imageUrl, {
+    if (image) {
+      // Đổi từ imageUrl thành image
+      cloudinaryResponse = await cloudinary.uploader.upload(image, {
         folder: "products",
       });
     }
@@ -58,12 +59,12 @@ export const createProduct = async (req, res) => {
       name,
       price,
       description,
-      imageUrl: cloudinaryResponse?.secure_url
+      image: cloudinaryResponse?.secure_url
         ? cloudinaryResponse.secure_url
         : "",
       isFeatured,
       director,
-      actor,
+      actors,
       category,
     });
     res.status(201).json({ product });
