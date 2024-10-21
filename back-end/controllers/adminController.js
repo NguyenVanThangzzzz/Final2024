@@ -151,18 +151,20 @@ export const refreshToken = async (req, res) => {
     }
 
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
+    const storedToken = await redis.get(`refresh_token:${decoded.adminId}`);
 
     if (storedToken !== refreshToken) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
+    // Tạo access token mới
     const accessToken = jwt.sign(
-      { userId: decoded.userId },
+      { adminId: decoded.adminId },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" }
     );
 
+    // Gửi lại access token mới
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
