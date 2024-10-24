@@ -6,7 +6,11 @@ import { connectDB } from "./db/connectDB.js";
 import adminRoutes from "./routes/admin.route.js";
 import authRoutes from "./routes/auth.route.js";
 import cartRoutes from "./routes/cart.route.js";
-import productRoutes from "./routes/product.route.js";
+import cinemaRoutes from "./routes/cinema.route.js";
+import movieRoutes from "./routes/movie.route.js";
+import roomRoutes from "./routes/room.route.js";
+import screeningRoutes from "./routes/screening.route.js";
+import ticketRoutes from "./routes/ticket.route.js";
 
 dotenv.config();
 const app = express();
@@ -30,14 +34,18 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: '10mb' })); // Tăng giới hạn kích thước payload lên 10MB
+app.use(express.json({ limit: "10mb" })); // Tăng giới hạn kích thước payload lên 10MB
 app.use(cookieParser()); // Parse cookies
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/movie", movieRoutes);
+app.use("/api/cinema", cinemaRoutes);
+app.use("/api/screening", screeningRoutes);
+app.use("/api/room", roomRoutes);
+app.use("/api/ticket", ticketRoutes);
 
 // Start the server
 app.listen(PORT, () => {

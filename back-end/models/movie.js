@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const productSchema = new mongoose.Schema(
+const movieSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -10,16 +10,11 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    price: {
-      type: Number,
-      min: 0,
-      required: true,
-    },
     image: {
       type: String,
       required: [true, "Image is required"],
     },
-    category: {
+    genres: {
       type: String,
       required: true,
     },
@@ -39,6 +34,6 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Product = mongoose.model("Product", productSchema);
+const Movie = mongoose.model("Movie", movieSchema);
 
-export default Product;
+export default Movie;
