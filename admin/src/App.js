@@ -3,9 +3,11 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import LoadingSpinner from "./components/LoadingSpinner";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
+import CinemaManagementPage from "./pages/CinemaManagementPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import MovieManagementPage from "./pages/MovieManagementPage";
+import RoomManagementPage from "./pages/RoomManagementPage";
 import SettingPage from "./pages/SettingPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import { useAdminStore } from "./Store/adminStore";
@@ -47,6 +49,14 @@ function App() {
                 <Route
                   path="/user-management"
                   element={<UserManagementPage />}
+                />
+                <Route
+                  path="/cinema-management"
+                  element={<CinemaManagementPage />}
+                />
+                <Route
+                  path="/room-management"
+                  element={<RoomManagementPage />}
                 />
                 <Route
                   path="/movie-management"

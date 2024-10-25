@@ -37,13 +37,22 @@ export const createRoom = async (req, res) => {
 
 // @desc    Lấy danh sách tất cả các phòng
 // @route   GET /api/room
+// export const getAllRooms = async (req, res) => {
+//   try {
+//     const rooms = await Room.find({});
+//     res.json(rooms);
+//   } catch (error) {
+//     console.log("Error in getAllRooms controller", error.message);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 export const getAllRooms = async (req, res) => {
   try {
-    const rooms = await Room.find({});
-    res.json(rooms);
+    const rooms = await Room.find().populate("cinemaId");
+    res.status(200).json({ rooms });
   } catch (error) {
-    console.log("Error in getAllRooms controller", error.message);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Failed to fetch rooms" });
   }
 };
 

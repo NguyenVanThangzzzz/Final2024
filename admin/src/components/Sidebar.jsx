@@ -12,6 +12,18 @@ const Sidebar = () => {
           <Link to="/" className="block py-2 hover:bg-gray-700">
             Home
           </Link>
+          <Link
+            to="/cinema-management"
+            className="block py-2 hover:bg-gray-700"
+          >
+            Cinema management
+          </Link>
+          <Link to="/room-management" className="block py-2 hover:bg-gray-700">
+            Room management
+          </Link>
+          <Link to="/user-management" className="block py-2 hover:bg-gray-700">
+            gi gi do tinh tiep management
+          </Link>
           <Link to="/user-management" className="block py-2 hover:bg-gray-700">
             User management
           </Link>
