@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import MovieManagementPage from "./pages/MovieManagementPage";
 import RoomManagementPage from "./pages/RoomManagementPage";
+import ScreeningManagementPage from "./pages/ScreeningManagementPage";
 import SettingPage from "./pages/SettingPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import { useAdminStore } from "./Store/adminStore";
@@ -61,6 +62,10 @@ function App() {
                 <Route
                   path="/movie-management"
                   element={<MovieManagementPage />}
+                />
+                <Route
+                  path="/screening-management"
+                  element={<ScreeningManagementPage />}
                 />
               </Routes>
             </div>

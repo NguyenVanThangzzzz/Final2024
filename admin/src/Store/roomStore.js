@@ -14,7 +14,7 @@ export const useRoomStore = create((set) => ({
   createRoom: async (roomData) => {
     set({ loading: true });
     try {
-      const res = await axios.post(`${API_URL}/`, roomData);
+      await axios.post(`${API_URL}/`, roomData); // Không cần gán vào biến res nếu không sử dụng
       await useRoomStore.getState().fetchAllRooms(); // fetch lại tất cả rooms sau khi tạo thành công
       toast.success("Room created successfully!");
     } catch (error) {

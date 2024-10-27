@@ -1,16 +1,15 @@
 import { motion } from "framer-motion";
-import { BarChart, PlusCircle, ShoppingBasket } from "lucide-react";
+import { PlusCircle, ShoppingBasket } from "lucide-react";
 import React, { useState } from "react";
-import CreateMovieForm from "../components/movie/CreateMovieForm";
-import MovieList from "../components/movie/MovieList";
+import CreateScreeningForm from "../components/screening/CreateScreeningForm";
+import ScreeningList from "../components/screening/ScreeningList";
 
 const tabs = [
-  { id: "create", label: "Create Product", icon: PlusCircle },
-  { id: "movies", label: "Movies", icon: ShoppingBasket },
-  { id: "analytics", label: "Analytics", icon: BarChart },
+  { id: "create", label: "Create Screening", icon: PlusCircle },
+  { id: "screenings", label: "Screenings", icon: ShoppingBasket },
 ];
 
-const MovieManagementPage = () => {
+const ScreeningManagementPage = () => {
   const [activeTab, setActiveTab] = useState("create");
 
   return (
@@ -22,7 +21,7 @@ const MovieManagementPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          Movie Management Dashboard
+          Screening Management Dashboard
         </motion.h1>
 
         <div className="flex justify-center mb-8">
@@ -41,12 +40,12 @@ const MovieManagementPage = () => {
             </button>
           ))}
         </div>
-        {activeTab === "create" && <CreateMovieForm />}
-        {activeTab === "movies" && <MovieList />}
+        {activeTab === "create" && <CreateScreeningForm />}
+        {activeTab === "screenings" && <ScreeningList />}
         {/* {activeTab === "analytics" && <AnalyticsTab />} */}
       </div>
     </div>
   );
 };
 
-export default MovieManagementPage;
+export default ScreeningManagementPage;

@@ -21,14 +21,17 @@ const Sidebar = () => {
           <Link to="/room-management" className="block py-2 hover:bg-gray-700">
             Room management
           </Link>
-          <Link to="/user-management" className="block py-2 hover:bg-gray-700">
-            gi gi do tinh tiep management
+          <Link to="/movie-management" className="block py-2 hover:bg-gray-700">
+            Movie Management
+          </Link>
+          <Link
+            to="/screening-management"
+            className="block py-2 hover:bg-gray-700"
+          >
+            Screening management
           </Link>
           <Link to="/user-management" className="block py-2 hover:bg-gray-700">
             User management
-          </Link>
-          <Link to="/movie-management" className="block py-2 hover:bg-gray-700">
-            Movie Management
           </Link>
           <Link to="/secret-dashboard" className="block py-2 hover:bg-gray-700">
             Dashboard

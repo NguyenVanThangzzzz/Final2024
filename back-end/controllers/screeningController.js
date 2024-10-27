@@ -46,8 +46,8 @@ export const getAllScreenings = async (req, res) => {
 export const getScreeningById = async (req, res) => {
   try {
     const screening = await Screening.findById(req.params.id)
-      .populate("roomId", "name")
-      .populate("movieId", "name");
+      .populate("roomId", "name") // Populate thông tin phòng
+      .populate("movieId", "name"); // Populate thông tin phim
 
     if (!screening) {
       return res.status(404).json({ message: "Screening not found" });
@@ -85,8 +85,6 @@ export const updateScreening = async (req, res) => {
   }
 };
 
-// @desc    Xóa screening
-// @route   DELETE /api/screening/:id
 // @desc    Xóa screening
 // @route   DELETE /api/screening/:id
 export const deleteScreening = async (req, res) => {
