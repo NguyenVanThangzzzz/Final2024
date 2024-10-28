@@ -6,11 +6,8 @@ const routes = {
   emailVerication: "/verify-email",
   forgotpassword: "/forgot-password",
   resetpassword: "/reset-password/:token",
+  film: "/film/:slug",
 
-  ///Admin routes
-  adminPage: "/admin",
-  adminLogin: "/admin/login",
-  adminProducts: "/admin/products",
   // profile: "/@:nickname",
 
   upload: "/upload",

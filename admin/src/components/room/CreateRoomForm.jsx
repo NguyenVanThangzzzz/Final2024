@@ -12,6 +12,7 @@ const CreateRoomForm = () => {
     screenType: "",
     price: 0,
     cinemaId: "",
+    date: "", // Thêm trường date
   });
 
   const { createRoom, loading } = useRoomStore();
@@ -31,6 +32,7 @@ const CreateRoomForm = () => {
         screenType: "",
         price: 0,
         cinemaId: "",
+        date: "", // Thêm trường date
       });
     } catch {
       console.log("error creating a room");
@@ -154,6 +156,27 @@ const CreateRoomForm = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Date */}
+        <div>
+          <label
+            htmlFor="date"
+            className="block text-sm font-medium text-gray-300"
+          >
+            Date
+          </label>
+          <input
+            type="date"
+            id="date"
+            name="date"
+            value={newRoom.date}
+            onChange={(e) =>
+              setNewRoom({ ...newRoom, date: e.target.value })
+            }
+            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            required
+          />
         </div>
 
         {/* Submit Button */}

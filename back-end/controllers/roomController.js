@@ -5,10 +5,10 @@ import Room from "../models/room.js";
 // @route   POST /api/room
 export const createRoom = async (req, res) => {
   try {
-    const { name, seatCapacity, cinemaId, screenType, price } = req.body;
+    const { name, seatCapacity, cinemaId, screenType, price, date } = req.body;
 
     // Kiểm tra nếu thiếu các trường bắt buộc
-    if (!name || !seatCapacity || !cinemaId || !screenType || !price) {
+    if (!name || !seatCapacity || !cinemaId || !screenType || !price || !date) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -24,7 +24,8 @@ export const createRoom = async (req, res) => {
       seatCapacity,
       cinemaId,
       screenType,
-      price, // Giá cho tất cả các ghế
+      price,
+      date,
     });
 
     const createdRoom = await room.save();

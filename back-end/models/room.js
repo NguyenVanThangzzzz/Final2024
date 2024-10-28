@@ -23,6 +23,7 @@ const roomSchema = new mongoose.Schema(
     },
     screenType: { type: String, required: true }, // Loại màn hình (2D, 3D, IMAX)
     price: { type: Number, required: true }, // Giá cho tất cả ghế trong phòng
+    date: { type: Date, required: true }, // Thêm trường date
   },
   { timestamps: true }
 );

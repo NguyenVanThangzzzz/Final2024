@@ -1,0 +1,61 @@
+.movieContainer {
+  padding: 20px;
+  background-color: #121212;
+}
+
+.title {
+  color: #ff6700;
+  font-size: 1.8em; // Increase title font size
+  margin-bottom: 20px;
+}
+
+.movieList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.movieCard {
+  display: flex;
+  background-color: #2a2a2a;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.movieImage {
+  width: 200px;
+  height: 300px;
+  margin-right: 20px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.movieInfo {
+  color: #fff;
+  font-size: 1.1em; // Increase general font size for readability
+}
+
+.movieName {
+  font-size: 1.5em; // Increase movie name font size
+  color: #ff6700;
+  margin: 0;
+}
+
+.movieGenre {
+  font-size: 1em;
+  color: #ccc;
+  margin: 5px 0;
+}
+
+.bookButton {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ff6700;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 1em;
+  margin-top: 10px;
+}

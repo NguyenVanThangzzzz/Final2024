@@ -36,6 +36,9 @@ const RoomList = () => {
               Price
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+              Date
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
               Actions
             </th>
           </tr>
@@ -55,6 +58,9 @@ const RoomList = () => {
               </td>
               <td className="px-6 py-4 whitespace-normal">{room.screenType}</td>
               <td className="px-6 py-4 whitespace-normal">{room.price}</td>
+              <td className="px-6 py-4 whitespace-normal">
+                {new Date(room.date).toLocaleDateString()}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap flex items-center">
                 <button
                   onClick={() => console.log(`Edit room ${room._id}`)}

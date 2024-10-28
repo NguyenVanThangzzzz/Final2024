@@ -77,7 +77,7 @@ const MovieList = () => {
             <tr key={movie._id || index} className="hover:bg-gray-700">
               <td className="px-6 py-4 whitespace-nowrap">
                 <img
-                  className="h-10 w-10 rounded-full object-cover"
+                  className="h-18 w-18 "
                   src={movie.image}
                   alt={movie.name}
                 />

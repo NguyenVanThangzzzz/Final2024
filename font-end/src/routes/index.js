@@ -2,13 +2,9 @@ import config from "~/config";
 import { HeaderOnly } from "~/layouts";
 //Pages
 
-// Admin Pages
-import AdminLogin from "~/pages/Admin/AdminLogin";
-import AdminPage from "~/pages/Admin/AdminPage";
-import AdminProducts from "~/pages/Admin/AdminProducts";
-
 // User Pages
 import EmailVerication from "~/pages/EmailVerication";
+import Film from "~/pages/Film";
 import ForgotPassword from "~/pages/ForgotPassword";
 import Home from "~/pages/Home";
 import Login from "~/pages/Login";
@@ -16,13 +12,14 @@ import Profile from "~/pages/Profile";
 import ResetPassword from "~/pages/ResetPassword";
 import Signup from "~/pages/Signup";
 //////////////////////////////////////////////////////////////
+
 import Search from "~/pages/Search";
 import Showtime from "~/pages/Showtime";
 import Upload from "~/pages/Upload";
 
 //publicRoutes
 const publicRoutes = [
-  { path: config.routes.home, component: Home },
+  { path: config.routes.home, component: Home, layout: null },
   { path: config.routes.login, component: Login, layout: HeaderOnly },
   { path: config.routes.signup, component: Signup, layout: HeaderOnly },
 
@@ -42,18 +39,8 @@ const publicRoutes = [
     layout: HeaderOnly,
   },
   {
-    path: config.routes.adminLogin,
-    component: AdminLogin,
-    layout: null,
-  },
-  {
-    path: config.routes.adminPage,
-    component: AdminPage,
-    layout: HeaderOnly,
-  },
-  {
-    path: config.routes.adminProducts,
-    component: AdminProducts,
+    path: config.routes.film,
+    component: Film,
     layout: HeaderOnly,
   },
 

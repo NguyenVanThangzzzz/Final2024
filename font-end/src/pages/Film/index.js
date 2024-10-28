@@ -1,18 +1,17 @@
 import classNames from "classnames/bind";
-import AdminHomePage from "../../../layouts/components/AdminComponents/AdminHomePage/index";
-import styles from "./AdminPage.module.scss";
+import FilmPage from "../../layouts/components/FilmPage/index";
+import styles from "./film.module.scss";
 const cx = classNames.bind(styles);
-
-function AdminPage() {
+function Film() {
   return (
     <div className={cx("wrapper")}>
       <div className={cx("container")}>
         <div className={cx("content")}>
-          <AdminHomePage />
+          <FilmPage />
         </div>
       </div>
     </div>
   );
 }
 
-export default AdminPage;
+export default Film;
