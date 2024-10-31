@@ -94,21 +94,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // checkAuth: async () => {
-  //   // await new Promise((resolve) => setTimeout(resolve, 2000));
-  //   set({ isCheckingAuth: true, error: null });
-  //   try {
-  //     const response = await axios.get(`${API_URL}/check-auth`);
-  //     set({
-  //       user: response.data.user,
-  //       isAuthenticated: true,
-  //       isCheckingAuth: false,
-  //     });
-  //   } catch (error) {
-  //     set({ error: null, isCheckingAuth: false, isAuthenticated: false });
-  //   }
-  // },
-
   forgotPassword: async (email) => {
     set({ isLoading: true, error: null, message: null });
     try {
@@ -153,12 +138,8 @@ export const useAuthStore = create((set, get) => ({
         error: null,
       });
     } catch (error) {
-      // Nếu nhận lỗi 401, đặt lại user và trạng thái xác thực
-      set({
-        user: null,
-        isAuthenticated: false,
-        isCheckingAuth: false,
-      });
+      set({ user: null, isAuthenticated: false, isCheckingAuth: false });
+      throw error;
     }
   },
 
@@ -186,7 +167,6 @@ export const useAuthStore = create((set, get) => ({
 }));
 
 let refreshPromise = null;
-
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -195,19 +175,17 @@ axios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        if (refreshPromise) {
-          await refreshPromise;
-          return axios(originalRequest);
+        if (!refreshPromise) {
+          refreshPromise = useAuthStore.getState().refreshToken();
         }
 
-        refreshPromise = useAuthStore.getState().refreshToken();
         await refreshPromise;
         refreshPromise = null;
 
         return axios(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().logout();
-        return Promise.reject(refreshError);
+        throw refreshError;
       }
     }
     return Promise.reject(error);

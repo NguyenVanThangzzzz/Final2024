@@ -53,11 +53,14 @@ const publicRoutes = [
   //////////////////////////////////////////////////////////////
   { path: "/showtime", component: Showtime },
   { path: "/upload", component: Upload, layout: HeaderOnly },
-  { path: "/search", component: Search },
+  { path: "/search", component: Search, requireLogin: true },
+  {
+    path: config.routes.profile,
+    component: Profile,
+    requireLogin: true,
+  },
 ];
 
-const privateRoutes = [
-  { path: config.routes.profile, component: Profile, layout: HeaderOnly },
-];
+const privateRoutes = [];
 
 export { privateRoutes, publicRoutes };

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { redis } from "../db/redis.js";
 import Admin from "../models/admin.js";
-import { User } from "../models/user.js";
+import { User } from "../models/User.js";
 
 const generateTokens = (adminId) => {
   const accessToken = jwt.sign({ adminId }, process.env.ACCESS_TOKEN_SECRET, {

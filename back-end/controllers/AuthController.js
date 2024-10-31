@@ -7,7 +7,7 @@ import {
   sendVerificationEmail,
   sendWelcomeEmail,
 } from "../mailtrap/emails.js";
-import { User } from "../models/user.js";
+import { User } from "../models/User.js";
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -244,8 +244,15 @@ export const refreshToken = async (req, res) => {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
 
-    if (storedToken !== refreshToken) {
+    if (!storedToken || storedToken !== refreshToken) {
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
       return res.status(401).json({ message: "Invalid refresh token" });
+    }
+
+    const user = await User.findById(decoded.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Tạo access token mới
@@ -255,7 +262,7 @@ export const refreshToken = async (req, res) => {
       { expiresIn: "15m" }
     );
 
-    // Gửi lại access token mới
+    // Set cookie mới
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -263,10 +270,15 @@ export const refreshToken = async (req, res) => {
       maxAge: 15 * 60 * 1000,
     });
 
-    res.json({ message: "Token refreshed successfully" });
+    res.json({
+      message: "Token refreshed successfully",
+      user: user,
+    });
   } catch (error) {
-    console.log("Error in refreshToken controller", error.message);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Error in refreshToken controller:", error);
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.status(401).json({ message: "Invalid refresh token" });
   }
 };
 
