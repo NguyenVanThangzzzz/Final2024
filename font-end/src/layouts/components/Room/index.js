@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import classNames from "classnames/bind";
 import { useRoomStore } from "~/store/roomStore";
 import { useScreeningStore } from "~/store/screeningStore";
@@ -10,6 +10,8 @@ const cx = classNames.bind(styles);
 
 function RoomPage() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const movieId = searchParams.get('movieId');
   const { screenings, fetchScreeningsByRoom } = useRoomStore();
   const { fetchScreeningById, updateSeatStatus } = useScreeningStore();
 
@@ -32,9 +34,14 @@ function RoomPage() {
         // Fetch danh sách screenings
         const fetchedScreenings = await fetchScreeningsByRoom(slug);
 
-        // Nếu có screenings, tự động chọn screening đầu tiên được tạo
-        if (fetchedScreenings && fetchedScreenings.length > 0) {
-          const firstScreening = getFirstScreening(fetchedScreenings);
+        // Lọc các screening theo movieId
+        const filteredScreenings = fetchedScreenings.filter(
+          screening => screening.movieId._id === movieId
+        );
+
+        // Nếu có screenings phù hợp, chọn screening đầu tiên
+        if (filteredScreenings && filteredScreenings.length > 0) {
+          const firstScreening = getFirstScreening(filteredScreenings);
           if (firstScreening) {
             const screeningDetails = await fetchScreeningById(firstScreening._id);
             setSelectedScreening(screeningDetails);
@@ -49,7 +56,7 @@ function RoomPage() {
     };
 
     loadData();
-  }, [slug, fetchScreeningsByRoom, fetchScreeningById]);
+  }, [slug, movieId, fetchScreeningsByRoom, fetchScreeningById]);
 
   // Hàm xử lý khi click vào ghế
   const handleSeatClick = async (seat) => {
@@ -141,20 +148,22 @@ function RoomPage() {
           <div className={cx("screenings-container")}>
             <h3>Lịch chiếu</h3>
             <div className={cx("screenings-list")}>
-              {screenings.map((screening) => (
-                <div
-                  key={screening._id}
-                  className={cx("screening-item", {
-                    active: selectedScreening?._id === screening._id
-                  })}
-                  onClick={() => handleScreeningSelect(screening)}
-                >
-                  <div className={cx("movie-name")}>{screening.movieId.name}</div>
-                  <div className={cx("show-time")}>
-                    {formatDateTime(screening.showTime)}
+              {screenings
+                .filter(screening => screening.movieId._id === movieId)
+                .map((screening) => (
+                  <div
+                    key={screening._id}
+                    className={cx("screening-item", {
+                      active: selectedScreening?._id === screening._id
+                    })}
+                    onClick={() => handleScreeningSelect(screening)}
+                  >
+                    <div className={cx("movie-name")}>{screening.movieId.name}</div>
+                    <div className={cx("show-time")}>
+                      {formatDateTime(screening.showTime)}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
 
@@ -175,14 +184,6 @@ function RoomPage() {
                 <div className={cx("screen-text")}>SCREEN</div>
               </div>
 
-              {/* Hiển thị số cột */}
-              <div className={cx("column-numbers")}>
-                <div className={cx("empty-cell")}></div>
-                {Array.from({ length: SEATS_PER_ROW }, (_, i) => (
-                  <div key={i} className={cx("column-number")}>{i + 1}</div>
-                ))}
-              </div>
-
               <div className={cx("seats-container")}>
                 {seatMatrix.map((row, rowIndex) => (
                   <div key={rowIndex} className={cx("row")}>
@@ -201,6 +202,9 @@ function RoomPage() {
                         {seat.seatNumber}
                       </div>
                     ))}
+                    <div className={cx("row-label")}>
+                      {String.fromCharCode(65 + rowIndex)}
+                    </div>
                   </div>
                 ))}
               </div>

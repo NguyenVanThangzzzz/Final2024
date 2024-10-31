@@ -29,7 +29,7 @@ function FilmPage() {
     fetchAllCinemas();
   }, [fetchAllCinemas]);
 
-  // Lấy dữ liệu phim được chọn
+  // Lấy d��� liệu phim được chọn
   useEffect(() => {
     const selectedMovie = movies.find((m) => m.slug === slug || m._id === slug);
     setMovie(selectedMovie);
@@ -48,7 +48,7 @@ function FilmPage() {
   }, [cinemas, fetchRoomsByCinema]);
 
   const handleRoomClick = (roomId) => {
-    navigate(`/room/${roomId}`); // Điều hướng đến trang room theo ID của phòng
+    navigate(`/room/${roomId}?movieId=${movie._id}`);
   };
 
   if (movieLoading || cinemaLoading) {

@@ -48,21 +48,6 @@ export const useRoomStore = create((set) => ({
     }
   },
 
-  // Lấy danh sách ghế của một phòng
-  fetchRoomSeats: async (roomId) => {
-    set({ loading: true });
-    try {
-      const response = await axios.get(`${API_URL}/${roomId}/seats`);
-      set({ seats: response.data, loading: false });
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching seats:", error);
-      set({ loading: false });
-      toast.error(error.response?.data?.message || "Failed to fetch seats");
-      return null;
-    }
-  },
-
   // Thêm function mới để lấy lịch chiếu theo roomId
   fetchScreeningsByRoom: async (roomId) => {
     try {

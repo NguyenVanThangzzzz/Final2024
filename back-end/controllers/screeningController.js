@@ -11,14 +11,14 @@ export const createScreening = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Tạo screening mới
+    // Tạo screening mới - seats sẽ được tự động tạo bởi middleware
     const screening = new Screening({
       roomId,
       movieId,
       showTime,
       endTime,
       seatCapacity,
-      price,
+      price
     });
 
     const createdScreening = await screening.save();

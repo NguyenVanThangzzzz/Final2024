@@ -1,12 +1,11 @@
-import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { redis } from "../db/redis.js";
 import {
   sendPasswordResetEmail,
   sendResetSuccessEmail,
-  sendWelcomeEmail,
   sendVerificationEmail,
+  sendWelcomeEmail,
 } from "../mailtrap/emails.js";
 import { User } from "../models/user.js";
 
@@ -54,7 +53,9 @@ export const signup = async (req, res) => {
     }
 
     // Tạo mã xác minh 6 chữ số
-    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
     const user = await User.create({
       name,
@@ -88,7 +89,8 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
-    if (!user.isVerified) { // Kiểm tra xem email đã được xác minh chưa
+    if (!user.isVerified) {
+      // Kiểm tra xem email đã được xác minh chưa
       return res.status(403).json({ message: "Email not verified" });
     }
     if (await user.comparePassword(password)) {
@@ -169,7 +171,9 @@ export const forgotPassword = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ success: false, message: "User not found" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
     }
     // Generate reset token
     const resetToken = crypto.randomBytes(20).toString("hex");
@@ -205,7 +209,9 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ success: false, message: "Invalid or expired token" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired token" });
     }
 
     // Cập nhật mật khẩu mà không cần mã hóa lại
@@ -227,18 +233,47 @@ export const resetPassword = async (req, res) => {
   }
 };
 
-export const checkAuth = async (req, res) => {
+export const refreshToken = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select("-password");
-    if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "No refresh token provided" });
     }
 
-    res.status(200).json({ success: true, user });
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
+
+    if (storedToken !== refreshToken) {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
+
+    // Tạo access token mới
+    const accessToken = jwt.sign(
+      { userId: decoded.userId },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    // Gửi lại access token mới
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.json({ message: "Token refreshed successfully" });
   } catch (error) {
-    console.log("Error in checkAuth ", error);
-    res.status(400).json({ success: false, message: error.message });
+    console.log("Error in refreshToken controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const getProfile = async (req, res) => {
+  try {
+    res.json(req.user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

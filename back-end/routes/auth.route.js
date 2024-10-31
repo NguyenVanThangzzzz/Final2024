@@ -1,18 +1,18 @@
 import express from "express";
 import {
-  checkAuth,
   forgotPassword,
   login,
   logout,
   resetPassword,
   signup,
   verifyEmail,
+  refreshToken,
+  getProfile,
 } from "../controllers/AuthController.js";
-import { verifyToken } from "../Middlewares/verifyToken.js";
+
+import  {userProtectRoute} from "../Middlewares/userMiddlewares.js";
 
 const router = express.Router();
-
-router.get("/check-auth", verifyToken, checkAuth); // check auth page
 
 router.post("/signup", signup); // signup page
 
@@ -25,4 +25,8 @@ router.post("/verify-email", verifyEmail); // verify email page
 router.post("/forgot-password", forgotPassword); // forgot password page
 
 router.post("/reset-password/:token", resetPassword); // reset password page
+
+
+router.post("/refresh-token", refreshToken);
+router.get("/profile", userProtectRoute, getProfile);
 export default router;

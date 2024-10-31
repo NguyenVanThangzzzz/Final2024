@@ -1,5 +1,11 @@
 import express from "express";
-import { createCinema, getCinemas, getCinemaById, updateCinema, deleteCinema } from "../controllers/cinemaController.js"; // Thêm import controller
+import {
+  createCinema,
+  deleteCinema,
+  getCinemaById,
+  getCinemas,
+  updateCinema,
+} from "../controllers/cinemaController.js"; // Thêm import controller
 
 import { adminRoute, protectRoute } from "../Middlewares/adminMiddlewares.js";
 

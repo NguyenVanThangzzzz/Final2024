@@ -12,7 +12,7 @@ import {
 import { adminRoute, protectRoute } from "../Middlewares/adminMiddlewares.js";
 const router = express.Router();
 
-router.get("/", protectRoute, adminRoute, getAllMovies); // get all movies page
+router.get("/", getAllMovies); // get all movies page
 
 router.get("/genres/:genres", getMovieByGenres); // get all movies by genres
 
