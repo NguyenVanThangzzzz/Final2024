@@ -5,10 +5,10 @@ import Room from "../models/room.js";
 // @route   POST /api/room
 export const createRoom = async (req, res) => {
   try {
-    const { name, seatCapacity, cinemaId, screenType, price, date } = req.body;
+    const { name, cinemaId, screenType, roomType } = req.body;
 
     // Kiểm tra nếu thiếu các trường bắt buộc
-    if (!name || !seatCapacity || !cinemaId || !screenType || !price || !date) {
+    if (!name || !cinemaId || !screenType || !roomType) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -18,14 +18,12 @@ export const createRoom = async (req, res) => {
       return res.status(404).json({ message: "Cinema not found" });
     }
 
-    // Tạo phòng mới với các ghế ngồi dựa trên sức chứa và giá do người dùng cung cấp
+    // Tạo phòng mới
     const room = new Room({
       name,
-      seatCapacity,
       cinemaId,
       screenType,
-      price,
-      date,
+      roomType,
     });
 
     const createdRoom = await room.save();
@@ -50,9 +48,12 @@ export const createRoom = async (req, res) => {
 
 export const getAllRooms = async (req, res) => {
   try {
-    const rooms = await Room.find().populate("cinemaId");
+    const rooms = await Room.find()
+      .populate("cinemaId")
+      .select("name cinemaId screenType roomType");
     res.status(200).json({ rooms });
   } catch (error) {
+    console.log("Error in getAllRooms controller", error.message);
     res.status(500).json({ message: "Failed to fetch rooms" });
   }
 };
@@ -76,7 +77,7 @@ export const getRoomById = async (req, res) => {
 // @route   PUT /api/room/:id
 export const updateRoom = async (req, res) => {
   try {
-    const { name, seatCapacity, screenType, price } = req.body;
+    const { name, screenType, roomType } = req.body;
 
     const room = await Room.findById(req.params.id);
     if (!room) {
@@ -85,9 +86,8 @@ export const updateRoom = async (req, res) => {
 
     // Cập nhật thông tin phòng
     room.name = name || room.name;
-    room.seatCapacity = seatCapacity || room.seatCapacity;
     room.screenType = screenType || room.screenType;
-    room.price = price || room.price;
+    room.roomType = roomType || room.roomType;
 
     const updatedRoom = await room.save();
     res.json(updatedRoom);
@@ -111,6 +111,93 @@ export const deleteRoom = async (req, res) => {
     res.json({ message: "Room removed" });
   } catch (error) {
     console.log("Error in deleteRoom controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Lấy danh sách các phòng theo ID của rạp chiếu
+// @route   GET /api/room/cinema/:cinemaId
+export const getRoomByCinema = async (req, res) => {
+  try {
+    const { cinemaId } = req.params;
+    const rooms = await Room.find({ cinemaId }).populate("cinemaId");
+    res.status(200).json({ rooms });
+  } catch (error) {
+    console.log("Error in getRoomByCinema controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Lấy danh sách ghế của một phòng
+// @route   GET /api/room/:id/seats
+export const getRoomSeats = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    res.json(room.seats);
+  } catch (error) {
+    console.log("Error in getRoomSeats controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Cập nhật trạng thái ghế
+// @route   PUT /api/room/:roomId/seats/:seatId
+export const updateSeatStatus = async (req, res) => {
+  try {
+    const { roomId, seatId } = req.params;
+    const { status, screeningId } = req.body;
+
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    const seatIndex = room.seats.findIndex(seat => seat.seatNumber === seatId);
+    if (seatIndex === -1) {
+      return res.status(404).json({ message: "Seat not found" });
+    }
+
+    // Cập nhật trạng thái và screeningId của ghế
+    room.seats[seatIndex].status = status;
+    room.seats[seatIndex].screeningId = screeningId;
+
+    await room.save();
+    res.json(room.seats[seatIndex]);
+  } catch (error) {
+    console.error("Error in updateSeatStatus:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Cập nhật nhiều ghế cùng lúc
+// @route   PUT /api/room/:roomId/seats
+export const updateMultipleSeats = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const { seats } = req.body; // Array of {seatNumber, status}
+
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    // Cập nhật trạng thái cho nhiều ghế
+    seats.forEach(({ seatNumber, status }) => {
+      const seatIndex = room.seats.findIndex(
+        (seat) => seat.seatNumber === seatNumber
+      );
+      if (seatIndex !== -1) {
+        room.seats[seatIndex].status = status;
+      }
+    });
+
+    await room.save();
+    res.json(room.seats);
+  } catch (error) {
+    console.log("Error in updateMultipleSeats controller", error.message);
     res.status(500).json({ message: error.message });
   }
 };

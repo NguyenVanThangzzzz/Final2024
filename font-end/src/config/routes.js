@@ -7,6 +7,7 @@ const routes = {
   forgotpassword: "/forgot-password",
   resetpassword: "/reset-password/:token",
   film: "/film/:slug",
+  room: "/room/:slug",
 
   // profile: "/@:nickname",
 

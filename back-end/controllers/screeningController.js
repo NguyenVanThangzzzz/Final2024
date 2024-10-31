@@ -4,10 +4,10 @@ import Screening from "../models/screening.js";
 // @route   POST /api/screening
 export const createScreening = async (req, res) => {
   try {
-    const { roomId, movieId, showTime, endTime } = req.body;
+    const { roomId, movieId, showTime, endTime, seatCapacity, price } = req.body;
 
     // Kiểm tra nếu thiếu các trường bắt buộc
-    if (!roomId || !movieId || !showTime || !endTime) {
+    if (!roomId || !movieId || !showTime || !endTime || !seatCapacity || !price) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -17,6 +17,8 @@ export const createScreening = async (req, res) => {
       movieId,
       showTime,
       endTime,
+      seatCapacity,
+      price,
     });
 
     const createdScreening = await screening.save();
@@ -99,6 +101,97 @@ export const deleteScreening = async (req, res) => {
     res.json({ message: "Screening removed successfully" });
   } catch (error) {
     console.log("Error in deleteScreening controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Lấy tất cả screenings theo roomId
+// @route   GET /api/screening/room/:roomId
+export const getScreeningsByRoom = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const screenings = await Screening.find({ roomId })
+      .populate('movieId', 'name duration posterUrl') // Lấy thêm thông tin phim
+      .sort({ showTime: 1 }); // Sắp xếp theo thời gian chiếu
+
+    res.json(screenings);
+  } catch (error) {
+    console.log("Error in getScreeningsByRoom controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Cập nhật trạng thái ghế
+// @route   PUT /api/screening/:screeningId/seats/:seatNumber
+export const updateSeatStatus = async (req, res) => {
+  try {
+    const { screeningId, seatNumber } = req.params;
+    const { status } = req.body;
+
+    const screening = await Screening.findById(screeningId);
+    if (!screening) {
+      return res.status(404).json({ message: "Screening not found" });
+    }
+
+    const seatIndex = screening.seats.findIndex(
+      (seat) => seat.seatNumber === seatNumber
+    );
+    if (seatIndex === -1) {
+      return res.status(404).json({ message: "Seat not found" });
+    }
+
+    // Cập nhật trạng thái ghế
+    screening.seats[seatIndex].status = status;
+
+    await screening.save();
+    res.json(screening.seats[seatIndex]);
+  } catch (error) {
+    console.error("Error in updateSeatStatus:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Cập nhật nhiều ghế cùng lúc
+// @route   PUT /api/screening/:screeningId/seats
+export const updateMultipleSeats = async (req, res) => {
+  try {
+    const { screeningId } = req.params;
+    const { seats } = req.body; // Array of {seatNumber, status}
+
+    const screening = await Screening.findById(screeningId);
+    if (!screening) {
+      return res.status(404).json({ message: "Screening not found" });
+    }
+
+    // Cập nhật trạng thái cho nhiều ghế
+    seats.forEach(({ seatNumber, status }) => {
+      const seatIndex = screening.seats.findIndex(
+        (seat) => seat.seatNumber === seatNumber
+      );
+      if (seatIndex !== -1) {
+        screening.seats[seatIndex].status = status;
+      }
+    });
+
+    await screening.save();
+    res.json(screening.seats);
+  } catch (error) {
+    console.error("Error in updateMultipleSeats:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Lấy danh sách ghế của một screening
+// @route   GET /api/screening/:screeningId/seats
+export const getScreeningSeats = async (req, res) => {
+  try {
+    const screening = await Screening.findById(req.params.screeningId);
+    if (!screening) {
+      return res.status(404).json({ message: "Screening not found" });
+    }
+    res.json(screening.seats);
+  } catch (error) {
+    console.error("Error in getScreeningSeats:", error);
     res.status(500).json({ message: error.message });
   }
 };

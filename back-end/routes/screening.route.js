@@ -6,6 +6,10 @@ import {
     getScreeningById,
     updateScreening,
     deleteScreening,
+    getScreeningsByRoom,
+    updateSeatStatus,
+    updateMultipleSeats,
+    getScreeningSeats,
 } from "../controllers/screeningController.js";
 
 const router = express.Router();
@@ -16,5 +20,9 @@ router.get("/", getAllScreenings); // Lấy tất cả screenings
 router.get("/:id", getScreeningById); // Lấy screening theo ID
 router.put("/:id", protectRoute, adminRoute, updateScreening); // Cập nhật screening
 router.delete("/:id", protectRoute, adminRoute, deleteScreening); // Xóa screening
+router.get('/room/:roomId', getScreeningsByRoom);
+router.put("/:screeningId/seats/:seatNumber", updateSeatStatus);
+router.put("/:screeningId/seats", updateMultipleSeats);
+router.get("/:screeningId/seats", getScreeningSeats);
 
 export default router;

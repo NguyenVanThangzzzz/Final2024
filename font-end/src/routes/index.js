@@ -10,6 +10,7 @@ import Home from "~/pages/Home";
 import Login from "~/pages/Login";
 import Profile from "~/pages/Profile";
 import ResetPassword from "~/pages/ResetPassword";
+import Room from "~/pages/Room";
 import Signup from "~/pages/Signup";
 //////////////////////////////////////////////////////////////
 
@@ -41,6 +42,11 @@ const publicRoutes = [
   {
     path: config.routes.film,
     component: Film,
+    layout: HeaderOnly,
+  },
+  {
+    path: config.routes.room,
+    component: Room,
     layout: HeaderOnly,
   },
 

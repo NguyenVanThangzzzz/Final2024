@@ -83,3 +83,37 @@
   font-weight: bold;
   margin-bottom: 16px; /* Spacing below title */
 }
+
+.cinemaCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.cinemaInfo {
+  flex: 3; // Cinema details take 3 parts of the available width
+}
+
+.rooms {
+  flex: 7; // Rooms take 7 parts of the available width
+  display: flex;
+  gap: 20px; // Space between each room
+  margin-left: 30px; // Space between cinema info and rooms
+}
+
+.roomDetails {
+  padding-left: 20px;
+  position: relative;
+  cursor: pointer; // Con trỏ chuột chỉ ra rằng phần này có thể nhấn
+  transition: background-color 0.3s ease; // Hiệu ứng mượt khi hover
+
+  &:not(:first-child) {
+    border-left: 1px solid #ddd;
+  }
+
+  &:hover {
+    background-color: #f0f0f0; // Màu xám nhạt khi hover
+  }
+}

@@ -1,35 +1,55 @@
 import classNames from "classnames/bind";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCinemaStore } from "../../../store/cinemaStore";
 import { useMovieStore } from "../../../store/movieStore";
+import { useRoomStore } from "../../../store/roomStore";
 import styles from "./FilmPage.module.scss";
 
 const cx = classNames.bind(styles);
 
 function FilmPage() {
   const { slug } = useParams();
+  const navigate = useNavigate(); // Khởi tạo hook điều hướng
   const { movies, fetchAllMovies, loading: movieLoading } = useMovieStore();
   const { cinemas, fetchAllCinemas, loading: cinemaLoading } = useCinemaStore();
+  const { fetchRoomsByCinema } = useRoomStore();
   const [movie, setMovie] = useState(null);
+  const [rooms, setRooms] = useState({});
 
+  // Lấy dữ liệu phim
   useEffect(() => {
-    // Fetch movies if they haven't been loaded
     if (movies.length === 0) {
       fetchAllMovies();
     }
   }, [fetchAllMovies, movies.length]);
 
+  // Lấy dữ liệu rạp chiếu phim
   useEffect(() => {
-    // Fetch cinemas on component mount
     fetchAllCinemas();
   }, [fetchAllCinemas]);
 
+  // Lấy dữ liệu phim được chọn
   useEffect(() => {
-    // Find the selected movie by slug
     const selectedMovie = movies.find((m) => m.slug === slug || m._id === slug);
     setMovie(selectedMovie);
   }, [slug, movies]);
+
+  // Lấy danh sách phòng theo từng rạp chiếu phim
+  useEffect(() => {
+    cinemas.forEach((cinema) => {
+      fetchRoomsByCinema(cinema._id).then((response) => {
+        setRooms((prevRooms) => ({
+          ...prevRooms,
+          [cinema._id]: response?.data?.rooms || [],
+        }));
+      });
+    });
+  }, [cinemas, fetchRoomsByCinema]);
+
+  const handleRoomClick = (roomId) => {
+    navigate(`/room/${roomId}`); // Điều hướng đến trang room theo ID của phòng
+  };
 
   if (movieLoading || cinemaLoading) {
     return <div>Loading...</div>;
@@ -65,27 +85,46 @@ function FilmPage() {
         </div>
 
         <h3 className={cx("cinemaTitle")}>CINEMA</h3>
-        {/* Divider and Cinema Section Title */}
         <div className={cx("sectionDivider")}></div>
 
         {/* Cinema List Section */}
         <div className={cx("cinemaList")}>
-          {cinemas.map((cinema, index) => (
+          {cinemas.map((cinema) => (
             <div key={cinema._id} className={cx("cinemaCard")}>
-              <h3>{cinema.name}</h3>
-              <p>
-                <strong>Địa chỉ:</strong> {cinema.streetName}, {cinema.state},{" "}
-                {cinema.country}
-              </p>
-              <p>
-                <strong>Postal Code:</strong> {cinema.postalCode}
-              </p>
-              <p>
-                <strong>Phone:</strong> {cinema.phoneNumber}
-              </p>
-              {index < cinemas.length - 1 && (
-                <div className={cx("cinemaDivider")}></div>
-              )}
+              <div className={cx("cinemaInfo")}>
+                <h3>{cinema.name}</h3>
+                <p>
+                  <strong>Địa chỉ:</strong> {cinema.streetName}, {cinema.state},{" "}
+                  {cinema.country}
+                </p>
+                <p>
+                  <strong>Postal Code:</strong> {cinema.postalCode}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {cinema.phoneNumber}
+                </p>
+              </div>
+
+              {/* Rooms displayed with clickable and hover effect */}
+              <div className={cx("rooms")}>
+                {rooms[cinema._id]?.map((room) => (
+                  <div
+                    key={room._id}
+                    className={cx("roomDetails")}
+                    onClick={() => handleRoomClick(room._id)} // Cập nhật để truyền tên phòng
+                  >
+                    <p>
+                      <strong>Room:</strong> {room.name}
+                    </p>
+                    <p>
+                      <strong>Screen Type:</strong> {room.screenType}
+                    </p>
+                    <p>
+                      <strong>Room Type:</strong> {room.roomType}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
