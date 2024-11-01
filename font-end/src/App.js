@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { publicRoutes } from "~/routes";
+import { publicRoutes, privateRoutes } from "~/routes";
 import { DefaultLayout } from "~/layouts";
 import AuthProvider from "~/components/AuthProvider";
 import CheckAuth from "~/components/CheckAuth";
@@ -11,6 +11,7 @@ function App() {
       <AuthProvider>
         <div className="App">
           <Routes>
+            {/* Public Routes */}
             {publicRoutes.map((route, index) => {
               const Page = route.component;
               let Layout = DefaultLayout;
@@ -27,13 +28,33 @@ function App() {
                   path={route.path}
                   element={
                     <Layout>
-                      {route.requireLogin ? (
-                        <CheckAuth>
-                          <Page />
-                        </CheckAuth>
-                      ) : (
+                      <Page />
+                    </Layout>
+                  }
+                />
+              );
+            })}
+
+            {/* Private Routes */}
+            {privateRoutes.map((route, index) => {
+              const Page = route.component;
+              let Layout = DefaultLayout;
+
+              if (route.layout) {
+                Layout = route.layout;
+              } else if (route.layout === null) {
+                Layout = Fragment;
+              }
+
+              return (
+                <Route
+                  key={`private-${index}`}
+                  path={route.path}
+                  element={
+                    <Layout>
+                      <CheckAuth>
                         <Page />
-                      )}
+                      </CheckAuth>
                     </Layout>
                   }
                 />

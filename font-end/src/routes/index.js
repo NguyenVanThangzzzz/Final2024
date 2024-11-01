@@ -12,18 +12,15 @@ import Profile from "~/pages/Profile";
 import ResetPassword from "~/pages/ResetPassword";
 import Room from "~/pages/Room";
 import Signup from "~/pages/Signup";
-//////////////////////////////////////////////////////////////
-
 import Search from "~/pages/Search";
 import Showtime from "~/pages/Showtime";
 import Upload from "~/pages/Upload";
 
-//publicRoutes
+// Public routes không yêu cầu đăng nhập
 const publicRoutes = [
   { path: config.routes.home, component: Home, layout: null },
   { path: config.routes.login, component: Login, layout: HeaderOnly },
   { path: config.routes.signup, component: Signup, layout: HeaderOnly },
-
   {
     path: config.routes.emailVerication,
     component: EmailVerication,
@@ -49,18 +46,17 @@ const publicRoutes = [
     component: Room,
     layout: HeaderOnly,
   },
-
-  //////////////////////////////////////////////////////////////
   { path: "/showtime", component: Showtime },
+];
+
+// Private routes yêu cầu đăng nhập
+const privateRoutes = [
   { path: "/upload", component: Upload, layout: HeaderOnly },
-  { path: "/search", component: Search, requireLogin: true },
+  { path: "/search", component: Search },
   {
     path: config.routes.profile,
     component: Profile,
-    requireLogin: true,
   },
 ];
-
-const privateRoutes = [];
 
 export { privateRoutes, publicRoutes };
