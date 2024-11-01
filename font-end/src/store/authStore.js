@@ -127,7 +127,11 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  checkAuth: async () => {
+  checkAuth: async (force = false) => {
+    if (get().isAuthenticated && !force) {
+      return;
+    }
+
     set({ isCheckingAuth: true });
     try {
       const response = await axios.get(`${API_URL}/profile`);
