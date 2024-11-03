@@ -72,7 +72,7 @@
   }
 
   &.selected {
-    background-color: #4caf50;
+    background-color: #f97316;
     color: white;
   }
 
@@ -84,6 +84,33 @@
     background-color: #ff4444;
     color: white;
     cursor: pointer;
+
+    &:hover {
+      background-color: #ff4444;
+    }
+  }
+
+  &.available {
+    background-color: #e0e0e0;
+
+    &:hover {
+      background-color: #d0d0d0;
+    }
+  }
+
+  &.selected {
+    background-color: #f97316;
+    color: white;
+
+    &:hover {
+      background-color: #ea580c;
+    }
+  }
+
+  &.booked {
+    background-color: #ff4444;
+    color: white;
+    cursor: not-allowed;
 
     &:hover {
       background-color: #ff4444;
@@ -195,6 +222,101 @@
 
   &:disabled {
     background-color: #cccccc;
+    cursor: not-allowed;
+  }
+}
+
+.ticket-preview {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+
+  h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #e5e7eb;
+  }
+}
+
+.ticket-content {
+  .movie-info {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    h4 {
+      color: #f97316;
+      margin-bottom: 15px;
+      font-size: 1.2em;
+    }
+
+    p {
+      color: #d1d5db;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+
+      &:not(:last-child) {
+        margin-bottom: 8px;
+      }
+    }
+  }
+}
+
+.selected-seats {
+  h4 {
+    color: #e5e7eb;
+    margin-bottom: 10px;
+  }
+
+  .seats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .seat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    color: #d1d5db;
+  }
+
+  .total-price {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    color: #f97316;
+    font-size: 1.1em;
+  }
+}
+
+.next-button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #f97316;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #ea580c;
+  }
+
+  &:disabled {
+    background-color: #666;
     cursor: not-allowed;
   }
 }

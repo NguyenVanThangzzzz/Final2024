@@ -48,8 +48,15 @@ export const getAllScreenings = async (req, res) => {
 export const getScreeningById = async (req, res) => {
   try {
     const screening = await Screening.findById(req.params.id)
-      .populate("roomId", "name") // Populate thông tin phòng
-      .populate("movieId", "name"); // Populate thông tin phim
+      .populate('movieId', 'name image')
+      .populate({
+        path: 'roomId',
+        select: 'name screenType roomType cinemaId',
+        populate: {
+          path: 'cinemaId',
+          select: 'name country state streetName'
+        }
+      });
 
     if (!screening) {
       return res.status(404).json({ message: "Screening not found" });
@@ -111,8 +118,16 @@ export const getScreeningsByRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
     const screenings = await Screening.find({ roomId })
-      .populate('movieId', 'name duration posterUrl') // Lấy thêm thông tin phim
-      .sort({ showTime: 1 }); // Sắp xếp theo thời gian chiếu
+      .populate('movieId', 'name duration posterUrl')
+      .populate({
+        path: 'roomId',
+        select: 'name screenType roomType cinemaId',
+        populate: {
+          path: 'cinemaId',
+          select: 'name country state streetName'
+        }
+      })
+      .sort({ showTime: 1 });
 
     res.json(screenings);
   } catch (error) {

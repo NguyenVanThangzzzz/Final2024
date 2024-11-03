@@ -22,14 +22,13 @@ const ticketSchema = new mongoose.Schema(
       ref: "Room",
       required: true,
     },
-    seatNumber: {
+    seatNumbers: [{
       type: String,
-      required: true
-    },
-    price: {
+      required: true,
+    }],
+    totalPrice: {
       type: Number,
       required: true,
-      min: 0
     },
     status: {
       type: String,
@@ -39,9 +38,6 @@ const ticketSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Đảm bảo mỗi ghế chỉ được đặt một lần cho mỗi buổi chiếu
-ticketSchema.index({ screeningId: 1, seatNumber: 1 }, { unique: true });
 
 const Ticket = mongoose.model("Ticket", ticketSchema);
 

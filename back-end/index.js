@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import cinemaRoutes from "./routes/cinema.route.js";
 import movieRoutes from "./routes/movie.route.js";
+import orderRoutes from "./routes/order.route.js";
 import roomRoutes from "./routes/room.route.js";
 import screeningRoutes from "./routes/screening.route.js";
 import ticketRoutes from "./routes/ticket.route.js";
@@ -46,6 +47,7 @@ app.use("/api/cinema", cinemaRoutes);
 app.use("/api/screening", screeningRoutes);
 app.use("/api/room", roomRoutes);
 app.use("/api/ticket", ticketRoutes);
+app.use("/api/order", orderRoutes);
 
 // Start the server
 app.listen(PORT, () => {

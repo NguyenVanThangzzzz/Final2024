@@ -8,6 +8,7 @@ const routes = {
   resetpassword: "/reset-password/:token",
   film: "/film/:slug",
   room: "/room/:slug",
+  order: "/order",
 
   // profile: "/@:nickname",
 

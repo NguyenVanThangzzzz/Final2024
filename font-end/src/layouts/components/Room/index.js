@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import classNames from "classnames/bind";
 import { useRoomStore } from "~/store/roomStore";
 import { useScreeningStore } from "~/store/screeningStore";
+import { useTicketStore } from "~/store/ticketStore";
 import styles from "./RoomPage.module.scss";
 import { toast } from "react-toastify";
 
@@ -13,7 +14,15 @@ function RoomPage() {
   const [searchParams] = useSearchParams();
   const movieId = searchParams.get('movieId');
   const { screenings, fetchScreeningsByRoom } = useRoomStore();
-  const { fetchScreeningById, updateSeatStatus } = useScreeningStore();
+  const { fetchScreeningById } = useScreeningStore();
+  const navigate = useNavigate();
+  const {
+    selectedSeats,
+    totalPrice,
+    addSelectedSeat,
+    removeSelectedSeat,
+    resetSelection
+  } = useTicketStore();
 
   const [loading, setLoading] = useState(true);
   const [selectedScreening, setSelectedScreening] = useState(null);
@@ -31,73 +40,102 @@ function RoomPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Fetch danh sách screenings
+        setLoading(true);
+        resetSelection();
+
         const fetchedScreenings = await fetchScreeningsByRoom(slug);
 
-        // Lọc các screening theo movieId
+        // Kiểm tra và lọc các screening hợp lệ
         const filteredScreenings = fetchedScreenings.filter(
-          screening => screening.movieId._id === movieId
+          screening => screening.movieId?._id === movieId && screening.roomId?.cinemaId
         );
 
-        // Nếu có screenings phù hợp, chọn screening đầu tiên
         if (filteredScreenings && filteredScreenings.length > 0) {
           const firstScreening = getFirstScreening(filteredScreenings);
           if (firstScreening) {
             const screeningDetails = await fetchScreeningById(firstScreening._id);
-            setSelectedScreening(screeningDetails);
+            if (screeningDetails.roomId?.cinemaId) {
+              setSelectedScreening(screeningDetails);
+            } else {
+              toast.error("Không thể tải thông tin rạp chiếu");
+            }
           }
         }
-
-        setLoading(false);
       } catch (error) {
         console.error("Error loading data:", error);
+        toast.error("Không thể tải dữ liệu");
+      } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, [slug, movieId, fetchScreeningsByRoom, fetchScreeningById]);
+  }, [slug, movieId, fetchScreeningsByRoom, fetchScreeningById, resetSelection]);
 
-  // Hàm xử lý khi click vào ghế
+  // Cleanup khi component unmount
+  useEffect(() => {
+    return () => {
+      resetSelection();
+    };
+  }, [resetSelection]);
+
+  // Hm xử lý khi click vào ghế
   const handleSeatClick = async (seat) => {
     if (!selectedScreening) {
       toast.error("Vui lòng chọn suất chiếu trước");
       return;
     }
 
-    try {
-      // Xác định trạng thái mới dựa trên trạng thái hiện tại
-      const newStatus = seat.status === 'available' ? 'booked' : 'available';
+    // Chỉ cho phép tương tác với ghế available
+    if (seat.status !== 'available' && !selectedSeats.some(s => s.seatNumber === seat.seatNumber)) {
+      toast.error("Ghế này không khả dụng");
+      return;
+    }
 
-      // Cập nhật trạng thái ghế trên server
-      await updateSeatStatus(
-        selectedScreening._id,
-        seat.seatNumber,
-        newStatus
-      );
+    // Kiểm tra xem ghế đã được chọn chưa
+    const isSelected = selectedSeats.some(s => s.seatNumber === seat.seatNumber);
 
-      // Fetch lại thông tin screening để cập nhật UI
-      const updatedScreening = await fetchScreeningById(selectedScreening._id);
-      setSelectedScreening(updatedScreening);
-
-      // Hiển thị thông báo thành công
-      toast.success(`Ghế ${seat.seatNumber} đã ${newStatus === 'booked' ? 'được đặt' : 'được hủy'}`);
-
-    } catch (error) {
-      console.error("Error updating seat status:", error);
-      toast.error("Không thể cập nhật trạng thái ghế");
+    if (isSelected) {
+      removeSelectedSeat(seat.seatNumber);
+    } else {
+      addSelectedSeat({
+        seatNumber: seat.seatNumber,
+        price: seat.price
+      });
     }
   };
 
   // Hàm xử lý khi chọn suất chiếu
   const handleScreeningSelect = async (screening) => {
     try {
+      // Reset selection trước khi load screening mới
+      resetSelection();
+
       const screeningData = await fetchScreeningById(screening._id);
+      if (!screeningData.roomId?.cinemaId) {
+        console.error("Missing cinema information");
+        toast.error("Không thể tải thông tin rạp chiếu");
+        return;
+      }
       setSelectedScreening(screeningData);
     } catch (error) {
       console.error("Error fetching screening details:", error);
       toast.error("Không thể tải thông tin suất chiếu");
     }
+  };
+
+  // Thêm hàm để cập nhật trạng thái ghế
+  const updateSeatStatus = (seatNumber, newStatus) => {
+    if (!selectedScreening) return;
+
+    setSelectedScreening(prev => ({
+      ...prev,
+      seats: prev.seats.map(seat =>
+        seat.seatNumber === seatNumber
+          ? { ...seat, status: newStatus }
+          : seat
+      )
+    }));
   };
 
   // Hàm tạo ma trận ghế từ danh sách ghế của screening
@@ -110,7 +148,6 @@ function RoomPage() {
     let seatIndex = 0;
 
     for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
-      const rowLetter = String.fromCharCode(65 + rowIndex);
       const row = [];
 
       for (let colIndex = 0; colIndex < SEATS_PER_ROW && seatIndex < totalSeats; colIndex++) {
@@ -132,6 +169,41 @@ function RoomPage() {
     });
   };
 
+  // Thêm hàm xử lý next
+  const handleNext = () => {
+    if (selectedSeats.length === 0) {
+      toast.error("Vui lòng chọn ít nhất một ghế");
+      return;
+    }
+    navigate('/order', {
+      state: {
+        screeningId: selectedScreening._id,
+        selectedSeats,
+        totalPrice,
+        movieInfo: selectedScreening.movieId,
+        showTime: selectedScreening.showTime,
+        cinemaInfo: selectedScreening.roomId.cinemaId,
+        roomInfo: selectedScreening.roomId
+      }
+    });
+  };
+
+  // Thêm useEffect để lắng nghe sự thay đổi của screening
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (selectedScreening) {
+        try {
+          const updatedScreening = await fetchScreeningById(selectedScreening._id);
+          setSelectedScreening(updatedScreening);
+        } catch (error) {
+          console.error("Error updating screening data:", error);
+        }
+      }
+    }, 5000); // Cập nhật mỗi 5 giây
+
+    return () => clearInterval(interval);
+  }, [selectedScreening, fetchScreeningById]);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -149,7 +221,7 @@ function RoomPage() {
             <h3>Lịch chiếu</h3>
             <div className={cx("screenings-list")}>
               {screenings
-                .filter(screening => screening.movieId._id === movieId)
+                .filter(screening => screening.movieId?._id === movieId)
                 .map((screening) => (
                   <div
                     key={screening._id}
@@ -158,7 +230,7 @@ function RoomPage() {
                     })}
                     onClick={() => handleScreeningSelect(screening)}
                   >
-                    <div className={cx("movie-name")}>{screening.movieId.name}</div>
+                    <div className={cx("movie-name")}>{screening.movieId?.name}</div>
                     <div className={cx("show-time")}>
                       {formatDateTime(screening.showTime)}
                     </div>
@@ -195,7 +267,8 @@ function RoomPage() {
                         key={`${rowIndex}-${seatIndex}`}
                         className={cx("seat", {
                           booked: seat.status === "booked",
-                          available: seat.status === "available"
+                          available: seat.status === "available",
+                          selected: selectedSeats.some(s => s.seatNumber === seat.seatNumber)
                         })}
                         onClick={() => handleSeatClick(seat)}
                       >
@@ -210,6 +283,66 @@ function RoomPage() {
               </div>
             </>
           )}
+
+          {/* Thêm phần ticket preview */}
+          <div className={cx("ticket-preview")}>
+            <h3>Ticket Preview</h3>
+            {selectedScreening && selectedScreening.roomId && selectedScreening.roomId.cinemaId && (
+              <div className={cx("ticket-content")}>
+                <div className={cx("movie-info")}>
+                  <h4>{selectedScreening.movieId?.name}</h4>
+                  <p>
+                    <span>Rạp:</span>
+                    <span>{selectedScreening.roomId.cinemaId.name}</span>
+                  </p>
+                  <p>
+                    <span>Phòng:</span>
+                    <span>{selectedScreening.roomId.name}</span>
+                  </p>
+                  <p>
+                    <span>Thời gian:</span>
+                    <span>{formatDateTime(selectedScreening.showTime)}</span>
+                  </p>
+                  <p>
+                    <span>Loại phòng:</span>
+                    <span>{selectedScreening.roomId.roomType}</span>
+                  </p>
+                  <p>
+                    <span>Màn hình:</span>
+                    <span>{selectedScreening.roomId.screenType}</span>
+                  </p>
+                </div>
+
+                <div className={cx("selected-seats")}>
+                  <h4>Ghế đã chọn:</h4>
+                  {selectedSeats.length > 0 ? (
+                    <div className={cx("seats-list")}>
+                      {selectedSeats.map((seat) => (
+                        <div key={seat.seatNumber} className={cx("seat-item")}>
+                          <span>Ghế {seat.seatNumber}</span>
+                          <span>{seat.price.toLocaleString('vi-VN')} VNĐ</span>
+                        </div>
+                      ))}
+                      <div className={cx("total-price")}>
+                        <strong>Tổng tiền:</strong>
+                        <span>{totalPrice.toLocaleString('vi-VN')} VNĐ</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p>Chưa có ghế nào được chọn</p>
+                  )}
+                </div>
+
+                <button
+                  className={cx("next-button")}
+                  onClick={handleNext}
+                  disabled={selectedSeats.length === 0}
+                >
+                  Tiếp tục
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -11,10 +11,11 @@ import Login from "~/pages/Login";
 import Profile from "~/pages/Profile";
 import ResetPassword from "~/pages/ResetPassword";
 import Room from "~/pages/Room";
-import Signup from "~/pages/Signup";
 import Search from "~/pages/Search";
 import Showtime from "~/pages/Showtime";
+import Signup from "~/pages/Signup";
 import Upload from "~/pages/Upload";
+import Order from "../pages/Order/index";
 
 // Public routes không yêu cầu đăng nhập
 const publicRoutes = [
@@ -36,16 +37,7 @@ const publicRoutes = [
     component: ResetPassword,
     layout: HeaderOnly,
   },
-  {
-    path: config.routes.film,
-    component: Film,
-    layout: HeaderOnly,
-  },
-  {
-    path: config.routes.room,
-    component: Room,
-    layout: HeaderOnly,
-  },
+
   { path: "/showtime", component: Showtime },
 ];
 
@@ -56,6 +48,21 @@ const privateRoutes = [
   {
     path: config.routes.profile,
     component: Profile,
+  },
+  {
+    path: config.routes.film,
+    component: Film,
+    layout: HeaderOnly,
+  },
+  {
+    path: config.routes.room,
+    component: Room,
+    layout: HeaderOnly,
+  },
+  {
+    path: config.routes.order,
+    component: Order,
+    layout: HeaderOnly,
   },
 ];
 
