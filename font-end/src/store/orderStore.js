@@ -13,10 +13,20 @@ export const useOrderStore = create((set) => ({
     createOrder: async (orderData) => {
         try {
             set({ loading: true, error: null });
-            const response = await axios.post(`${API_URL}/create`, orderData);
+            const formattedData = {
+                screeningId: orderData.screeningId,
+                seats: orderData.seats.map(seat => ({
+                    seatNumber: seat.seatNumber,
+                    price: Number(seat.price)
+                })),
+                movieId: orderData.movieId,
+                roomId: orderData.roomId
+            };
+
+            const response = await axios.post(`${API_URL}/create`, formattedData);
             set({
                 loading: false,
-                orderDetails: response.data.ticket
+                orderDetails: response.data.order
             });
             return response.data;
         } catch (error) {

@@ -12,6 +12,7 @@ import orderRoutes from "./routes/order.route.js";
 import roomRoutes from "./routes/room.route.js";
 import screeningRoutes from "./routes/screening.route.js";
 import ticketRoutes from "./routes/ticket.route.js";
+import paymentRoutes from "./routes/payment.route.js";
 
 dotenv.config();
 const app = express();
@@ -48,6 +49,7 @@ app.use("/api/screening", screeningRoutes);
 app.use("/api/room", roomRoutes);
 app.use("/api/ticket", ticketRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // Start the server
 app.listen(PORT, () => {

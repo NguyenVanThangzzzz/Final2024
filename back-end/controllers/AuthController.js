@@ -52,7 +52,7 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Tạo mã xác minh 6 chữ số
+
     const verificationToken = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
@@ -61,9 +61,9 @@ export const signup = async (req, res) => {
       name,
       email,
       password,
-      role: "user", // Mặc định là user thông thường
-      verificationToken, // Sử dụng mã xác minh 6 chữ số
-      verificationTokenExpire: Date.now() + 24 * 60 * 60 * 1000, // Hết hạn sau 1 ngày
+      role: "user",
+      verificationToken,
+      verificationTokenExpire: Date.now() + 24 * 60 * 60 * 1000,
     });
     await sendVerificationEmail(user.email, verificationToken); // Gửi email xác minh
     const { accessToken, refreshToken } = generateTokens(user._id);

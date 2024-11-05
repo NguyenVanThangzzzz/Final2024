@@ -34,7 +34,7 @@ const orderSchema = new mongoose.Schema(
     },
     stripeSessionId: {
       type: String,
-      required: true,
+      required: false,
     },
     paymentDate: Date,
     refundDate: Date,

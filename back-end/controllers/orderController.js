@@ -2,6 +2,7 @@ import Ticket from "../models/ticket.js";
 import Order from "../models/order.js";
 import Screening from "../models/screening.js";
 import { User } from "../models/User.js";
+import stripe from "stripe";
 
 export const createOrder = async (req, res) => {
     try {
@@ -9,6 +10,7 @@ export const createOrder = async (req, res) => {
         const userId = req.user._id;
 
         const seatNumbers = seats.map(seat => seat.seatNumber);
+
         const existingTicket = await Ticket.findOne({
             screeningId,
             seatNumbers: { $in: seatNumbers },
@@ -21,7 +23,14 @@ export const createOrder = async (req, res) => {
             });
         }
 
-        const totalPrice = seats.reduce((sum, seat) => sum + seat.price, 0);
+        const screening = await Screening.findById(screeningId);
+        if (!screening) {
+            return res.status(404).json({
+                message: "Không tìm thấy suất chiếu",
+            });
+        }
+
+        const totalPrice = screening.price * seats.length;
 
         const newTicket = await Ticket.create({
             screeningId,
@@ -38,7 +47,7 @@ export const createOrder = async (req, res) => {
             ticketId: newTicket._id,
             totalAmount: totalPrice,
             status: "pending",
-            paymentMethod: "cash",
+            paymentMethod: "stripe",
             orderDate: new Date()
         });
 
@@ -84,7 +93,6 @@ export const createOrder = async (req, res) => {
             order: populatedOrder,
         });
     } catch (error) {
-        console.error("Error in createOrder:", error);
         res.status(500).json({
             message: "Đã có lỗi xảy ra khi đặt vé",
             error: error.message,
@@ -125,7 +133,6 @@ export const getMyOrders = async (req, res) => {
             orders,
         });
     } catch (error) {
-        console.error("Error in getMyOrders:", error);
         res.status(500).json({
             message: "Đã có lỗi xảy ra khi lấy danh sách đơn hàng",
             error: error.message,
@@ -139,8 +146,9 @@ export const cancelOrder = async (req, res) => {
         const userId = req.user._id;
 
         const ticket = await Ticket.findOne({ _id: ticketId, userId });
+        const order = await Order.findOne({ ticketId: ticketId });
 
-        if (!ticket) {
+        if (!ticket || !order) {
             return res.status(404).json({
                 message: "Không tìm thấy vé hoặc bạn không có quyền hủy vé này",
             });
@@ -152,15 +160,35 @@ export const cancelOrder = async (req, res) => {
             });
         }
 
+        if (order.status === "paid" && order.stripeSessionId) {
+            try {
+                const refund = await stripe.refunds.create({
+                    payment_intent: order.stripeSessionId,
+                });
+
+                order.status = "refunded";
+                order.refundDate = new Date();
+                await order.save();
+            } catch (refundError) {
+                return res.status(500).json({
+                    message: "Không thể hoàn tiền, vui lòng liên hệ admin",
+                });
+            }
+        }
+
         ticket.status = "cancelled";
+        order.status = "cancelled";
+        order.cancellationDate = new Date();
+
         await ticket.save();
+        await order.save();
 
         res.status(200).json({
             message: "Hủy vé thành công",
             ticket,
+            order,
         });
     } catch (error) {
-        console.error("Error in cancelOrder:", error);
         res.status(500).json({
             message: "Đã có lỗi xảy ra khi hủy vé",
             error: error.message,

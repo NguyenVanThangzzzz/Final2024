@@ -67,7 +67,7 @@ export const userProtectRoute = async (req, res, next) => {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
-          maxAge: 15 * 60 * 1000, // 15 phút
+          maxAge: 15 * 60 * 1000, 
         });
 
         req.user = user; // Đặt thông tin người dùng vào yêu cầu

@@ -5,6 +5,11 @@ import styles from "./OrderPage.module.scss";
 import { useOrderStore } from "~/store/orderStore";
 import { useAuthStore } from "~/store/authStore";
 import { toast } from "react-toastify";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(
+  "pk_test_51QHNBSP09ISZsaGpyJazWhAHUQXdTxGRfvebNSlVv1QQfBnoJHyVVX3QqqAeEdhEAWwhpUCxQznAett7a9gr19m600NVhBiMXV"
+);
 
 const cx = classNames.bind(styles);
 
@@ -14,6 +19,7 @@ function OrderPage() {
   const { createOrder } = useOrderStore();
   const { user } = useAuthStore();
   const [orderData, setOrderData] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (!location.state) {
@@ -27,18 +33,50 @@ function OrderPage() {
 
   const handleConfirmOrder = async () => {
     try {
-      const response = await createOrder({
+      setIsProcessing(true);
+
+      // 1. Tạo order trước
+      const orderResponse = await createOrder({
         screeningId: orderData.screeningId,
-        seats: orderData.selectedSeats,
+        seats: orderData.selectedSeats.map(seat => ({
+          seatNumber: seat.seatNumber,
+          price: Number(seat.price)
+        })),
         movieId: orderData.movieInfo._id,
         roomId: orderData.roomInfo._id,
       });
 
-      toast.success("Đặt vé thành công!");
-      navigate(`/my-orders/${response.order._id}`);
+      if (!orderResponse || !orderResponse.order) {
+        throw new Error('Không nhận được thông tin đơn hàng');
+      }
+
+      // 2. Tạo Stripe Checkout Session
+      const response = await fetch('http://localhost:8080/api/payment/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          orderId: orderResponse.order._id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Lỗi khi tạo phiên thanh toán');
+      }
+
+      const { url } = await response.json();
+
+      // 3. Chuyển hướng đến trang thanh toán Stripe
+      window.location.href = url;
+
     } catch (error) {
       console.error("Order error details:", error);
-      toast.error(error.response?.data?.message || "Lỗi khi đặt vé");
+      toast.error(error.message || "Lỗi khi đặt vé");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -94,15 +132,15 @@ function OrderPage() {
               </div>
               <div className={cx("info-item")}>
                 <span>Giá mỗi ghế:</span>
-                <span>{orderData.selectedSeats[0].price.toLocaleString('vi-VN')} VNĐ</span>
+                <span>${(orderData.selectedSeats[0].price).toFixed(2)}</span>
               </div>
               <div className={cx("info-item")}>
                 <span>Số lượng ghế:</span>
                 <span>{orderData.selectedSeats.length}</span>
               </div>
               <div className={cx("info-item")}>
-                <span>Tổng tiền ghế:</span>
-                <span>{orderData.totalPrice.toLocaleString('vi-VN')} VNĐ</span>
+                <span>Tổng tiền:</span>
+                <span>${(orderData.selectedSeats.reduce((sum, seat) => sum + seat.price, 0)).toFixed(2)}</span>
               </div>
             </div>
             <div className={cx("total-price")}>
@@ -116,12 +154,14 @@ function OrderPage() {
             <button
               className={cx("confirm-button")}
               onClick={handleConfirmOrder}
+              disabled={isProcessing}
             >
-              Xác nhận đặt vé
+              {isProcessing ? "Đang xử lý..." : "Xác nhận đặt vé"}
             </button>
             <button
               className={cx("cancel-button")}
               onClick={() => navigate(-1)}
+              disabled={isProcessing}
             >
               Quay lại
             </button>
