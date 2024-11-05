@@ -29,9 +29,6 @@ function RoomPage() {
   const [selectedScreening, setSelectedScreening] = useState(null);
   const SEATS_PER_ROW = 20;
 
-  // Thêm state để theo dõi interval cleanup
-  const [pendingTimeouts, setPendingTimeouts] = useState({});
-
   // Sửa lại hàm để lấy screening đầu tiên được tạo
   const getFirstScreening = (screenings) => {
     if (!screenings || screenings.length === 0) return null;
@@ -126,20 +123,6 @@ function RoomPage() {
       console.error("Error fetching screening details:", error);
       toast.error("Không thể tải thông tin suất chiếu");
     }
-  };
-
-  // Thêm hàm để cập nhật trạng thái ghế
-  const updateSeatStatus = (seatNumber, newStatus) => {
-    if (!selectedScreening) return;
-
-    setSelectedScreening(prev => ({
-      ...prev,
-      seats: prev.seats.map(seat =>
-        seat.seatNumber === seatNumber
-          ? { ...seat, status: newStatus }
-          : seat
-      )
-    }));
   };
 
   // Hàm tạo ma trận ghế từ danh sách ghế của screening
@@ -295,7 +278,10 @@ function RoomPage() {
               <h4>Suất chiếu đã chọn:</h4>
               <p>Phim: {selectedScreening.movieId.name}</p>
               <p>Thời gian: {formatDateTime(selectedScreening.showTime)}</p>
-              <p>Giá vé: {selectedScreening.price.toLocaleString('vi-VN')} VNĐ</p>
+              <p>Giá vé: ${selectedScreening.price.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}</p>
             </div>
           )}
 
@@ -370,12 +356,18 @@ function RoomPage() {
                       {selectedSeats.map((seat) => (
                         <div key={seat.seatNumber} className={cx("seat-item")}>
                           <span>Ghế {seat.seatNumber}</span>
-                          <span>{seat.price.toLocaleString('vi-VN')} VNĐ</span>
+                          <span>${seat.price.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}</span>
                         </div>
                       ))}
                       <div className={cx("total-price")}>
                         <strong>Tổng tiền:</strong>
-                        <span>{totalPrice.toLocaleString('vi-VN')} VNĐ</span>
+                        <span>${totalPrice.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })}</span>
                       </div>
                     </div>
                   ) : (
