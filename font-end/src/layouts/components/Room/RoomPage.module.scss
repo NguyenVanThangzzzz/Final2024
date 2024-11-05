@@ -91,30 +91,26 @@
   }
 
   &.available {
-    background-color: #e0e0e0;
+    background-color: #444451;
 
     &:hover {
-      background-color: #d0d0d0;
+      cursor: pointer;
+      transform: scale(1.2);
     }
   }
 
   &.selected {
-    background-color: #f97316;
-    color: white;
-
-    &:hover {
-      background-color: #ea580c;
-    }
+    background-color: #6feaf6;
   }
 
   &.booked {
-    background-color: #ff4444;
-    color: white;
+    background-color: #ff0000;
     cursor: not-allowed;
+  }
 
-    &:hover {
-      background-color: #ff4444;
-    }
+  &.pending {
+    background-color: #4CAF50;
+    cursor: not-allowed;
   }
 }
 

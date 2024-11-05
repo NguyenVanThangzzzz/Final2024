@@ -14,6 +14,10 @@ const seatSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  pendingExpiration: {
+    type: Date,
+    default: null
+  }
 });
 
 const screeningSchema = new mongoose.Schema({

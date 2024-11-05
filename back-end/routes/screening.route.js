@@ -10,6 +10,8 @@ import {
     updateSeatStatus,
     updateMultipleSeats,
     getScreeningSeats,
+    holdSeat,
+    releaseSeat,
 } from "../controllers/screeningController.js";
 
 const router = express.Router();
@@ -24,5 +26,7 @@ router.get('/room/:roomId', getScreeningsByRoom);
 router.put("/:screeningId/seats/:seatNumber", updateSeatStatus);
 router.put("/:screeningId/seats", updateMultipleSeats);
 router.get("/:screeningId/seats", getScreeningSeats);
+router.post('/:id/hold-seat', holdSeat);
+router.post('/:id/release-seat', releaseSeat);
 
 export default router;

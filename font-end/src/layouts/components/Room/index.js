@@ -6,6 +6,7 @@ import { useScreeningStore } from "~/store/screeningStore";
 import { useTicketStore } from "~/store/ticketStore";
 import styles from "./RoomPage.module.scss";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const cx = classNames.bind(styles);
 
@@ -27,6 +28,9 @@ function RoomPage() {
   const [loading, setLoading] = useState(true);
   const [selectedScreening, setSelectedScreening] = useState(null);
   const SEATS_PER_ROW = 20;
+
+  // Thêm state để theo dõi interval cleanup
+  const [pendingTimeouts, setPendingTimeouts] = useState({});
 
   // Sửa lại hàm để lấy screening đầu tiên được tạo
   const getFirstScreening = (screenings) => {
@@ -170,22 +174,57 @@ function RoomPage() {
   };
 
   // Thêm hàm xử lý next
-  const handleNext = () => {
+  const handleNext = async () => {
     if (selectedSeats.length === 0) {
       toast.error("Vui lòng chọn ít nhất một ghế");
       return;
     }
-    navigate('/order', {
-      state: {
-        screeningId: selectedScreening._id,
-        selectedSeats,
-        totalPrice,
-        movieInfo: selectedScreening.movieId,
-        showTime: selectedScreening.showTime,
-        cinemaInfo: selectedScreening.roomId.cinemaId,
-        roomInfo: selectedScreening.roomId
-      }
-    });
+
+    try {
+      // Sửa lại URL API
+      const promises = selectedSeats.map(seat =>
+        axios.post(`http://localhost:8080/api/screening/${selectedScreening._id}/hold-seat`, {
+          seatNumber: seat.seatNumber
+        })
+      );
+
+      await Promise.all(promises);
+
+      // Tạo timeout để tự động hủy ghế sau 5 phút
+      const timeoutId = setTimeout(async () => {
+        try {
+          const releasePromises = selectedSeats.map(seat =>
+            axios.post(`http://localhost:8080/api/screening/${selectedScreening._id}/release-seat`, {
+              seatNumber: seat.seatNumber
+            })
+          );
+          await Promise.all(releasePromises);
+          resetSelection();
+          toast.warning("Hết thời gian giữ ghế, vui lòng đặt lại");
+          navigate('/room/' + slug + '?movieId=' + movieId);
+        } catch (error) {
+          console.error("Error releasing seats:", error);
+        }
+      }, 5 * 60 * 1000); // 5 phút
+
+      // Lưu timeoutId vào sessionStorage để có thể clear khi cần
+      sessionStorage.setItem('seatTimeoutId', timeoutId);
+
+      navigate('/order', {
+        state: {
+          screeningId: selectedScreening._id,
+          selectedSeats,
+          totalPrice,
+          movieInfo: selectedScreening.movieId,
+          showTime: selectedScreening.showTime,
+          cinemaInfo: selectedScreening.roomId.cinemaId,
+          roomInfo: selectedScreening.roomId
+        }
+      });
+    } catch (error) {
+      console.error("Error holding seats:", error);
+      toast.error("Không thể giữ ghế, vui lòng thử lại");
+    }
   };
 
   // Thêm useEffect để lắng nghe sự thay đổi của screening
@@ -203,6 +242,17 @@ function RoomPage() {
 
     return () => clearInterval(interval);
   }, [selectedScreening, fetchScreeningById]);
+
+  // Cleanup timeouts khi unmount component
+  useEffect(() => {
+    return () => {
+      const timeoutId = sessionStorage.getItem('seatTimeoutId');
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        sessionStorage.removeItem('seatTimeoutId');
+      }
+    };
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;

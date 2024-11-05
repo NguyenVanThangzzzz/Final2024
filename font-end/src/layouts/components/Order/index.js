@@ -6,6 +6,7 @@ import { useOrderStore } from "~/store/orderStore";
 import { useAuthStore } from "~/store/authStore";
 import { toast } from "react-toastify";
 import { loadStripe } from "@stripe/stripe-js";
+import axios from "axios";
 
 const stripePromise = loadStripe(
   "pk_test_51QHNBSP09ISZsaGpyJazWhAHUQXdTxGRfvebNSlVv1QQfBnoJHyVVX3QqqAeEdhEAWwhpUCxQznAett7a9gr19m600NVhBiMXV"
@@ -20,6 +21,7 @@ function OrderPage() {
   const { user } = useAuthStore();
   const [orderData, setOrderData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(5 * 60); // 5 phút tính bằng giây
 
   useEffect(() => {
     if (!location.state) {
@@ -80,6 +82,58 @@ function OrderPage() {
     }
   };
 
+  // Hàm xử lý khi bấm nút Quay lại
+  const handleGoBack = async () => {
+    try {
+      // Giải phóng các ghế đang giữ
+      const releasePromises = orderData.selectedSeats.map(seat =>
+        axios.post(`http://localhost:8080/api/screening/${orderData.screeningId}/release-seat`, {
+          seatNumber: seat.seatNumber
+        })
+      );
+
+      await Promise.all(releasePromises);
+
+      // Xóa timeout
+      const timeoutId = sessionStorage.getItem('seatTimeoutId');
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        sessionStorage.removeItem('seatTimeoutId');
+      }
+
+      // Quay lại trang trước
+      navigate(-1);
+    } catch (error) {
+      console.error("Error releasing seats:", error);
+      toast.error("Có lỗi xảy ra khi hủy ghế");
+      // Vẫn cho phép người dùng quay lại ngay cả khi có lỗi
+      navigate(-1);
+    }
+  };
+
+  // Thêm useEffect để xử lý đếm ngược
+  useEffect(() => {
+    if (!timeLeft) {
+      // Hết thời gian
+      toast.error("Hết thời gian giữ ghế!");
+      navigate(-1);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prevTime => prevTime - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, navigate]);
+
+  // Hàm format thời gian
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   if (!orderData || !user) return <div>Loading...</div>;
 
   return (
@@ -87,6 +141,16 @@ function OrderPage() {
       <div className={cx("container")}>
         <div className={cx("content")}>
           <h2>Xác nhận đặt vé</h2>
+
+          {/* Thêm countdown timer */}
+          <div className={cx("countdown-timer")}>
+            <div className={cx("timer", { warning: timeLeft <= 60 })}>
+              {formatTime(timeLeft)}
+            </div>
+            <div className={cx("timer-text")}>
+              Thời gian giữ ghế còn lại
+            </div>
+          </div>
 
           {/* Thông tin người mua */}
           <div className={cx("user-info")}>
@@ -160,7 +224,7 @@ function OrderPage() {
             </button>
             <button
               className={cx("cancel-button")}
-              onClick={() => navigate(-1)}
+              onClick={handleGoBack}
               disabled={isProcessing}
             >
               Quay lại

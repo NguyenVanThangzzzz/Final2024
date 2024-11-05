@@ -210,3 +210,90 @@ export const getScreeningSeats = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Giữ ghế (chuyển sang pending)
+// @route   POST /api/screening/:id/hold-seat
+export const holdSeat = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { seatNumber } = req.body;
+
+    const screening = await Screening.findById(id);
+    if (!screening) {
+      return res.status(404).json({ message: "Screening not found" });
+    }
+
+    const seat = screening.seats.find(s => s.seatNumber === seatNumber);
+    if (!seat) {
+      return res.status(404).json({ message: "Seat not found" });
+    }
+
+    if (seat.status !== "available") {
+      return res.status(400).json({ message: "Seat is not available" });
+    }
+
+    // Set trạng thái pending và thời gian hết hạn
+    seat.status = "pending";
+    seat.pendingExpiration = new Date(Date.now() + 5 * 60 * 1000); // 5 phút
+    await screening.save();
+
+    res.json({ success: true, seat });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Giải phóng ghế (chuyển về available)
+// @route   POST /api/screening/:id/release-seat
+export const releaseSeat = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { seatNumber } = req.body;
+
+    const screening = await Screening.findById(id);
+    if (!screening) {
+      return res.status(404).json({ message: "Screening not found" });
+    }
+
+    const seat = screening.seats.find(s => s.seatNumber === seatNumber);
+    if (!seat) {
+      return res.status(404).json({ message: "Seat not found" });
+    }
+
+    if (seat.status === "pending") {
+      seat.status = "available";
+      seat.pendingExpiration = null;
+      await screening.save();
+    }
+
+    res.json({ success: true, seat });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Thêm một cronjob hoặc interval để tự động giải phóng các ghế pending hết hạn
+const cleanupPendingSeats = async () => {
+  try {
+    const now = new Date();
+    const screenings = await Screening.find({
+      'seats.status': 'pending',
+      'seats.pendingExpiration': { $lt: now }
+    });
+
+    for (const screening of screenings) {
+      screening.seats.forEach(seat => {
+        if (seat.status === 'pending' && seat.pendingExpiration < now) {
+          seat.status = 'available';
+          seat.pendingExpiration = null;
+        }
+      });
+      await screening.save();
+    }
+  } catch (error) {
+    console.error('Error cleaning up pending seats:', error);
+  }
+};
+
+// Chạy cleanup mỗi phút
+setInterval(cleanupPendingSeats, 60 * 1000);
