@@ -242,3 +242,36 @@ export const handleStripeWebhook = async (req, res) => {
 
     res.json({ received: true });
 };
+
+export const cancelPayment = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+        }
+
+        // Cập nhật trạng thái đơn hàng thành cancelled
+        order.status = "cancelled";
+        await order.save();
+
+        // Cập nhật trạng thái vé
+        const ticket = await Ticket.findById(order.ticketId);
+        if (ticket) {
+            ticket.status = "cancelled";
+            await ticket.save();
+        }
+
+        res.status(200).json({
+            message: "Đã hủy thanh toán thành công",
+            reason: "Người dùng đã hủy thanh toán"
+        });
+    } catch (error) {
+        console.error("Error in cancelPayment:", error);
+        res.status(500).json({
+            message: "Lỗi khi hủy thanh toán",
+            error: error.message
+        });
+    }
+};

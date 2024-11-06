@@ -29,12 +29,12 @@ function RoomPage() {
   const [selectedScreening, setSelectedScreening] = useState(null);
   const SEATS_PER_ROW = 20;
 
-  // Sửa lại hàm để lấy screening đầu tiên được tạo
+  // Sửa lại hàm để lấy screening có showTime sớm nhất
   const getFirstScreening = (screenings) => {
     if (!screenings || screenings.length === 0) return null;
-    // Sắp xếp theo thời gian tạo (createdAt) và lấy screening đầu tiên
-    return screenings.reduce((first, current) => {
-      return new Date(current.createdAt) < new Date(first.createdAt) ? current : first;
+    // Sắp xếp theo thời gian chiếu (showTime) và lấy screening sớm nhất
+    return screenings.reduce((earliest, current) => {
+      return new Date(current.showTime) < new Date(earliest.showTime) ? current : earliest;
     });
   };
 
@@ -255,6 +255,7 @@ function RoomPage() {
             <div className={cx("screenings-list")}>
               {screenings
                 .filter(screening => screening.movieId?._id === movieId)
+                .sort((a, b) => new Date(a.showTime) - new Date(b.showTime))
                 .map((screening) => (
                   <div
                     key={screening._id}

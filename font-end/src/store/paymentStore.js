@@ -8,6 +8,7 @@ export const usePaymentStore = create((set) => ({
     paymentStatus: null,
     paymentError: null,
     orderDetails: null,
+    cancelReason: null,
 
     checkPaymentStatus: async (sessionId) => {
         try {
@@ -62,12 +63,36 @@ export const usePaymentStore = create((set) => ({
         }
     },
 
+    handlePaymentCancel: async (orderId) => {
+        try {
+            const response = await axios.post(`${API_URL}/cancel`, { orderId });
+
+            set({
+                paymentStatus: 'cancelled',
+                cancelReason: response.data.reason || 'Thanh toán đã bị hủy',
+                orderDetails: null,
+                paymentError: null
+            });
+
+            return response.data;
+        } catch (error) {
+            set({
+                paymentStatus: 'error',
+                paymentError: error.response?.data?.message || 'Có lỗi xảy ra khi hủy thanh toán',
+                orderDetails: null,
+                cancelReason: null
+            });
+            throw error;
+        }
+    },
+
     // Reset state khi cần thiết
     resetPaymentState: () => {
         set({
             paymentStatus: null,
             paymentError: null,
-            orderDetails: null
+            orderDetails: null,
+            cancelReason: null
         });
     }
 }));

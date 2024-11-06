@@ -1,19 +1,20 @@
 import classNames from "classnames/bind";
-import PaymentPage from "../../layouts/components/Payment/index";
-import styles from "./Payment.module.scss";
+
+import PaymentCancelPage from "../../layouts/components/PaymentCancel/index";
+import styles from "./PaymentCancel.module.scss";
 
 const cx = classNames.bind(styles);
 
-function Payment() {
+function PaymentCancel() {
   return (
     <div className={cx("wrapper")}>
       <div className={cx("container")}>
         <div className={cx("content")}>
-          <PaymentPage />
+          <PaymentCancelPage />
         </div>
       </div>
     </div>
   );
 }
 
-export default Payment;
+export default PaymentCancel;

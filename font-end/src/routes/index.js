@@ -16,9 +16,8 @@ import Showtime from "~/pages/Showtime";
 import Signup from "~/pages/Signup";
 import Upload from "~/pages/Upload";
 import Order from "../pages/Order/index";
-import Payment from "../pages/Payment/index";
+import PaymentCancel from "../pages/PaymentCancel/index";
 import PaymentSuccess from "../pages/PaymentSuccess/index";
-// import PaymentCancel from "~/layouts/components/Payment/PaymentCancel";
 
 // Public routes không yêu cầu đăng nhập
 const publicRoutes = [
@@ -67,17 +66,17 @@ const privateRoutes = [
     component: Order,
     layout: HeaderOnly,
   },
-  {
-    path: config.routes.payment,
-    component: Payment,
-    layout: HeaderOnly,
-  },
+
   {
     path: config.routes.paymentSuccess,
     component: PaymentSuccess,
     layout: HeaderOnly,
   },
-  // { path: config.routes.paymentCancel, component: PaymentCancel },
+  {
+    path: config.routes.paymentCancel,
+    component: PaymentCancel,
+    layout: HeaderOnly,
+  },
 ];
 
 export { privateRoutes, publicRoutes };

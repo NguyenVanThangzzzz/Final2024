@@ -9,7 +9,6 @@ const routes = {
   film: "/film/:slug",
   room: "/room/:slug",
   order: "/order",
-  payment: "/payment",
   paymentSuccess: "/payment/success",
   paymentCancel: "/payment/cancel",
 
