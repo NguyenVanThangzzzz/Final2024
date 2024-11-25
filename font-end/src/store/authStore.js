@@ -12,6 +12,7 @@ export const useAuthStore = create((set, get) => ({
   message: null,
   loginError: null,
   signupError: null,
+  showLoginModal: false,
 
   clearErrors: () => set({ loginError: null, signupError: null }),
 
@@ -181,6 +182,8 @@ export const useAuthStore = create((set, get) => ({
       throw error;
     }
   },
+
+  setShowLoginModal: (show) => set({ showLoginModal: show }),
 }));
 
 let refreshPromise = null;

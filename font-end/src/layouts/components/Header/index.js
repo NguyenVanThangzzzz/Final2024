@@ -64,9 +64,14 @@ const MENU_ITEMS = [
 ];
 
 function Header() {
-  const { isAuthenticated, logout, user } = useAuthStore();
+  const { 
+    isAuthenticated, 
+    logout, 
+    user,
+    showLoginModal,
+    setShowLoginModal 
+  } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
 
   const handleSwitchToSignup = () => {

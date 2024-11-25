@@ -4,7 +4,12 @@ import LoadingSpinner from "~/components/LoadingSpinner";
 import { useAuthStore } from "~/store/authStore";
 
 function CheckAuth({ children }) {
-  const { isAuthenticated, isCheckingAuth, checkAuth } = useAuthStore();
+  const { 
+    isAuthenticated, 
+    isCheckingAuth, 
+    checkAuth, 
+    setShowLoginModal
+  } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const [isInitialCheck, setIsInitialCheck] = useState(true);
@@ -24,12 +29,10 @@ function CheckAuth({ children }) {
 
   useEffect(() => {
     if (!isCheckingAuth && !isAuthenticated && !isInitialCheck) {
-      navigate("/login", {
-        state: { from: location.pathname },
-        replace: true,
-      });
+      setShowLoginModal(true);
+      navigate('/', { replace: true });
     }
-  }, [isCheckingAuth, isAuthenticated, navigate, location, isInitialCheck]);
+  }, [isCheckingAuth, isAuthenticated, setShowLoginModal, navigate, isInitialCheck]);
 
   if (isCheckingAuth || isInitialCheck) {
     return <LoadingSpinner />;
