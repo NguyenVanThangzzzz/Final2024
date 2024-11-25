@@ -1,67 +1,96 @@
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames/bind";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import loginBanner from "~/asset/images/cinema.jpg";
 import { useAuthStore } from "../../../store/authStore";
 import styles from "./LoginPage.module.scss";
 
 const cx = classNames.bind(styles);
 
-function LoginPage() {
+function LoginPage({ onSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, error, isLoading } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await login(email, password);
-      navigate("/");
+      onSuccess?.();
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
     <div className={cx("login_container")}>
       <div className={cx("login_form_container")}>
-        <div className={cx("left")}>
-          <form className={cx("form_container")} onSubmit={handleLogin}>
-            <h1>Login to Your Account</h1>
+        <form className={cx("form_container")} onSubmit={handleLogin}>
+          <img
+            src={loginBanner}
+            alt="Login banner"
+            className={cx("login_banner")}
+          />
+          <h1>Login to Your Account</h1>
+          <input
+            type="email"
+            placeholder="Email"
+            name="email"
+            className={cx("input")}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <div className={cx("password-input-container")}>
             <input
-              type="email"
-              placeholder="Email"
-              name="email"
-              className={cx("input")}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
               name="password"
               className={cx("input")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <Link to="/forgot-password">Forgot password?</Link>
-            {error && <p className={cx("error")}>{error}</p>}
             <button
-              type="submit"
-              className={cx("green_btn")}
-              disabled={isLoading}
+              type="button"
+              className={cx("toggle-password")}
+              onClick={toggleShowPassword}
             >
-              {isLoading ? "Login up..." : "Login up"}
+              <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
             </button>
-          </form>
-        </div>
-        <div className={cx("right")}>
-          <h1>New Here?</h1>
-          <Link to="/signup">
-            <button type="button" className={cx("white_btn")}>
-              Sign Up
-            </button>
+          </div>
+          <Link to="/forgot-password">Forgot password?</Link>
+          {error && !isSubmitting && <p className={cx("error")}>{error}</p>}
+          <button
+            type="submit"
+            className={cx("green_btn")}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <div className={cx("button_spinner")} />
+            ) : (
+              "Login"
+            )}
+          </button>
+        </form>
+
+        <div className={cx("divider")}></div>
+
+        <div className={cx("signup_section")}>
+          <span>Don't have an account?</span>
+          <Link to="/signup" className={cx("signup_btn")}>
+            Sign up
           </Link>
         </div>
       </div>

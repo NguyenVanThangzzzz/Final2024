@@ -26,9 +26,8 @@ import routesConfig from "~/config/routes";
 import Menu from "../../../components/Popper/Menu/Index";
 import { useAuthStore } from "../../../store/authStore";
 import styles from "./Header.module.scss";
-
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { useEffect, useState } from "react";
+import Modal from '~/components/Modal';
+import LoginPage from '../LoginPage/Index';
 
 const cx = classNames.bind(styles);
 const MENU_ITEMS = [
@@ -65,6 +64,7 @@ const MENU_ITEMS = [
 function Header() {
   const { isAuthenticated, logout, user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   //user Menu
   const userMenu = [
@@ -170,7 +170,7 @@ function Header() {
                   </>
                 ) : (
                   <>
-                    <Button primary to={"/login"}>
+                    <Button primary onClick={() => setShowLoginModal(true)}>
                       Đăng nhập
                     </Button>
                     <Button primary to={"/signup"}>
@@ -183,6 +183,10 @@ function Header() {
           </div>
         </div>
       </div>
+
+      <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)}>
+        <LoginPage onSuccess={() => setShowLoginModal(false)} />
+      </Modal>
 
       <div className={cx("main-header-area")}>
         <div className={cx("container-main-header")}>
