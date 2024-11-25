@@ -55,62 +55,109 @@
 ///////////////////////////////////////////////////////////////////////////
 // css main header
 .main-header-area {
-  width: 1280px;
+  width: 100%;
   height: 82px;
   background-color: white;
+  border-bottom: 1px solid #e8e8e8;
 }
+
 .container-main-header {
+  max-width: 1200px;
   width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
-  margin-right: auto;
-  margin-left: auto;
-  max-width: 95% !important;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
 }
+
 .row-header-main {
+  height: 100%;
   display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .site-logo {
-  margin: 5px 0;
-  position: relative;
-  z-index: 9999;
-}
-.site-logo img {
-  max-width: 180px;
+  flex: 0 0 180px;
+  
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
 }
 
 .main-menu {
+  flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
-
+  
   nav {
     ul {
       display: flex;
       list-style: none;
-      padding: 0;
       margin: 0;
-      padding-left: 200px;
+      padding: 0;
+      gap: 40px;
     }
 
     li {
-      margin: 0 15px; // Tạo khoảng cách đều giữa các mục menu
-      a {
-        text-decoration: none;
-        color: var(--text-color-menu);
-        font-weight: 500;
-        padding: 10px 0;
-        margin-right: 40px;
-        &:hover {
-          color: #007bff; // Màu khi hover
+      position: relative;
+    }
+
+    .menu-item {
+      text-decoration: none;
+      color: var(--text-color-menu);
+      font-size: 1.6rem;
+      font-weight: 500;
+      padding: 8px 0;
+      transition: all 0.3s ease;
+
+      &.active {
+        color: #e97242;
+
+        &::after {
+          width: 100%;
         }
       }
+
+      &:hover {
+        color: #e97242;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #e97242;
+        transition: width 0.3s ease;
+      }
+
+      &:hover::after,
+      &.active::after {
+        width: 100%;
+      }
     }
+  }
+}
+
+.menu-right {
+  flex: 0 0 auto;
+}
+
+.more-btn {
+  font-size: 2rem;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color-menu);
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #e97242;
   }
 }
 
@@ -128,12 +175,6 @@
   cursor: pointer;
 }
 
-.more-btn {
-  font-size: 2rem;
-  margin-left: 24px;
-  padding: 4px 8px;
-  background: transparent;
-}
 .dropdown-menu {
   width: 224px;
 }

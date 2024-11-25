@@ -17,7 +17,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames/bind";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "tippy.js/dist/tippy.css";
 import Button from "~/components/Button";
 import Image from "~/components/Image";
@@ -73,6 +73,7 @@ function Header() {
   } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
+  const location = useLocation();
 
   const handleSwitchToSignup = () => {
     setShowLoginModal(false);
@@ -143,6 +144,10 @@ function Header() {
   if (isLoading) {
     return <LoadingSpinner />;
   }
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <header className={cx("wrapper")}>
@@ -221,32 +226,56 @@ function Header() {
           <div className={cx("row-header-main")}>
             <div className={cx("site-logo")}>
               <Link to={routesConfig.home}>
-                <img src="https://starlight.vn/Content/img/logo.png" alt="" />
+                <img src="https://starlight.vn/Content/img/logo.png" alt="Logo" />
               </Link>
             </div>
+            
             <div className={cx("main-menu")}>
               <nav>
                 <ul>
                   <li>
-                    <a href="/">Trang chủ</a>
+                    <Link 
+                      to={routesConfig.home} 
+                      className={cx("menu-item", { active: isActive('/') })}
+                    >
+                      Trang chủ
+                    </Link>
                   </li>
                   <li>
-                    <a href="/san-pham">Sản phẩm</a>
+                    <Link 
+                      to="/san-pham" 
+                      className={cx("menu-item", { active: isActive('/san-pham') })}
+                    >
+                      Sản phẩm
+                    </Link>
                   </li>
                   <li>
-                    <a href="/upload">Giới thiệu</a>
+                    <Link 
+                      to="/gioi-thieu" 
+                      className={cx("menu-item", { active: isActive('/gioi-thieu') })}
+                    >
+                      Giới thiệu
+                    </Link>
                   </li>
                   <li>
-                    <a href="/tin-tuc">Tin tức</a>
+                    <Link 
+                      to="/tin-tuc" 
+                      className={cx("menu-item", { active: isActive('/tin-tuc') })}
+                    >
+                      Tin tức
+                    </Link>
                   </li>
                 </ul>
               </nav>
             </div>
-            <Menu items={MENU_ITEMS} onChange={handleMenuChange}>
-              <button className={cx("more-btn")}>
-                <FontAwesomeIcon icon={faBars} />
-              </button>
-            </Menu>
+
+            <div className={cx("menu-right")}>
+              <Menu items={MENU_ITEMS} onChange={handleMenuChange}>
+                <button className={cx("more-btn")}>
+                  <FontAwesomeIcon icon={faBars} />
+                </button>
+              </Menu>
+            </div>
           </div>
         </div>
       </div>
