@@ -18,16 +18,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames/bind";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import "tippy.js/dist/tippy.css"; // optional
+import "tippy.js/dist/tippy.css";
 import Button from "~/components/Button";
 import Image from "~/components/Image";
 import LoadingSpinner from "~/components/LoadingSpinner";
+import Modal from "~/components/Modal";
 import routesConfig from "~/config/routes";
 import Menu from "../../../components/Popper/Menu/Index";
 import { useAuthStore } from "../../../store/authStore";
+import LoginPage from "../LoginPage/Index";
+import SignupPage from "../SignupPage";
+import SignupModal from "~/components/SignupModal";
 import styles from "./Header.module.scss";
-import Modal from '~/components/Modal';
-import LoginPage from '../LoginPage/Index';
 
 const cx = classNames.bind(styles);
 const MENU_ITEMS = [
@@ -65,6 +67,17 @@ function Header() {
   const { isAuthenticated, logout, user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+
+  const handleSwitchToSignup = () => {
+    setShowLoginModal(false);
+    setShowSignupModal(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowSignupModal(false);
+    setShowLoginModal(true);
+  };
 
   //user Menu
   const userMenu = [
@@ -173,7 +186,7 @@ function Header() {
                     <Button primary onClick={() => setShowLoginModal(true)}>
                       Đăng nhập
                     </Button>
-                    <Button primary to={"/signup"}>
+                    <Button primary onClick={() => setShowSignupModal(true)}>
                       Đăng Ký
                     </Button>
                   </>
@@ -185,8 +198,18 @@ function Header() {
       </div>
 
       <Modal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)}>
-        <LoginPage onSuccess={() => setShowLoginModal(false)} />
+        <LoginPage 
+          onSuccess={() => setShowLoginModal(false)}
+          onSwitchToSignup={handleSwitchToSignup}
+        />
       </Modal>
+
+      <SignupModal isOpen={showSignupModal} onClose={() => setShowSignupModal(false)}>
+        <SignupPage 
+          onSuccess={() => setShowSignupModal(false)}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      </SignupModal>
 
       <div className={cx("main-header-area")}>
         <div className={cx("container-main-header")}>

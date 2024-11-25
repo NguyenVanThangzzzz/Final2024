@@ -1,5 +1,6 @@
+import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames/bind";
-import { Check, X } from "lucide-react";
 import styles from "./PasswordStreng.module.scss";
 
 const cx = classNames.bind(styles);
@@ -20,11 +21,10 @@ const PasswordCriteria = ({ password }) => {
           key={item.label}
           className={cx("flex", { met: item.met, notMet: !item.met })}
         >
-          {item.met ? (
-            <Check className={cx("icon")} />
-          ) : (
-            <X className={cx("icon")} />
-          )}
+          <FontAwesomeIcon 
+            icon={item.met ? faCheck : faXmark} 
+            className={cx("icon")}
+          />
           <span>{item.label}</span>
         </div>
       ))}

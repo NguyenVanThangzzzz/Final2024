@@ -9,12 +9,12 @@ import styles from "./LoginPage.module.scss";
 
 const cx = classNames.bind(styles);
 
-function LoginPage({ onSuccess }) {
+function LoginPage({ onSuccess, onSwitchToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, error, isLoading } = useAuthStore();
+  const { login, loginError, clearErrors } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,6 +33,11 @@ function LoginPage({ onSuccess }) {
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleSwitchToSignup = () => {
+    clearErrors();
+    onSwitchToSignup();
   };
 
   return (
@@ -71,7 +76,7 @@ function LoginPage({ onSuccess }) {
             </button>
           </div>
           <Link to="/forgot-password">Forgot password?</Link>
-          {error && !isSubmitting && <p className={cx("error")}>{error}</p>}
+          {loginError && !isSubmitting && <p className={cx("error")}>{loginError}</p>}
           <button
             type="submit"
             className={cx("green_btn")}
@@ -89,9 +94,9 @@ function LoginPage({ onSuccess }) {
 
         <div className={cx("signup_section")}>
           <span>Don't have an account?</span>
-          <Link to="/signup" className={cx("signup_btn")}>
+          <button onClick={handleSwitchToSignup} className={cx("signup_btn")}>
             Sign up
-          </Link>
+          </button>
         </div>
       </div>
     </div>
