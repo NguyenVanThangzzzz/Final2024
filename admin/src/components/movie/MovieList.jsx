@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
-import { Edit3, Trash } from "lucide-react"; // Icons for delete and edit actions
+import { Edit3, Trash, Star } from "lucide-react"; // Icons for delete and edit actions
 import React, { useEffect } from "react";
 import { useMovieStore } from "../../Store/movieStore";
 
 const MovieList = () => {
-  const { deleteMovie, movies, fetchAllMovies } = useMovieStore();
+  const { deleteMovie, movies, fetchAllMovies, toggleFeatured } = useMovieStore();
 
   useEffect(() => {
     fetchAllMovies();
@@ -90,7 +90,17 @@ const MovieList = () => {
               <td className="px-6 py-4 whitespace-normal">{movie.director}</td>
               <td className="px-6 py-4 whitespace-normal">{movie.actors}</td>
               <td className="px-6 py-4 whitespace-normal">
-                {movie.isFeatured ? "Yes" : "No"}
+                <button
+                  onClick={() => toggleFeatured(movie._id)}
+                  className={`p-2 rounded-full transition-colors duration-200 ${
+                    movie.isFeatured 
+                      ? 'bg-yellow-400 text-gray-900' 
+                      : 'bg-gray-600 text-gray-300'
+                  }`}
+                  title={movie.isFeatured ? "Remove from featured" : "Add to featured"}
+                >
+                  <Star className="w-5 h-5" fill={movie.isFeatured ? "currentColor" : "none"} />
+                </button>
               </td>
               <td className="px-6 py-4 whitespace-nowrap flex items-center">
                 {/* Edit Action */}

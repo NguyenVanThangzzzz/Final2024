@@ -47,4 +47,19 @@ export const useMovieStore = create((set) => ({
       toast.error(error.response.data.error || "Failed to delete movie");
     }
   },
+  toggleFeatured: async (movieId) => {
+    try {
+      const response = await axios.patch(`${API_URL}/FeaturedMovie/${movieId}`);
+      set((state) => ({
+        movies: state.movies.map((movie) =>
+          movie._id === movieId
+            ? { ...movie, isFeatured: !movie.isFeatured }
+            : movie
+        ),
+      }));
+      toast.success('Movie featured status updated successfully');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update featured status');
+    }
+  },
 }));
