@@ -8,11 +8,12 @@ import {
 import {
   faBars,
   faCircleQuestion,
-  faEarthAsia,
+  faLanguage,
   faGear,
-  faKeyboard,
-  faSignOut,
+  faRightFromBracket,
   faUser,
+  faHeart,
+  faCartShopping,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames/bind";
@@ -34,8 +35,8 @@ import styles from "./Header.module.scss";
 const cx = classNames.bind(styles);
 const MENU_ITEMS = [
   {
-    icon: <FontAwesomeIcon icon={faEarthAsia} />,
-    title: "Tiếng Việt",
+    icon: <FontAwesomeIcon icon={faLanguage} />,
+    title: "Ngôn ngữ",
     children: {
       title: "Language",
       data: [
@@ -47,19 +48,20 @@ const MENU_ITEMS = [
         {
           type: "language",
           code: "vi",
-          title: "Tieng VIet",
+          title: "Tiếng Việt",
         },
       ],
     },
   },
   {
     icon: <FontAwesomeIcon icon={faCircleQuestion} />,
-    title: "Feedback and Help",
-    to: "/feedback",
+    title: "Trợ giúp",
+    to: "/help",
   },
   {
-    icon: <FontAwesomeIcon icon={faKeyboard} />,
-    title: "Keyborad Shortcuts",
+    icon: <FontAwesomeIcon icon={faHeart} />,
+    title: "Yêu thích",
+    to: "/wishlist",
   },
 ];
 
@@ -89,36 +91,22 @@ function Header() {
   const userMenu = [
     {
       icon: <FontAwesomeIcon icon={faUser} />,
-      title: user?.name || "User",
+      title: user?.name || "Tài khoản",
       to: "/profile",
     },
     {
-      icon: <FontAwesomeIcon icon={faEarthAsia} />,
-      title: "Tiếng Việt",
-      children: {
-        title: "Language",
-        data: [
-          {
-            type: "language",
-            code: "en",
-            title: "English",
-          },
-          {
-            type: "language",
-            code: "vi",
-            title: "Tieng VIet",
-          },
-        ],
-      },
+      icon: <FontAwesomeIcon icon={faCartShopping} />,
+      title: "Giỏ hàng",
+      to: "/cart",
     },
     {
       icon: <FontAwesomeIcon icon={faGear} />,
-      title: "Settings",
-      to: "/setting",
+      title: "Cài đặt",
+      to: "/settings",
     },
     {
-      icon: <FontAwesomeIcon icon={faSignOut} />,
-      title: "Log out",
+      icon: <FontAwesomeIcon icon={faRightFromBracket} />,
+      title: "Đăng xuất",
       type: "logout",
       separate: true,
     },
@@ -155,27 +143,21 @@ function Header() {
         <div>
           <div className={cx("container-header-top")}>
             <div className={cx("header-top-social")}>
-              <Button href="https://facebook.com" className={cx("social-icon")}>
+              <a href="https://facebook.com" className={cx("social-icon")}>
                 <FontAwesomeIcon icon={faFacebookF} />
-              </Button>
-              <Button href="/" className={cx("social-icon")}>
+              </a>
+              <a href="/" className={cx("social-icon")}>
                 <FontAwesomeIcon icon={faTwitter} />
-              </Button>
-              <Button
-                href="https://plus.google.com"
-                className={cx("social-icon")}
-              >
+              </a>
+              <a href="https://plus.google.com" className={cx("social-icon")}>
                 <FontAwesomeIcon icon={faGooglePlusG} />
-              </Button>
-              <Button href="https://linkedin.com" className={cx("social-icon")}>
+              </a>
+              <a href="https://linkedin.com" className={cx("social-icon")}>
                 <FontAwesomeIcon icon={faLinkedinIn} />
-              </Button>
-              <Button
-                href="https://pinterest.com"
-                className={cx("social-icon")}
-              >
+              </a>
+              <a href="https://pinterest.com" className={cx("social-icon")}>
                 <FontAwesomeIcon icon={faPinterestP} />
-              </Button>
+              </a>
             </div>
 
             <div className={cx("header-top-menu")}>
@@ -243,26 +225,42 @@ function Header() {
                   </li>
                   <li>
                     <Link 
-                      to="/san-pham" 
-                      className={cx("menu-item", { active: isActive('/san-pham') })}
+                      to="/lich-chieu" 
+                      className={cx("menu-item", { active: isActive('/lich-chieu') })}
                     >
-                      Sản phẩm
+                      Lịch chiếu
                     </Link>
                   </li>
                   <li>
                     <Link 
-                      to="/gioi-thieu" 
-                      className={cx("menu-item", { active: isActive('/gioi-thieu') })}
+                      to="/phim" 
+                      className={cx("menu-item", { active: isActive('/phim') })}
                     >
-                      Giới thiệu
+                      Phim
                     </Link>
                   </li>
                   <li>
                     <Link 
-                      to="/tin-tuc" 
-                      className={cx("menu-item", { active: isActive('/tin-tuc') })}
+                      to="/khuyen-mai" 
+                      className={cx("menu-item", { active: isActive('/khuyen-mai') })}
                     >
-                      Tin tức
+                      Khuyến mãi
+                    </Link>
+                  </li>
+                  <li>
+                    <Link 
+                      to="/dien-anh" 
+                      className={cx("menu-item", { active: isActive('/dien-anh') })}
+                    >
+                      Điện ảnh
+                    </Link>
+                  </li>
+                  <li>
+                    <Link 
+                      to="/lien-he" 
+                      className={cx("menu-item", { active: isActive('/lien-he') })}
+                    >
+                      Liên hệ
                     </Link>
                   </li>
                 </ul>
