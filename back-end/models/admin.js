@@ -14,23 +14,16 @@ const adminSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    img: {
+      type: String,
+      default: "default-avatar.png"
+    },
     password: {
       type: String,
       required: [true, "Please provide a password"],
       minlength: [6, "Password must be at least 6 characters"],
     },
-    cartItems: [
-      {
-        product: {
-          type: mongoose.Schema.ObjectId,
-          ref: "Product",
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
+
     role: {
       type: String,
       enum: ["user", "admin", "manager"],

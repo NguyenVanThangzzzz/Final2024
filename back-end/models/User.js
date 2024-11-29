@@ -12,6 +12,10 @@ const userSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
+    img: {
+      type: String,
+      default: "default-avatar.png"
+    },
     password: {
       type: String,
       required: true,

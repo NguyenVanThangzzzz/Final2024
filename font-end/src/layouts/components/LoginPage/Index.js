@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames/bind";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import loginBanner from "~/asset/images/cinema.jpg";
+import loginBanner from "~/asset/images/LINUXdoc.png";
 import { useAuthStore } from "../../../store/authStore";
 import styles from "./LoginPage.module.scss";
 
@@ -21,7 +21,7 @@ function LoginPage({ onSuccess, onSwitchToSignup }) {
     setIsSubmitting(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await login(email, password);
       onSuccess?.();
     } catch (error) {
@@ -76,17 +76,15 @@ function LoginPage({ onSuccess, onSwitchToSignup }) {
             </button>
           </div>
           <Link to="/forgot-password">Forgot password?</Link>
-          {loginError && !isSubmitting && <p className={cx("error")}>{loginError}</p>}
+          {loginError && !isSubmitting && (
+            <p className={cx("error")}>{loginError}</p>
+          )}
           <button
             type="submit"
             className={cx("green_btn")}
             disabled={isSubmitting}
           >
-            {isSubmitting ? (
-              <div className={cx("button_spinner")} />
-            ) : (
-              "Login"
-            )}
+            {isSubmitting ? <div className={cx("button_spinner")} /> : "Login"}
           </button>
         </form>
 
