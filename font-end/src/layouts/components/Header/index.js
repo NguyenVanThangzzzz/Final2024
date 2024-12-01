@@ -37,7 +37,7 @@ const cx = classNames.bind(styles);
 const MENU_ITEMS = [
   {
     icon: <FontAwesomeIcon icon={faLanguage} />,
-    title: "Ngôn ngữ",
+    title: "Language",
     children: {
       title: "Language",
       data: [
@@ -49,19 +49,19 @@ const MENU_ITEMS = [
         {
           type: "language",
           code: "vi",
-          title: "Tiếng Việt",
+          title: "Vietnamese",
         },
       ],
     },
   },
   {
     icon: <FontAwesomeIcon icon={faCircleQuestion} />,
-    title: "Trợ giúp",
+    title: "Help",
     to: "/help",
   },
   {
     icon: <FontAwesomeIcon icon={faHeart} />,
-    title: "Yêu thích",
+    title: "Wishlist",
     to: "/wishlist",
   },
 ];
@@ -87,22 +87,22 @@ function Header() {
   const userMenu = [
     {
       icon: <FontAwesomeIcon icon={faUser} />,
-      title: user?.name || "Tài khoản",
+      title: user?.name || "Account",
       to: "/profile",
     },
     {
       icon: <FontAwesomeIcon icon={faCartShopping} />,
-      title: "Giỏ hàng",
+      title: "Cart",
       to: "/cart",
     },
     {
       icon: <FontAwesomeIcon icon={faGear} />,
-      title: "Cài đặt",
+      title: "Settings",
       to: "/settings",
     },
     {
       icon: <FontAwesomeIcon icon={faRightFromBracket} />,
-      title: "Đăng xuất",
+      title: "Logout",
       type: "logout",
       separate: true,
     },
@@ -172,10 +172,10 @@ function Header() {
                 ) : (
                   <>
                     <Button primary onClick={() => setShowLoginModal(true)}>
-                      Đăng nhập
+                      Login
                     </Button>
                     <Button primary onClick={() => setShowSignupModal(true)}>
-                      Đăng Ký
+                      Sign Up
                     </Button>
                   </>
                 )}
@@ -222,7 +222,7 @@ function Header() {
                       to={routesConfig.home}
                       className={cx("menu-item", { active: isActive("/") })}
                     >
-                      Trang chủ
+                      Home
                     </Link>
                   </li>
                   <li>
@@ -232,7 +232,7 @@ function Header() {
                         active: isActive("/lich-chieu"),
                       })}
                     >
-                      Lịch chiếu
+                      Showtimes
                     </Link>
                   </li>
                   <li>
@@ -240,7 +240,7 @@ function Header() {
                       to="/phim"
                       className={cx("menu-item", { active: isActive("/phim") })}
                     >
-                      Phim
+                      Movies
                     </Link>
                   </li>
                   <li>
@@ -250,7 +250,7 @@ function Header() {
                         active: isActive("/khuyen-mai"),
                       })}
                     >
-                      Khuyến mãi
+                      Promotions
                     </Link>
                   </li>
                   <li>
@@ -260,7 +260,7 @@ function Header() {
                         active: isActive("/dien-anh"),
                       })}
                     >
-                      Điện ảnh
+                      Cinema
                     </Link>
                   </li>
                   <li>
@@ -270,7 +270,7 @@ function Header() {
                         active: isActive("/lien-he"),
                       })}
                     >
-                      Liên hệ
+                      Contact
                     </Link>
                   </li>
                 </ul>

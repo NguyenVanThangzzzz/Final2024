@@ -2,7 +2,7 @@ import classNames from "classnames/bind";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
-import styles from "./ResetPassword.module.scss"; // Giả sử bạn đã có tệp SCSS này
+import styles from "./ResetPassword.module.scss";
 
 const cx = classNames.bind(styles);
 
@@ -13,29 +13,28 @@ function ResetPassword() {
   const { token } = useParams();
   const navigate = useNavigate();
 
-  // State để lưu thông báo lỗi
   const [formError, setFormError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError(""); // Reset thông báo lỗi
+    setFormError("");
 
-    // Kiểm tra mật khẩu có khớp không
+    // Check if passwords match
     if (password !== confirmPassword) {
-      setFormError("Passwords do not match"); // Cập nhật thông báo lỗi
+      setFormError("Passwords do not match");
       return;
     }
 
     try {
       await resetPassword(token, password);
-      setFormError(""); // Reset thông báo lỗi
+      setFormError("");
       alert("Password reset successfully, redirecting to login page...");
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (error) {
       console.error(error);
-      setFormError(error.message || "Error resetting password"); // Cập nhật thông báo lỗi
+      setFormError(error.message || "Error resetting password");
     }
   };
 
@@ -62,14 +61,13 @@ function ResetPassword() {
           required
           className={cx("input")}
         />
-        {formError && <p className={cx("form-error")}>{formError}</p>}{" "}
-        {/* Hiển thị thông báo lỗi */}
+        {formError && <p className={cx("form-error")}>{formError}</p>}
         <button
           type="submit"
           className={cx("submit-button")}
           disabled={isLoading}
         >
-          {isLoading ? "Resetting..." : "Set New Password"}
+          {isLoading ? "Processing..." : "Reset Password"}
         </button>
       </form>
     </div>

@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import classNames from "classnames/bind";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { useRoomStore } from "~/store/roomStore";
 import { useScreeningStore } from "~/store/screeningStore";
 import { useTicketStore } from "~/store/ticketStore";
 import styles from "./RoomPage.module.scss";
-import { toast } from "react-toastify";
-import axios from "axios";
 
 const cx = classNames.bind(styles);
 
 function RoomPage() {
   const { slug } = useParams();
   const [searchParams] = useSearchParams();
-  const movieId = searchParams.get('movieId');
+  const movieId = searchParams.get("movieId");
   const { screenings, fetchScreeningsByRoom } = useRoomStore();
   const { fetchScreeningById } = useScreeningStore();
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ function RoomPage() {
     totalPrice,
     addSelectedSeat,
     removeSelectedSeat,
-    resetSelection
+    resetSelection,
   } = useTicketStore();
 
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,9 @@ function RoomPage() {
     if (!screenings || screenings.length === 0) return null;
     // Sắp xếp theo thời gian chiếu (showTime) và lấy screening sớm nhất
     return screenings.reduce((earliest, current) => {
-      return new Date(current.showTime) < new Date(earliest.showTime) ? current : earliest;
+      return new Date(current.showTime) < new Date(earliest.showTime)
+        ? current
+        : earliest;
     });
   };
 
@@ -48,30 +50,39 @@ function RoomPage() {
 
         // Kiểm tra và lọc các screening hợp lệ
         const filteredScreenings = fetchedScreenings.filter(
-          screening => screening.movieId?._id === movieId && screening.roomId?.cinemaId
+          (screening) =>
+            screening.movieId?._id === movieId && screening.roomId?.cinemaId
         );
 
         if (filteredScreenings && filteredScreenings.length > 0) {
           const firstScreening = getFirstScreening(filteredScreenings);
           if (firstScreening) {
-            const screeningDetails = await fetchScreeningById(firstScreening._id);
+            const screeningDetails = await fetchScreeningById(
+              firstScreening._id
+            );
             if (screeningDetails.roomId?.cinemaId) {
               setSelectedScreening(screeningDetails);
             } else {
-              toast.error("Không thể tải thông tin rạp chiếu");
+              toast.error("Cannot load cinema information");
             }
           }
         }
       } catch (error) {
         console.error("Error loading data:", error);
-        toast.error("Không thể tải dữ liệu");
+        toast.error("Cannot load data");
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, [slug, movieId, fetchScreeningsByRoom, fetchScreeningById, resetSelection]);
+  }, [
+    slug,
+    movieId,
+    fetchScreeningsByRoom,
+    fetchScreeningById,
+    resetSelection,
+  ]);
 
   // Cleanup khi component unmount
   useEffect(() => {
@@ -83,25 +94,30 @@ function RoomPage() {
   // Hm xử lý khi click vào ghế
   const handleSeatClick = async (seat) => {
     if (!selectedScreening) {
-      toast.error("Vui lòng chọn suất chiếu trước");
+      toast.error("Please select a showtime first");
       return;
     }
 
     // Chỉ cho phép tương tác với ghế available
-    if (seat.status !== 'available' && !selectedSeats.some(s => s.seatNumber === seat.seatNumber)) {
-      toast.error("Ghế này không khả dụng");
+    if (
+      seat.status !== "available" &&
+      !selectedSeats.some((s) => s.seatNumber === seat.seatNumber)
+    ) {
+      toast.error("This seat is not available");
       return;
     }
 
     // Kiểm tra xem ghế đã được chọn chưa
-    const isSelected = selectedSeats.some(s => s.seatNumber === seat.seatNumber);
+    const isSelected = selectedSeats.some(
+      (s) => s.seatNumber === seat.seatNumber
+    );
 
     if (isSelected) {
       removeSelectedSeat(seat.seatNumber);
     } else {
       addSelectedSeat({
         seatNumber: seat.seatNumber,
-        price: seat.price
+        price: seat.price,
       });
     }
   };
@@ -115,13 +131,13 @@ function RoomPage() {
       const screeningData = await fetchScreeningById(screening._id);
       if (!screeningData.roomId?.cinemaId) {
         console.error("Missing cinema information");
-        toast.error("Không thể tải thông tin rạp chiếu");
+        toast.error("Cannot load cinema information");
         return;
       }
       setSelectedScreening(screeningData);
     } catch (error) {
       console.error("Error fetching screening details:", error);
-      toast.error("Không thể tải thông tin suất chiếu");
+      toast.error("Cannot load screening details");
     }
   };
 
@@ -137,12 +153,25 @@ function RoomPage() {
     for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
       const row = [];
 
-      for (let colIndex = 0; colIndex < SEATS_PER_ROW && seatIndex < totalSeats; colIndex++) {
+      for (
+        let colIndex = 0;
+        colIndex < SEATS_PER_ROW && seatIndex < totalSeats;
+        colIndex++
+      ) {
+        // Thêm null để tạo lối đi giữa ghế 10 và 11
+        if (colIndex === 10) {
+          row.push(null);
+        }
         row.push(seats[seatIndex]);
         seatIndex++;
       }
 
       matrix.push(row);
+
+      // Thêm một hàng null sau mỗi 2 hàng ghế để tạo lối đi
+      if ((rowIndex + 1) % 2 === 0 && rowIndex < totalRows - 1) {
+        matrix.push(Array(SEATS_PER_ROW + 1).fill(null)); // +1 vì có thêm lối đi gia
+      }
     }
 
     return matrix;
@@ -150,25 +179,28 @@ function RoomPage() {
 
   // Format date and time
   const formatDateTime = (dateTime) => {
-    return new Date(dateTime).toLocaleString('vi-VN', {
-      dateStyle: 'short',
-      timeStyle: 'short'
+    return new Date(dateTime).toLocaleString("en-US", {
+      dateStyle: "short",
+      timeStyle: "short",
     });
   };
 
   // Thêm hàm xử lý next
   const handleNext = async () => {
     if (selectedSeats.length === 0) {
-      toast.error("Vui lòng chọn ít nhất một ghế");
+      toast.error("Please select at least one seat");
       return;
     }
 
     try {
       // Sửa lại URL API
-      const promises = selectedSeats.map(seat =>
-        axios.post(`http://localhost:8080/api/screening/${selectedScreening._id}/hold-seat`, {
-          seatNumber: seat.seatNumber
-        })
+      const promises = selectedSeats.map((seat) =>
+        axios.post(
+          `http://localhost:8080/api/screening/${selectedScreening._id}/hold-seat`,
+          {
+            seatNumber: seat.seatNumber,
+          }
+        )
       );
 
       await Promise.all(promises);
@@ -176,24 +208,27 @@ function RoomPage() {
       // Tạo timeout để tự động hủy ghế sau 5 phút
       const timeoutId = setTimeout(async () => {
         try {
-          const releasePromises = selectedSeats.map(seat =>
-            axios.post(`http://localhost:8080/api/screening/${selectedScreening._id}/release-seat`, {
-              seatNumber: seat.seatNumber
-            })
+          const releasePromises = selectedSeats.map((seat) =>
+            axios.post(
+              `http://localhost:8080/api/screening/${selectedScreening._id}/release-seat`,
+              {
+                seatNumber: seat.seatNumber,
+              }
+            )
           );
           await Promise.all(releasePromises);
           resetSelection();
-          toast.warning("Hết thời gian giữ ghế, vui lòng đặt lại");
-          navigate('/room/' + slug + '?movieId=' + movieId);
+          toast.warning("Time out, please re-select");
+          navigate("/room/" + slug + "?movieId=" + movieId);
         } catch (error) {
           console.error("Error releasing seats:", error);
         }
       }, 5 * 60 * 1000); // 5 phút
 
       // Lưu timeoutId vào sessionStorage để có thể clear khi cần
-      sessionStorage.setItem('seatTimeoutId', timeoutId);
+      sessionStorage.setItem("seatTimeoutId", timeoutId);
 
-      navigate('/order', {
+      navigate("/order", {
         state: {
           screeningId: selectedScreening._id,
           selectedSeats,
@@ -201,12 +236,12 @@ function RoomPage() {
           movieInfo: selectedScreening.movieId,
           showTime: selectedScreening.showTime,
           cinemaInfo: selectedScreening.roomId.cinemaId,
-          roomInfo: selectedScreening.roomId
-        }
+          roomInfo: selectedScreening.roomId,
+        },
       });
     } catch (error) {
       console.error("Error holding seats:", error);
-      toast.error("Không thể giữ ghế, vui lòng thử lại");
+      toast.error("Cannot hold seat, please try again");
     }
   };
 
@@ -215,7 +250,9 @@ function RoomPage() {
     const interval = setInterval(async () => {
       if (selectedScreening) {
         try {
-          const updatedScreening = await fetchScreeningById(selectedScreening._id);
+          const updatedScreening = await fetchScreeningById(
+            selectedScreening._id
+          );
           setSelectedScreening(updatedScreening);
         } catch (error) {
           console.error("Error updating screening data:", error);
@@ -229,10 +266,10 @@ function RoomPage() {
   // Cleanup timeouts khi unmount component
   useEffect(() => {
     return () => {
-      const timeoutId = sessionStorage.getItem('seatTimeoutId');
+      const timeoutId = sessionStorage.getItem("seatTimeoutId");
       if (timeoutId) {
         clearTimeout(timeoutId);
-        sessionStorage.removeItem('seatTimeoutId');
+        sessionStorage.removeItem("seatTimeoutId");
       }
     };
   }, []);
@@ -241,7 +278,9 @@ function RoomPage() {
     return <div>Loading...</div>;
   }
 
-  const seatMatrix = selectedScreening ? createSeatMatrix(selectedScreening.seats) : [];
+  const seatMatrix = selectedScreening
+    ? createSeatMatrix(selectedScreening.seats)
+    : [];
 
   return (
     <div className={cx("wrapper")}>
@@ -249,44 +288,39 @@ function RoomPage() {
         <div className={cx("content")}>
           <h2>Room Seats</h2>
 
-          {/* Phần hiển thị lịch chiếu */}
+          {/* Showtimes section */}
           <div className={cx("screenings-container")}>
-            <h3>Lịch chiếu</h3>
+            <h3>Showtimes</h3>
             <div className={cx("screenings-list")}>
               {screenings
-                .filter(screening => screening.movieId?._id === movieId)
+                .filter((screening) => screening.movieId?._id === movieId)
                 .sort((a, b) => new Date(a.showTime) - new Date(b.showTime))
                 .map((screening) => (
                   <div
                     key={screening._id}
                     className={cx("screening-item", {
-                      active: selectedScreening?._id === screening._id
+                      active: selectedScreening?._id === screening._id,
                     })}
                     onClick={() => handleScreeningSelect(screening)}
                   >
-                    <div className={cx("movie-name")}>{screening.movieId?.name}</div>
+                    <div className={cx("movie-name")}>
+                      <span>Name Movie: </span>
+                      {screening.movieId?.name}
+                    </div>
                     <div className={cx("show-time")}>
+                      <span>Date/Time: </span>
                       {formatDateTime(screening.showTime)}
+                    </div>
+                    <div className={cx("end-time")}>
+                      <span>End Time: </span>
+                      {formatDateTime(screening.endTime)}
                     </div>
                   </div>
                 ))}
             </div>
           </div>
 
-          {/* Hiển thị thông tin suất chiếu đã chọn */}
-          {selectedScreening && (
-            <div className={cx("selected-screening-info")}>
-              <h4>Suất chiếu đã chọn:</h4>
-              <p>Phim: {selectedScreening.movieId.name}</p>
-              <p>Thời gian: {formatDateTime(selectedScreening.showTime)}</p>
-              <p>Giá vé: ${selectedScreening.price.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })}</p>
-            </div>
-          )}
-
-          {/* Hiển thị sơ đồ ghế ngồi khi đã chọn suất chiếu */}
+          {/* Seats layout section - Move this section up */}
           {selectedScreening && (
             <>
               <div className={cx("screen")}>
@@ -294,26 +328,66 @@ function RoomPage() {
               </div>
 
               <div className={cx("seats-container")}>
+                <div className={cx("exit-sign")}>
+                  <div className={cx("exit-icon")}>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M4 12H15M15 12L12 9M15 12L12 15"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M9 4H19C19.5523 4 20 4.44772 20 5V19C20 19.5523 19.5523 20 19 20H9"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                  <span>EXIT</span>
+                </div>
+
                 {seatMatrix.map((row, rowIndex) => (
-                  <div key={rowIndex} className={cx("row")}>
+                  <div
+                    key={rowIndex}
+                    className={cx("row", {
+                      "spacing-row": row.every((seat) => seat === null),
+                    })}
+                  >
                     <div className={cx("row-label")}>
-                      {String.fromCharCode(65 + rowIndex)}
+                      {row.every((seat) => seat !== null)
+                        ? String.fromCharCode(65 + rowIndex)
+                        : ""}
                     </div>
-                    {row.map((seat, seatIndex) => (
-                      <div
-                        key={`${rowIndex}-${seatIndex}`}
-                        className={cx("seat", {
-                          booked: seat.status === "booked",
-                          available: seat.status === "available",
-                          selected: selectedSeats.some(s => s.seatNumber === seat.seatNumber)
-                        })}
-                        onClick={() => handleSeatClick(seat)}
-                      >
-                        {seat.seatNumber}
-                      </div>
-                    ))}
+                    {row.map((seat, seatIndex) =>
+                      seat === null ? (
+                        <div
+                          key={`${rowIndex}-${seatIndex}`}
+                          className={cx("seat-space")}
+                        />
+                      ) : (
+                        <div
+                          key={`${rowIndex}-${seatIndex}`}
+                          className={cx("seat", {
+                            booked: seat.status === "booked",
+                            available: seat.status === "available",
+                            selected: selectedSeats.some(
+                              (s) => s.seatNumber === seat.seatNumber
+                            ),
+                          })}
+                          onClick={() => handleSeatClick(seat)}
+                        >
+                          {seat.seatNumber}
+                        </div>
+                      )
+                    )}
                     <div className={cx("row-label")}>
-                      {String.fromCharCode(65 + rowIndex)}
+                      {row.every((seat) => seat !== null)
+                        ? String.fromCharCode(65 + rowIndex)
+                        : ""}
                     </div>
                   </div>
                 ))}
@@ -321,70 +395,79 @@ function RoomPage() {
             </>
           )}
 
-          {/* Thêm phần ticket preview */}
-          <div className={cx("ticket-preview")}>
-            <h3>Ticket Preview</h3>
-            {selectedScreening && selectedScreening.roomId && selectedScreening.roomId.cinemaId && (
-              <div className={cx("ticket-content")}>
-                <div className={cx("movie-info")}>
-                  <h4>{selectedScreening.movieId?.name}</h4>
-                  <p>
-                    <span>Rạp:</span>
-                    <span>{selectedScreening.roomId.cinemaId.name}</span>
-                  </p>
-                  <p>
-                    <span>Phòng:</span>
-                    <span>{selectedScreening.roomId.name}</span>
-                  </p>
-                  <p>
-                    <span>Thời gian:</span>
-                    <span>{formatDateTime(selectedScreening.showTime)}</span>
-                  </p>
-                  <p>
-                    <span>Loại phòng:</span>
-                    <span>{selectedScreening.roomId.roomType}</span>
-                  </p>
-                  <p>
-                    <span>Màn hình:</span>
-                    <span>{selectedScreening.roomId.screenType}</span>
-                  </p>
-                </div>
-
-                <div className={cx("selected-seats")}>
-                  <h4>Ghế đã chọn:</h4>
-                  {selectedSeats.length > 0 ? (
-                    <div className={cx("seats-list")}>
-                      {selectedSeats.map((seat) => (
-                        <div key={seat.seatNumber} className={cx("seat-item")}>
-                          <span>Ghế {seat.seatNumber}</span>
-                          <span>${seat.price.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          })}</span>
-                        </div>
-                      ))}
-                      <div className={cx("total-price")}>
-                        <strong>Tổng tiền:</strong>
-                        <span>${totalPrice.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                        })}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <p>Chưa có ghế nào được chọn</p>
-                  )}
-                </div>
-
-                <button
-                  className={cx("next-button")}
-                  onClick={handleNext}
-                  disabled={selectedSeats.length === 0}
-                >
-                  Tiếp tục
-                </button>
+          {/* Info container - Move this section down */}
+          <div className={cx("info-container")}>
+            {/* Selected screening info */}
+            {selectedScreening && (
+              <div className={cx("selected-screening-info")}>
+                <h4>Selected Showtime:</h4>
+                <p>
+                  <span>Movie:</span>
+                  <span>{selectedScreening.movieId.name}</span>
+                </p>
+                <p>
+                  <span>Time:</span>
+                  <span>{formatDateTime(selectedScreening.showTime)}</span>
+                </p>
+                <p>
+                  <span>Ticket Price:</span>
+                  <span>
+                    $
+                    {selectedScreening.price.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </p>
               </div>
             )}
+
+            {/* Ticket preview section */}
+            <div className={cx("ticket-preview")}>
+              <div className={cx("seat-legend")}>
+                <div className={cx("legend-item")}>
+                  <div className={cx("legend-seat", "normal")}></div>
+                  <span>Normal Seat</span>
+                </div>
+                <div className={cx("legend-item")}>
+                  <div className={cx("legend-seat", "selected")}></div>
+                  <span>Selected Seat</span>
+                </div>
+                <div className={cx("legend-item")}>
+                  <div className={cx("legend-seat", "booked")}></div>
+                  <span>Booked Seat</span>
+                </div>
+              </div>
+              <div className={cx("selected-seats")}>
+                <h4>Selected Seats:</h4>
+                {selectedSeats.length > 0 ? (
+                  <p>
+                    {selectedSeats.map((seat) => seat.seatNumber).join(", ")}
+                  </p>
+                ) : (
+                  <p>No seats selected</p>
+                )}
+              </div>
+
+              <div className={cx("price-info")}>
+                <h4>Price:</h4>
+                <p>
+                  $
+                  {totalPrice.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </p>
+              </div>
+
+              <button
+                className={cx("next-button")}
+                onClick={handleNext}
+                disabled={selectedSeats.length === 0}
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>

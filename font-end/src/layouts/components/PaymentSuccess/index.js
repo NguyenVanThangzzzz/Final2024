@@ -50,100 +50,103 @@ function PaymentSuccessPage() {
   if (isLoading) {
     return (
       <div className={cx("wrapper")}>
-        <div className={cx("loading")}>Đang xử lý thanh toán...</div>
+        <div className={cx("content")}>
+          <div className={cx("loading")}>Processing payment...</div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={cx("wrapper")}>
-      <div className={cx("container")}>
-        <div className={cx("content")}>
-          {paymentStatus === "success" ? (
-            <>
-              <div className={cx("success-icon")}>
-                <FontAwesomeIcon icon={faCheckCircle} />
-              </div>
-              <h2>Thanh toán thành công!</h2>
-              {orderDetails && (
-                <div className={cx("order-details")}>
-                  <h3>Chi tiết đơn hàng:</h3>
-                  <div className={cx("detail-item")}>
-                    <span>
-                      <FontAwesomeIcon icon={faFilm} className={cx("icon")} /> Phim:
-                    </span>
-                    <span>{orderDetails.ticketId.movieId.name}</span>
-                  </div>
-                  <div className={cx("detail-item")}>
-                    <span>
-                      <FontAwesomeIcon icon={faClock} className={cx("icon")} /> Suất chiếu:
-                    </span>
-                    <span>{orderDetails.ticketId.screeningId.showTime}</span>
-                  </div>
-                  <div className={cx("detail-item")}>
-                    <span>
-                      <FontAwesomeIcon icon={faBuilding} className={cx("icon")} /> Rạp:
-                    </span>
-                    <span>{orderDetails.ticketId.roomId.cinemaId.name}</span>
-                  </div>
-                  <div className={cx("detail-item")}>
-                    <span>
-                      <FontAwesomeIcon icon={faLocationDot} className={cx("icon")} /> Địa chỉ:
-                    </span>
-                    <span>{orderDetails.ticketId.roomId.cinemaId.streetName}</span>
-                  </div>
-                  <div className={cx("detail-item")}>
-                    <span>
-                      <FontAwesomeIcon icon={faVideo} className={cx("icon")} /> Phòng:
-                    </span>
-                    <span>{`${orderDetails.ticketId.roomId.name} (${orderDetails.ticketId.roomId.screenType})`}</span>
-                  </div>
-                  <div className={cx("detail-item")}>
-                    <span>
-                      <FontAwesomeIcon icon={faCouch} className={cx("icon")} /> Ghế:
-                    </span>
-                    <span>{orderDetails.ticketId.seatNumbers.join(", ")}</span>
-                  </div>
-                  <div className={cx("detail-item")}>
-                    <span>
-                      <FontAwesomeIcon icon={faUser} className={cx("icon")} /> Khách hàng:
-                    </span>
-                    <span>{orderDetails.userId.name}</span>
-                  </div>
-                  <div className={cx("detail-item")}>
-                    <span>
-                      <FontAwesomeIcon icon={faEnvelope} className={cx("icon")} /> Email:
-                    </span>
-                    <span>{orderDetails.userId.email}</span>
-                  </div>
-                  <div className={cx("detail-item", "total")}>
-                    <span>
-                      <FontAwesomeIcon icon={faDollarSign} className={cx("icon")} /> Tổng tiền:
-                    </span>
-                    <span>${orderDetails.totalAmount.toFixed(2)}</span>
-                  </div>
-                </div>
-              )}
-              <button
-                className={cx("home-button")}
-                onClick={() => navigate("/")}
-              >
-                Về trang chủ
-              </button>
-            </>
-          ) : (
-            <div className={cx("error")}>
-              <h2>Có lỗi xảy ra</h2>
-              <p>{paymentError}</p>
-              <button
-                className={cx("retry-button")}
-                onClick={() => navigate("/payment")}
-              >
-                Thử lại
-              </button>
+      <div className={cx("content")}>
+        {paymentStatus === "success" ? (
+          <>
+            <div className={cx("success-icon")}>
+              <FontAwesomeIcon icon={faCheckCircle} />
             </div>
-          )}
-        </div>
+            <h2>Payment Successful!</h2>
+            {orderDetails && (
+              <div className={cx("order-details")}>
+                <h3>Order Details:</h3>
+                <div className={cx("detail-item")}>
+                  <span>
+                    <FontAwesomeIcon icon={faFilm} className={cx("icon")} /> Movie:
+                  </span>
+                  <span>{orderDetails.ticketId.movieId.name}</span>
+                </div>
+                <div className={cx("detail-item")}>
+                  <span>
+                    <FontAwesomeIcon icon={faClock} className={cx("icon")} /> Showtime:
+                  </span>
+                  <span>{orderDetails.ticketId.screeningId.showTime}</span>
+                </div>
+                <div className={cx("detail-item")}>
+                  <span>
+                    <FontAwesomeIcon icon={faBuilding} className={cx("icon")} /> Cinema:
+                  </span>
+                  <span>{orderDetails.ticketId.roomId.cinemaId.name}</span>
+                </div>
+                <div className={cx("detail-item")}>
+                  <span>
+                    <FontAwesomeIcon icon={faLocationDot} className={cx("icon")} /> Address:
+                  </span>
+                  <span>{orderDetails.ticketId.roomId.cinemaId.streetName}</span>
+                </div>
+                <div className={cx("detail-item")}>
+                  <span>
+                    <FontAwesomeIcon icon={faVideo} className={cx("icon")} /> Room:
+                  </span>
+                  <span>{`${orderDetails.ticketId.roomId.name} (${orderDetails.ticketId.roomId.screenType})`}</span>
+                </div>
+                <div className={cx("detail-item")}>
+                  <span>
+                    <FontAwesomeIcon icon={faCouch} className={cx("icon")} /> Seats:
+                  </span>
+                  <span>{orderDetails.ticketId.seatNumbers.join(", ")}</span>
+                </div>
+                <div className={cx("detail-item")}>
+                  <span>
+                    <FontAwesomeIcon icon={faUser} className={cx("icon")} /> Customer:
+                  </span>
+                  <span>{orderDetails.userId.name}</span>
+                </div>
+                <div className={cx("detail-item")}>
+                  <span>
+                    <FontAwesomeIcon icon={faEnvelope} className={cx("icon")} /> Email:
+                  </span>
+                  <span>{orderDetails.userId.email}</span>
+                </div>
+                <div className={cx("detail-item", "total")}>
+                  <span>
+                    <FontAwesomeIcon icon={faDollarSign} className={cx("icon")} /> Total:
+                  </span>
+                  <span>${parseFloat(orderDetails.totalAmount).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}</span>
+                </div>
+              </div>
+            )}
+            <button
+              className={cx("home-button")}
+              onClick={() => navigate("/")}
+            >
+              Back to Home
+            </button>
+          </>
+        ) : (
+          <div className={cx("error")}>
+            <h2>Error Occurred</h2>
+            <p>{paymentError}</p>
+            <button
+              className={cx("retry-button")}
+              onClick={() => navigate("/payment")}
+            >
+              Try Again
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

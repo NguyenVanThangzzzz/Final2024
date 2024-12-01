@@ -16,38 +16,37 @@ function ForgotPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Kiểm tra nếu email rỗng
+    // Check if email is empty
     if (!email) {
-      setErrorMessage("Vui lòng nhập email");
+      setErrorMessage("Please enter your email");
       return;
     }
 
     try {
-      // Gọi API forgotPassword
+      // Call forgotPassword API
       await forgotPassword(email);
       setIsSubmitted(true);
-      setErrorMessage(""); // Xóa lỗi nếu thành công
+      setErrorMessage(""); // Clear error if successful
     } catch (error) {
-      // Hiển thị lỗi từ server
-      setErrorMessage(error.response.data.message || "Đã xảy ra lỗi");
+      // Display server error
+      setErrorMessage(error.response.data.message || "An error occurred");
     }
   };
 
   return (
     <div className={cx("container")}>
       <div className={cx("content")}>
-        <h2 className={cx("title")}>Quên mật khẩu</h2>
+        <h2 className={cx("title")}>Forgot Password</h2>
 
         {!isSubmitted ? (
           <form onSubmit={handleSubmit} className={cx("form")}>
             <p className={cx("description")}>
-              Nhập địa chỉ email của bạn và chúng tôi sẽ gửi liên kết để đặt lại
-              mật khẩu.
+              Enter your email address and we'll send you a link to reset your password.
             </p>
             <div className={cx("inputWrapper")}>
               <input
                 type="email"
-                placeholder="Địa chỉ email"
+                placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={cx("inputField")}
@@ -64,15 +63,14 @@ function ForgotPasswordPage() {
               {isLoading ? (
                 <div className={cx("loader")}></div>
               ) : (
-                "Gửi liên kết đặt lại mật khẩu"
+                "Send Reset Link"
               )}
             </button>
           </form>
         ) : (
           <div className={cx("successMessage")}>
             <p className={cx("confirmationText")}>
-              Nếu tài khoản {email} tồn tại, bạn sẽ nhận được một liên kết để
-              đặt lại mật khẩu.
+              If account {email} exists, you will receive a password reset link.
             </p>
           </div>
         )}
@@ -80,7 +78,7 @@ function ForgotPasswordPage() {
 
       <div className={cx("footer")}>
         <Link to={"/login"} className={cx("backToLogin")}>
-          Quay lại Đăng nhập
+          Back to Login
         </Link>
       </div>
     </div>

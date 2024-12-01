@@ -2,8 +2,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames/bind";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import loginBanner from "~/asset/images/cinema.jpg";
+import loginBanner from "~/asset/images/LINUXdoc.png";
 import PasswordStrengthMeter from "../../../components/PasswordStrengMeter/index";
 import { useAuthStore } from "../../../store/authStore";
 import styles from "./SignupPage.module.scss";
@@ -23,7 +22,7 @@ function SignupPage({ onSuccess, onSwitchToLogin }) {
     setIsSubmitting(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await signup(email, password, name);
       onSuccess?.();
     } catch (error) {
@@ -86,7 +85,9 @@ function SignupPage({ onSuccess, onSwitchToLogin }) {
             </button>
           </div>
           <PasswordStrengthMeter password={password} />
-          {signupError && !isSubmitting && <p className={cx("error")}>{signupError}</p>}
+          {signupError && !isSubmitting && (
+            <p className={cx("error")}>{signupError}</p>
+          )}
           <button
             type="submit"
             className={cx("green_btn")}

@@ -29,7 +29,7 @@ function FilmPage() {
     fetchAllCinemas();
   }, [fetchAllCinemas]);
 
-  // Lấy d��� liệu phim được chọn
+  // Lấy d liệu phim được chọn
   useEffect(() => {
     const selectedMovie = movies.find((m) => m.slug === slug || m._id === slug);
     setMovie(selectedMovie);
@@ -72,13 +72,13 @@ function FilmPage() {
           <div className={cx("movieInfo")}>
             <h2>{movie.name}</h2>
             <p>
-              <strong>Thể loại:</strong> {movie.genres}
+              <strong className={cx("label")}>Genre:</strong> {movie.genres}
             </p>
             <p>
-              <strong>Đạo diễn:</strong> {movie.director}
+              <strong className={cx("label")}>Director:</strong> {movie.director}
             </p>
             <p>
-              <strong>Diễn viên:</strong> {movie.actors}
+              <strong className={cx("label")}>Cast:</strong> {movie.actors}
             </p>
             <p className={cx("description")}>{movie.description}</p>
           </div>
@@ -91,10 +91,15 @@ function FilmPage() {
         <div className={cx("cinemaList")}>
           {cinemas.map((cinema) => (
             <div key={cinema._id} className={cx("cinemaCard")}>
+              <img 
+                src={cinema.image} 
+                alt={cinema.name}
+                className={cx("cinemaImage")}
+              />
               <div className={cx("cinemaInfo")}>
                 <h3>{cinema.name}</h3>
                 <p>
-                  <strong>Địa chỉ:</strong> {cinema.streetName}, {cinema.state},{" "}
+                  <strong>Address:</strong> {cinema.streetName}, {cinema.state},{" "}
                   {cinema.country}
                 </p>
                 <p>
@@ -105,13 +110,12 @@ function FilmPage() {
                 </p>
               </div>
 
-              {/* Rooms displayed with clickable and hover effect */}
               <div className={cx("rooms")}>
                 {rooms[cinema._id]?.map((room) => (
                   <div
                     key={room._id}
                     className={cx("roomDetails")}
-                    onClick={() => handleRoomClick(room._id)} // Cập nhật để truyền tên phòng
+                    onClick={() => handleRoomClick(room._id)}
                   >
                     <p>
                       <strong>Room:</strong> {room.name}

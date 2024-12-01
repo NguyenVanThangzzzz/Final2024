@@ -21,11 +21,11 @@ function OrderPage() {
   const { user } = useAuthStore();
   const [orderData, setOrderData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(5 * 60); // 5 phút tính bằng giây
+  const [timeLeft, setTimeLeft] = useState(5 * 60); // 5 minutes in seconds
 
   useEffect(() => {
     if (!location.state) {
-      toast.error("Không có thông tin đặt vé");
+      toast.error("No ticket information available");
       navigate("/");
       return;
     }
@@ -37,7 +37,7 @@ function OrderPage() {
     try {
       setIsProcessing(true);
 
-      // 1. Tạo order trước
+      // 1. Create order first
       const orderResponse = await createOrder({
         screeningId: orderData.screeningId,
         seats: orderData.selectedSeats.map(seat => ({
@@ -49,10 +49,10 @@ function OrderPage() {
       });
 
       if (!orderResponse || !orderResponse.order) {
-        throw new Error('Không nhận được thông tin đơn hàng');
+        throw new Error('No order information received');
       }
 
-      // 2. Tạo Stripe Checkout Session
+      // 2. Create Stripe Checkout Session
       const response = await fetch('http://localhost:8080/api/payment/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -66,26 +66,26 @@ function OrderPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Lỗi khi tạo phiên thanh toán');
+        throw new Error(errorData.message || 'Payment session creation failed');
       }
 
       const { url } = await response.json();
 
-      // 3. Chuyển hướng đến trang thanh toán Stripe
+      // 3. Redirect to Stripe payment page
       window.location.href = url;
 
     } catch (error) {
       console.error("Order error details:", error);
-      toast.error(error.message || "Lỗi khi đặt vé");
+      toast.error(error.message || "Order failed");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Hàm xử lý khi bấm nút Quay lại
+  // Function to handle the Back button
   const handleGoBack = async () => {
     try {
-      // Giải phóng các ghế đang giữ
+      // Release the seats
       const releasePromises = orderData.selectedSeats.map(seat =>
         axios.post(`http://localhost:8080/api/screening/${orderData.screeningId}/release-seat`, {
           seatNumber: seat.seatNumber
@@ -94,28 +94,28 @@ function OrderPage() {
 
       await Promise.all(releasePromises);
 
-      // Xóa timeout
+      // Clear timeout
       const timeoutId = sessionStorage.getItem('seatTimeoutId');
       if (timeoutId) {
         clearTimeout(timeoutId);
         sessionStorage.removeItem('seatTimeoutId');
       }
 
-      // Quay lại trang trước
+      // Go back to the previous page
       navigate(-1);
     } catch (error) {
       console.error("Error releasing seats:", error);
-      toast.error("Có lỗi xảy ra khi hủy ghế");
-      // Vẫn cho phép người dùng quay lại ngay cả khi có lỗi
+      toast.error("Error releasing seats");
+      // Allow the user to go back even if there's an error
       navigate(-1);
     }
   };
 
-  // Thêm useEffect để xử lý đếm ngược
+  // Add useEffect to handle countdown
   useEffect(() => {
     if (!timeLeft) {
-      // Hết thời gian
-      toast.error("Hết thời gian giữ ghế!");
+      // Time's up
+      toast.error("Time's up!");
       navigate(-1);
       return;
     }
@@ -127,7 +127,7 @@ function OrderPage() {
     return () => clearInterval(timer);
   }, [timeLeft, navigate]);
 
-  // Hàm format thời gian
+  // Function to format time
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -140,23 +140,23 @@ function OrderPage() {
     <div className={cx("wrapper")}>
       <div className={cx("container")}>
         <div className={cx("content")}>
-          <h2>Xác nhận đặt vé</h2>
+          <h2>Confirm Your Order</h2>
 
-          {/* Thêm countdown timer */}
+          {/* Countdown timer */}
           <div className={cx("countdown-timer")}>
             <div className={cx("timer", { warning: timeLeft <= 60 })}>
               {formatTime(timeLeft)}
             </div>
             <div className={cx("timer-text")}>
-              Thời gian giữ ghế còn lại
+              Time remaining to complete order
             </div>
           </div>
 
-          {/* Thông tin người mua */}
+          {/* Customer Information */}
           <div className={cx("user-info")}>
-            <h3>Thông tin người mua</h3>
+            <h3>Customer Information</h3>
             <div className={cx("info-item")}>
-              <span>Họ tên:</span>
+              <span>Full Name:</span>
               <span>{user.name}</span>
             </div>
             <div className={cx("info-item")}>
@@ -165,29 +165,29 @@ function OrderPage() {
             </div>
           </div>
 
-          {/* Thông tin vé */}
+          {/* Ticket Information */}
           <div className={cx("ticket-info")}>
-            <h3>Thông tin vé</h3>
+            <h3>Ticket Details</h3>
             <div className={cx("info-item")}>
-              <span>Rạp:</span>
+              <span>Cinema:</span>
               <span>{orderData.cinemaInfo.name}</span>
             </div>
             <div className={cx("info-item")}>
-              <span>Phòng:</span>
+              <span>Theater:</span>
               <span>{orderData.roomInfo.name} ({orderData.roomInfo.screenType})</span>
             </div>
             <div className={cx("info-item")}>
-              <span>Phim:</span>
-              <span>{orderData.movieInfo.name || 'Không có tên phim'}</span>
+              <span>Movie:</span>
+              <span>{orderData.movieInfo.name || 'No movie name'}</span>
             </div>
             <div className={cx("info-item")}>
-              <span>Suất chiếu:</span>
-              <span>{new Date(orderData.showTime).toLocaleString('vi-VN')}</span>
+              <span>Showtime:</span>
+              <span>{new Date(orderData.showTime).toLocaleString('en-US')}</span>
             </div>
             <div className={cx("seats-info")}>
-              <h3>Thông tin ghế</h3>
+              <h3>Seat Information</h3>
               <div className={cx("info-item")}>
-                <span>Số ghế:</span>
+                <span>Seat Numbers:</span>
                 <span>
                   {orderData.selectedSeats
                     .map(seat => seat.seatNumber)
@@ -195,39 +195,43 @@ function OrderPage() {
                 </span>
               </div>
               <div className={cx("info-item")}>
-                <span>Giá mỗi ghế:</span>
-                <span>${(orderData.selectedSeats[0].price).toFixed(2)}</span>
+                <span>Price per Seat:</span>
+                <span>${orderData.selectedSeats[0].price.toLocaleString('en-US')}</span>
               </div>
               <div className={cx("info-item")}>
-                <span>Số lượng ghế:</span>
+                <span>Number of Seats:</span>
                 <span>{orderData.selectedSeats.length}</span>
               </div>
               <div className={cx("info-item")}>
-                <span>Tổng tiền:</span>
-                <span>${(orderData.selectedSeats.reduce((sum, seat) => sum + seat.price, 0)).toFixed(2)}</span>
+                <span>Total Seat Cost:</span>
+                <span>
+                  ${orderData.selectedSeats
+                    .reduce((sum, seat) => sum + seat.price, 0)
+                    .toLocaleString('en-US')}
+                </span>
               </div>
             </div>
             <div className={cx("total-price")}>
-              <span>Tổng tiền:</span>
-              <span>{orderData.totalPrice.toLocaleString('vi-VN')} VNĐ</span>
+              <span>Total Payment:</span>
+              <span>${orderData.totalPrice.toLocaleString('en-US')}</span>
             </div>
           </div>
 
-          {/* Nút xác nhận */}
+          {/* Action Buttons */}
           <div className={cx("actions")}>
             <button
               className={cx("confirm-button")}
               onClick={handleConfirmOrder}
               disabled={isProcessing}
             >
-              {isProcessing ? "Đang xử lý..." : "Xác nhận đặt vé"}
+              {isProcessing ? "Processing..." : "Confirm Order"}
             </button>
             <button
               className={cx("cancel-button")}
               onClick={handleGoBack}
               disabled={isProcessing}
             >
-              Quay lại
+              Back
             </button>
           </div>
         </div>

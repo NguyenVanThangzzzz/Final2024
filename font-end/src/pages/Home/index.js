@@ -25,7 +25,7 @@ function Index() {
       <div className={cx('wrapper')}>
         <SliderShow />
         <div className={styles.movieContainer}>
-          <h1 className={styles.title}>Phim Hot : Tháng 10</h1>
+          <h1 className={styles.title}>Hot Movies : October</h1>
           <div className={styles.movieList}>
             {movies.map((movie) => (
               <div key={movie._id} className={styles.movieCard}>
@@ -36,16 +36,16 @@ function Index() {
                 />
                 <div className={styles.movieInfo}>
                   <h2 className={styles.movieName}>{movie.name}</h2>
-                  <p className={styles.movieGenre}>{movie.genres}</p>
+                  <p className={styles.movieGenre}>Genres: {movie.genres}</p>
 
                   <p>
-                    <strong>Đạo diễn:</strong> {movie.director}
+                    <strong>Director:</strong> {movie.director}
                   </p>
                   <p>
-                    <strong>Diễn viên:</strong> {movie.actors}
+                    <strong>Cast:</strong> {movie.actors}
                   </p>
                   <p>
-                    <strong>Mô tả:</strong> {movie.description}
+                    <strong>Description:</strong> {movie.description}
                   </p>
                   <a
                     href={`/film/${movie.slug || movie._id}`}
@@ -55,7 +55,7 @@ function Index() {
                       icon={faTicketAlt}
                       style={{ marginRight: "8px" }}
                     />
-                    Đặt vé
+                    Book Ticket
                   </a>
                 </div>
               </div>
