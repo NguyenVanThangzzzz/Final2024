@@ -79,50 +79,36 @@
   transition: all 0.2s ease;
   color: #000;
 
-  &.occupied {
-    background-color: #ff4444;
-    color: white;
-  }
-
-  &.selected {
-    background-color: #f97316;
-    color: white;
-  }
-
-  &:hover:not(.booked) {
-    background-color: #d0d0d0;
-  }
-
-  &.booked {
-    background-color: #ff4444;
-    color: white;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #ff4444;
-    }
-  }
-
   &.available {
     background-color: #444451;
+    color: white;
 
     &:hover {
       cursor: pointer;
-      transform: scale(1.2);
+      background-color: #22c55e;
+      transform: scale(1.1);
     }
   }
 
   &.selected {
-    background-color: #6feaf6;
+    background-color: #22c55e;
+    color: white;
+    
+    &:hover {
+      background-color: #16a34a;
+      transform: scale(1.1);
+    }
   }
 
   &.booked {
-    background-color: #ff0000;
+    background-color: #f97316;
+    color: white;
     cursor: not-allowed;
   }
 
   &.pending {
-    background-color: #4CAF50;
+    background-color: #fbbf24;
+    color: #1a1a1a;
     cursor: not-allowed;
   }
 }
@@ -331,16 +317,16 @@
     background-color: #444451;
   }
 
-  &.vip {
-    background-color: #f97316;
-  }
-
   &.selected {
-    background-color: #6feaf6;
+    background-color: #22c55e;
   }
 
   &.booked {
-    background-color: #ff0000;
+    background-color: #f97316;
+  }
+
+  &.pending {
+    background-color: #fbbf24;
   }
 }
 
@@ -369,11 +355,20 @@
 
   h4 {
     color: #e5e7eb;
-    margin-bottom: 8px;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
   }
 
   p {
     color: #d1d5db;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    
+    &:not(:empty) {
+      color: #22c55e;
+      font-weight: 600;
+    }
   }
 }
 

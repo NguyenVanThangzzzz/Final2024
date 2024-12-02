@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useRoomStore } from "~/store/roomStore";
 import { useScreeningStore } from "~/store/screeningStore";
 import { useTicketStore } from "~/store/ticketStore";
+import NotificationSeat from '~/components/NotificationSeat';
 import styles from "./RoomPage.module.scss";
 
 const cx = classNames.bind(styles);
@@ -28,6 +29,7 @@ function RoomPage() {
   const [loading, setLoading] = useState(true);
   const [selectedScreening, setSelectedScreening] = useState(null);
   const SEATS_PER_ROW = 20;
+  const [showNotification, setShowNotification] = useState(false);
 
   // Sửa lại hàm để lấy screening có showTime sớm nhất
   const getFirstScreening = (screenings) => {
@@ -115,6 +117,11 @@ function RoomPage() {
     if (isSelected) {
       removeSelectedSeat(seat.seatNumber);
     } else {
+      // Thêm kiểm tra số lượng ghế tối đa
+      if (selectedSeats.length >= 10) {
+        setShowNotification(true);
+        return;
+      }
       addSelectedSeat({
         seatNumber: seat.seatNumber,
         price: seat.price,
@@ -377,6 +384,7 @@ function RoomPage() {
                             selected: selectedSeats.some(
                               (s) => s.seatNumber === seat.seatNumber
                             ),
+                            pending: seat.status === "pending"
                           })}
                           onClick={() => handleSeatClick(seat)}
                         >
@@ -437,6 +445,10 @@ function RoomPage() {
                   <div className={cx("legend-seat", "booked")}></div>
                   <span>Booked Seat</span>
                 </div>
+                <div className={cx("legend-item")}>
+                  <div className={cx("legend-seat", "pending")}></div>
+                  <span>Pending Seat</span>
+                </div>
               </div>
               <div className={cx("selected-seats")}>
                 <h4>Selected Seats:</h4>
@@ -471,6 +483,11 @@ function RoomPage() {
           </div>
         </div>
       </div>
+      <NotificationSeat 
+        message="You can only select up to 10 seats at a time"
+        isVisible={showNotification}
+        onClose={() => setShowNotification(false)}
+      />
     </div>
   );
 }
