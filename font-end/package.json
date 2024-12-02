@@ -29,13 +29,13 @@
     "react-slideshow-image": "^4.3.1",
     "react-toastify": "^10.0.5",
     "web-vitals": "^2.1.4",
-    "zustand": "^5.0.0-rc.2"
+    "zustand": "^5.0.0-rc.2",
+    "serve": "^14.0.0"
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject"
+    "build": "DISABLE_ESLINT_PLUGIN=true react-app-rewired build",
+    "serve": "serve -s build"
   },
   "eslintConfig": {
     "extends": [
