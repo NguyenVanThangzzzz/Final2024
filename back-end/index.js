@@ -19,7 +19,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // List of allowed origins
-const allowedOrigins = ["http://localhost:3005", "http://localhost:5173"];
+const allowedOrigins = ["http://localhost:3005", "http://localhost:5173","https://linuxcinema.com","https://final2024-production-33e1.up.railway.app"];
 
 // CORS configuration
 app.use(
