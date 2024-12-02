@@ -5,3 +5,4 @@ dockerfilePath = "Dockerfile"
 [deploy]
 startCommand = "serve -s build -l 3000"
 restartPolicyType = "ON_FAILURE"
+
