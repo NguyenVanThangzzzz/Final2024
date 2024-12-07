@@ -53,7 +53,7 @@ function OrderPage() {
       }
 
       // 2. Create Stripe Checkout Session
-      const response = await fetch('http://localhost:8080/api/payment/create-checkout-session', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/payment/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

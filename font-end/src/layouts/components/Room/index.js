@@ -203,7 +203,7 @@ function RoomPage() {
       // Sửa lại URL API
       const promises = selectedSeats.map((seat) =>
         axios.post(
-          `http://localhost:8080/api/screening/${selectedScreening._id}/hold-seat`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/screening/${selectedScreening._id}/hold-seat`,
           {
             seatNumber: seat.seatNumber,
           }
@@ -217,7 +217,7 @@ function RoomPage() {
         try {
           const releasePromises = selectedSeats.map((seat) =>
             axios.post(
-              `http://localhost:8080/api/screening/${selectedScreening._id}/release-seat`,
+              `${process.env.REACT_APP_BACKEND_URL}/api/screening/${selectedScreening._id}/release-seat`,
               {
                 seatNumber: seat.seatNumber,
               }
