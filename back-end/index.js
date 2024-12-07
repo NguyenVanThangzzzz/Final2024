@@ -13,26 +13,42 @@ import roomRoutes from "./routes/room.route.js";
 import screeningRoutes from "./routes/screening.route.js";
 import ticketRoutes from "./routes/ticket.route.js";
 import paymentRoutes from "./routes/payment.route.js";
+import dashboardRoutes from "./routes/dashboard.route.js";
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // List of allowed origins
-const allowedOrigins = ["http://localhost:3005", "http://localhost:5173","https://linuxcinema.com","https://final2024-production-33e1.up.railway.app"];
+const allowedOrigins = [
+  "http://localhost:3005",
+  "http://localhost:5173",
+  "http://localhost:3000",  // Common React development port
+  "http://127.0.0.1:5173",  // Alternative localhost
+  "http://127.0.0.1:3000",
+  "https://linuxcinema.com",
+  "https://final2024-production-33e1.up.railway.app"
+];
 
 // CORS configuration
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (e.g., mobile apps or curl requests)
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        console.log(`Blocked request from origin: ${origin}`); // Add logging
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
       }
     },
-    credentials: true, // Allow credentials (cookies, authentication headers, etc.)
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explicitly specify allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
   })
 );
 
@@ -50,9 +66,25 @@ app.use("/api/room", roomRoutes);
 app.use("/api/ticket", ticketRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+
+// Add error handling middleware after your routes
+app.use((err, req, res, next) => {
+  if (err.message.startsWith('Origin')) {
+    return res.status(403).json({
+      error: 'CORS Error',
+      message: err.message
+    });
+  }
+  // Handle other errors
+  console.error(err);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: err.message
+  });
+});
 
 // Start the server
 app.listen(PORT, () => {
   connectDB(); // Connect to the database
-  console.log("Server is running on port: ", PORT);
 });

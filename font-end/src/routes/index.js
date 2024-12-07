@@ -40,6 +40,11 @@ const publicRoutes = [
     layout: HeaderOnly,
   },
 
+  {
+    path: config.routes.film,
+    component: Film,
+    layout: HeaderOnly,
+  },
   { path: "/showtime", component: Showtime },
 ];
 
@@ -50,11 +55,6 @@ const privateRoutes = [
   {
     path: config.routes.profile,
     component: Profile,
-  },
-  {
-    path: config.routes.film,
-    component: Film,
-    layout: HeaderOnly,
   },
   {
     path: config.routes.room,
