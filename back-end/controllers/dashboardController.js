@@ -1,4 +1,6 @@
 import { User } from "../models/User.js";
+import Order from "../models/order.js";
+import Movie from "../models/movie.js";
 
 export const getUserStats = async (req, res) => {
   try {
@@ -76,6 +78,64 @@ export const getUserStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error fetching user statistics",
+      error: error.message
+    });
+  }
+};
+
+export const getMovieStats = async (req, res) => {
+  try {
+    // Lấy thống kê đặt vé theo phim
+    const movieStats = await Order.aggregate([
+      {
+        $lookup: {
+          from: "tickets",
+          localField: "ticketId",
+          foreignField: "_id",
+          as: "ticket"
+        }
+      },
+      { $unwind: "$ticket" },
+      {
+        $lookup: {
+          from: "movies",
+          localField: "ticket.movieId",
+          foreignField: "_id",
+          as: "movie"
+        }
+      },
+      { $unwind: "$movie" },
+      {
+        $group: {
+          _id: "$movie._id",
+          movieName: { $first: "$movie.name" },
+          totalOrders: { $sum: 1 },
+          totalRevenue: { $sum: "$totalAmount" }
+        }
+      },
+      { $sort: { totalOrders: -1 } },
+      { $limit: 10 } // Lấy top 10 phim
+    ]);
+
+    // Lấy tổng số phim
+    const totalMovies = await Movie.countDocuments();
+
+    // Lấy số phim đang chiếu (có suất chiếu)
+    const activeMovies = await Movie.countDocuments({ isActive: true });
+
+    res.json({
+      success: true,
+      data: {
+        movieStats,
+        totalMovies,
+        activeMovies
+      }
+    });
+  } catch (error) {
+    console.error("Error in getMovieStats:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching movie statistics",
       error: error.message
     });
   }
