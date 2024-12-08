@@ -24,8 +24,6 @@ const DashboardStats = () => {
           withCredentials: true
         });
         
-        console.log('Response data:', response.data);
-        
         const monthNames = [
           "January", "February", "March", "April", "May", "June",
           "July", "August", "September", "October", "November", "December"
@@ -35,8 +33,6 @@ const DashboardStats = () => {
           name: monthNames[index],
           users: count
         }));
-
-        console.log('Chart data:', chartData);
 
         setStats({
           chartData,

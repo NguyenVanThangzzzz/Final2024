@@ -62,14 +62,6 @@ export const getUserStats = async (req, res) => {
     // Get verified/active users
     const activeUsers = await User.countDocuments({ isVerified: true });
 
-    // Debug logs
-    console.log('Raw MongoDB Stats:', stats);
-    console.log('Current Year:', currentYear);
-    console.log('Monthly Data:', monthlyData);
-    console.log('Total Users:', totalUsers);
-    console.log('New Users This Month:', newUsersThisMonth);
-    console.log('Active Users:', activeUsers);
-
     res.json({
       success: true,
       data: {
