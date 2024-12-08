@@ -1,50 +1,83 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Users,
+  Film,
+  Building2,
+  SlidersHorizontal,
+  DoorOpen,
+  Settings,
+  BarChart3
+} from "lucide-react";
 
 const Sidebar = () => {
+  const menuItems = [
+    {
+      path: "/",
+      name: "Dashboard",
+      icon: <LayoutDashboard className="w-5 h-5" />
+    },
+    {
+      path: "/user-management",
+      name: "User Management",
+      icon: <Users className="w-5 h-5" />
+    },
+    {
+      path: "/cinema-management",
+      name: "Cinema Management",
+      icon: <Building2 className="w-5 h-5" />
+    },
+    {
+      path: "/movie-management",
+      name: "Movie Management",
+      icon: <Film className="w-5 h-5" />
+    },
+    {
+      path: "/room-management",
+      name: "Room Management",
+      icon: <DoorOpen className="w-5 h-5" />
+    },
+    {
+      path: "/screening-management",
+      name: "Screening Management",
+      icon: <SlidersHorizontal className="w-5 h-5" />
+    },
+    {
+      path: "/movie-dashboard",
+      name: "Movie Analytics",
+      icon: <BarChart3 className="w-5 h-5" />
+    },
+    {
+      path: "/settings",
+      name: "Settings",
+      icon: <Settings className="w-5 h-5" />
+    }
+  ];
+
   return (
-    <aside className="w-64 bg-gray-800 text-white h-full fixed top-0 left-0 z-10">
-      <div className="p-4 mt-16">
-        {" "}
-        {/* Thêm margin-top để tránh bị Navbar che */}
-        <h2 className="text-xl font-bold">Admin Menu</h2>
-        <nav className="mt-4">
-          <Link to="/" className="block py-2 hover:bg-gray-700">
-            User Dashboard
-          </Link>
-          <Link to="/movie-dashboard" className="block py-2 hover:bg-gray-700">
-            Movie Dashboard
-          </Link>
-          <Link
-            to="/cinema-management"
-            className="block py-2 hover:bg-gray-700"
-          >
-            Cinema management
-          </Link>
-          <Link to="/room-management" className="block py-2 hover:bg-gray-700">
-            Room management
-          </Link>
-          <Link to="/movie-management" className="block py-2 hover:bg-gray-700">
-            Movie Management
-          </Link>
-          <Link
-            to="/screening-management"
-            className="block py-2 hover:bg-gray-700"
-          >
-            Screening management
-          </Link>
-          <Link to="/user-management" className="block py-2 hover:bg-gray-700">
-            User management
-          </Link>
-          <Link to="/secret-dashboard" className="block py-2 hover:bg-gray-700">
-            Dashboard
-          </Link>
-          <Link to="/settings" className="block py-2 hover:bg-gray-700">
-            Settings
-          </Link>
+    <div className="bg-gray-800 text-white h-screen w-64 fixed left-0 top-0 overflow-y-auto">
+      <div className="p-4">
+        <div className="flex items-center justify-center mb-8">
+          <img src="/Linux.png" alt="Logo" className="h-12" />
+        </div>
+        <nav>
+          <ul className="space-y-2">
+            {menuItems.map((item) => (
+              <li key={item.path}>
+                <Link
+                  to={item.path}
+                  className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                >
+                  {item.icon}
+                  <span>{item.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </nav>
       </div>
-    </aside>
+    </div>
   );
 };
 
