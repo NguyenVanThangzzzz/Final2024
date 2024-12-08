@@ -10,7 +10,10 @@ const Sidebar = () => {
         <h2 className="text-xl font-bold">Admin Menu</h2>
         <nav className="mt-4">
           <Link to="/" className="block py-2 hover:bg-gray-700">
-            Home
+            User Dashboard
+          </Link>
+          <Link to="/movie-dashboard" className="block py-2 hover:bg-gray-700">
+            Movie Dashboard
           </Link>
           <Link
             to="/cinema-management"

@@ -12,6 +12,7 @@ import ScreeningManagementPage from "./pages/ScreeningManagementPage";
 import SettingPage from "./pages/SettingPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import { useAdminStore } from "./Store/adminStore";
+import MovieDashBard from "./pages/MovieDashBard";
 
 function App() {
   const { user, checkingAuth, checkAuth } = useAdminStore();
@@ -66,6 +67,10 @@ function App() {
                 <Route
                   path="/screening-management"
                   element={<ScreeningManagementPage />}
+                />
+                <Route
+                  path="/movie-dashboard"
+                  element={<MovieDashBard />}
                 />
               </Routes>
             </div>
