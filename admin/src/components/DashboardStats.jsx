@@ -129,9 +129,9 @@ const DashboardStats = () => {
                   border: 'none',
                   borderRadius: '0.5rem',
                   boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                  color: '#fff'
+                  color: '#9CA3AF'
                 }}
-                formatter={(value, name) => [`${value} users`, 'Registrations']}
+                cursor={{ fill: 'transparent' }}
               />
               <Legend 
                 wrapperStyle={{

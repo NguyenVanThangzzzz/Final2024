@@ -1,6 +1,7 @@
 import { User } from "../models/User.js";
 import Order from "../models/order.js";
 import Movie from "../models/movie.js";
+import Screening from "../models/screening.js";
 
 export const getUserStats = async (req, res) => {
   try {
@@ -120,8 +121,24 @@ export const getMovieStats = async (req, res) => {
     // Lấy tổng số phim
     const totalMovies = await Movie.countDocuments();
 
-    // Lấy số phim đang chiếu (có suất chiếu)
-    const activeMovies = await Movie.countDocuments({ isActive: true });
+    // Lấy số phim đang chiếu (có suất chiếu trong tương lai)
+    const now = new Date();
+    const activeMovies = await Screening.aggregate([
+      {
+        $match: {
+          endTime: { $gt: now } // Lấy các suất chiếu chưa kết thúc
+        }
+      },
+      {
+        $group: {
+          _id: "$movieId", // Gom nhóm theo movieId để không đếm trùng
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $count: "total" // Đếm số lượng phim duy nhất
+      }
+    ]).then(result => result[0]?.total || 0);
 
     res.json({
       success: true,
@@ -197,6 +214,116 @@ export const getMovieRevenue = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error fetching revenue data",
+      error: error.message
+    });
+  }
+};
+
+export const getCinemaStats = async (req, res) => {
+  try {
+    const cinemaStats = await Order.aggregate([
+      {
+        $lookup: {
+          from: "tickets",
+          localField: "ticketId",
+          foreignField: "_id",
+          as: "ticket"
+        }
+      },
+      { $unwind: "$ticket" },
+      {
+        $lookup: {
+          from: "rooms",
+          localField: "ticket.roomId",
+          foreignField: "_id",
+          as: "room"
+        }
+      },
+      { $unwind: "$room" },
+      {
+        $lookup: {
+          from: "cinemas",
+          localField: "room.cinemaId",
+          foreignField: "_id",
+          as: "cinema"
+        }
+      },
+      { $unwind: "$cinema" },
+      {
+        $group: {
+          _id: "$cinema._id",
+          cinemaName: { $first: "$cinema.name" },
+          totalTickets: { $sum: 1 },
+          totalRevenue: { $sum: "$totalAmount" },
+          seatOccupancy: {
+            $avg: {
+              $divide: [
+                { $size: "$ticket.seatNumbers" },
+                "$room.seatCapacity"
+              ]
+            }
+          }
+        }
+      },
+      { $sort: { totalRevenue: -1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: cinemaStats
+    });
+  } catch (error) {
+    console.error("Error in getCinemaStats:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching cinema statistics",
+      error: error.message
+    });
+  }
+};
+
+export const getGenreStats = async (req, res) => {
+  try {
+    const genreStats = await Order.aggregate([
+      {
+        $lookup: {
+          from: "tickets",
+          localField: "ticketId",
+          foreignField: "_id",
+          as: "ticket"
+        }
+      },
+      { $unwind: "$ticket" },
+      {
+        $lookup: {
+          from: "movies",
+          localField: "ticket.movieId",
+          foreignField: "_id",
+          as: "movie"
+        }
+      },
+      { $unwind: "$movie" },
+      {
+        $group: {
+          _id: "$movie.genres",
+          totalTickets: { $sum: 1 },
+          totalRevenue: { $sum: "$totalAmount" }
+        }
+      },
+      {
+        $sort: { totalRevenue: -1 }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: genreStats
+    });
+  } catch (error) {
+    console.error("Error in getGenreStats:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching genre statistics",
       error: error.message
     });
   }

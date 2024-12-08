@@ -12,6 +12,8 @@ import {
 } from "recharts";
 import { Film, PlayCircle, DollarSign } from "lucide-react";
 import MovieDashboard from '../components/movie/MovieDashboard';
+import CinemaStatsChart from '../components/movie/CinemaStatsChart';
+import GenreStatsChart from '../components/movie/GenreStatsChart';
 
 const MovieDashBard = () => {
   const [stats, setStats] = useState(null);
@@ -69,9 +71,10 @@ const MovieDashBard = () => {
   if (!stats) return null;
 
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold text-white mb-6">Movie Analytics Dashboard</h1>
+    <div className="container mx-auto px-4 space-y-8">
+      <h1 className="text-3xl font-bold text-white mb-8">Movie Analytics Dashboard</h1>
       
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Total Movies"
@@ -93,6 +96,7 @@ const MovieDashBard = () => {
         />
       </div>
 
+      {/* Movie Performance Chart */}
       <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-700">
         <h3 className="text-xl font-semibold mb-6 text-white">Most Popular Movies</h3>
         <div className="h-[600px] w-full">
@@ -120,9 +124,10 @@ const MovieDashBard = () => {
                   border: 'none',
                   borderRadius: '0.5rem',
                   boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                  color: '#fff',
+                  color: '#9CA3AF',
                   padding: '10px'
                 }}
+                cursor={{ fill: 'transparent' }}
               />
               <Legend 
                 wrapperStyle={{
@@ -147,10 +152,13 @@ const MovieDashBard = () => {
       </div>
 
       {/* Monthly Revenue Chart */}
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold text-white mb-6">Monthly Revenue Analysis</h2>
-        <MovieDashboard />
-      </div>
+      <MovieDashboard />
+
+      {/* Cinema Stats */}
+      <CinemaStatsChart />
+
+      {/* Genre Stats */}
+      <GenreStatsChart />
     </div>
   );
 };

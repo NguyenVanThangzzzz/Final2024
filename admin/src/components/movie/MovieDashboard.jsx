@@ -130,8 +130,10 @@ const MovieDashboard = () => {
                   border: 'none',
                   borderRadius: '0.5rem',
                   boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                  color: '#fff'
+                  color: '#9CA3AF',
+                  padding: '10px'
                 }}
+                cursor={{ fill: 'transparent' }}
                 formatter={(value) => [`$${value}`, 'Revenue']}
               />
               <Legend />
