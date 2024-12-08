@@ -1,10 +1,11 @@
 import express from "express";
-import { getUserStats, getMovieStats } from "../controllers/dashboardController.js";
-import { protectRoute, adminRoute } from "../Middlewares/adminMiddlewares.js";
+import { getUserStats, getMovieStats, getMovieRevenue } from "../controllers/dashboardController.js";
+import { protectRoute } from "../Middlewares/adminMiddlewares.js";
 
 const router = express.Router();
 
-router.get("/user-stats", protectRoute, adminRoute, getUserStats);
-router.get("/movie-stats", getMovieStats);
+router.get("/user-stats", protectRoute, getUserStats);
+router.get("/movie-stats", protectRoute, getMovieStats);
+router.get("/movie-revenue", protectRoute, getMovieRevenue);
 
 export default router; 

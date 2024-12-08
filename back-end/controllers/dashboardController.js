@@ -139,4 +139,65 @@ export const getMovieStats = async (req, res) => {
       error: error.message
     });
   }
+};
+
+export const getMovieRevenue = async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear();
+    
+    // Aggregate monthly revenue from orders
+    const monthlyRevenue = await Order.aggregate([
+      {
+        $match: {
+          status: "paid",
+          paymentDate: {
+            $gte: new Date(currentYear, 0, 1),
+            $lte: new Date(currentYear, 11, 31, 23, 59, 59)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $month: "$paymentDate" },
+          revenue: { $sum: "$totalAmount" }
+        }
+      },
+      {
+        $sort: { "_id": 1 }
+      }
+    ]);
+
+    // Initialize revenue data for all months
+    const revenueData = Array(12).fill(0);
+    
+    // Fill in actual revenue data
+    monthlyRevenue.forEach(item => {
+      revenueData[item._id - 1] = item.revenue;
+    });
+
+    // Calculate total revenue and other stats
+    const totalRevenue = revenueData.reduce((sum, amount) => sum + amount, 0);
+    const averageRevenue = totalRevenue / 12;
+    
+    // Get current month's revenue
+    const currentMonth = new Date().getMonth();
+    const currentMonthRevenue = revenueData[currentMonth];
+
+    res.json({
+      success: true,
+      data: {
+        monthlyRevenue: revenueData,
+        totalRevenue,
+        averageRevenue,
+        currentMonthRevenue
+      }
+    });
+  } catch (error) {
+    console.error("Error in getMovieRevenue:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching revenue data",
+      error: error.message
+    });
+  }
 }; 

@@ -11,6 +11,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 import { Film, PlayCircle, DollarSign } from "lucide-react";
+import MovieDashboard from '../components/movie/MovieDashboard';
 
 const MovieDashBard = () => {
   const [stats, setStats] = useState(null);
@@ -143,6 +144,12 @@ const MovieDashBard = () => {
             </BarChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Monthly Revenue Chart */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-white mb-6">Monthly Revenue Analysis</h2>
+        <MovieDashboard />
       </div>
     </div>
   );
