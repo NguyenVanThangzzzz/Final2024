@@ -12,12 +12,12 @@ const movieSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, "Image is required"],
-    },
-    genres: {
-      type: String,
       required: true,
     },
+    genres: [{
+      type: String,
+      required: true,
+    }],
     director: {
       type: String,
       required: true,

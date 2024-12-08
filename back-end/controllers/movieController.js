@@ -37,14 +37,21 @@ export const createMovie = async (req, res) => {
   try {
     const {
       name,
-      // price, // Xóa trường này
       description,
       image,
-      isFeatured,
       genres,
       director,
       actors,
+      isFeatured,
     } = req.body;
+
+    // Validate genres array
+    if (!Array.isArray(genres) || genres.length === 0) {
+      return res.status(400).json({ 
+        message: "At least one genre must be selected" 
+      });
+    }
+
     let cloudinaryResponse = null;
 
     if (image) {
@@ -55,16 +62,16 @@ export const createMovie = async (req, res) => {
 
     const movie = await Movie.create({
       name,
-      // price, // Xóa trường này
       description,
       image: cloudinaryResponse?.secure_url
         ? cloudinaryResponse.secure_url
         : "",
-      isFeatured,
+      genres,
       director,
       actors,
-      genres,
+      isFeatured,
     });
+
     res.status(201).json({ movie });
   } catch (error) {
     console.log("Error in createMovie controller", error.message);
@@ -76,8 +83,12 @@ export const updateMovie = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
 
-  // Xóa trường price nếu có trong updateData
-  delete updateData.price;
+  // Validate genres array if it's being updated
+  if (updateData.genres && (!Array.isArray(updateData.genres) || updateData.genres.length === 0)) {
+    return res.status(400).json({ 
+      message: "At least one genre must be selected" 
+    });
+  }
 
   try {
     const updatedMovie = await Movie.findByIdAndUpdate(id, updateData, {

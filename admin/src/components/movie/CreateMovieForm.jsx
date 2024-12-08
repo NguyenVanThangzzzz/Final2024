@@ -4,12 +4,27 @@ import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useMovieStore } from "../../Store/movieStore";
 
+const GENRES = [
+  "Action",
+  "Adventure", 
+  "Comedy",
+  "Drama",
+  "Fantasy",
+  "Horror",
+  "Romance",
+  "Sci-Fi",
+  "Thriller",
+  "Animation",
+  "Documentary",
+  "Family"
+];
+
 const CreateMovieForm = () => {
   const [newMovie, setNewMovie] = useState({
     name: "",
     description: "",
     image: "",
-    genres: "",
+    genres: [],
     director: "",
     actors: "",
     isFeatured: false,
@@ -19,22 +34,29 @@ const CreateMovieForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate genres
+    if (newMovie.genres.length === 0) {
+      toast.error("Please select at least one genre");
+      return;
+    }
+
     if (newMovie.image) {
-      const imageSize =
-        newMovie.image.length * (3 / 4) -
+      const imageSize = newMovie.image.length * (3 / 4) -
         (newMovie.image.match(/=/g) ? newMovie.image.match(/=/g).length : 0);
       if (imageSize > 10 * 1024 * 1024) {
         toast.error("Image size exceeds 10MB limit.");
         return;
       }
     }
+
     try {
       await createMovie(newMovie);
       setNewMovie({
         name: "",
         description: "",
         image: "",
-        genres: "",
+        genres: [], // Reset to empty array
         director: "",
         actors: "",
         isFeatured: false,
@@ -59,15 +81,17 @@ const CreateMovieForm = () => {
     setNewMovie({ ...newMovie, image: "" });
   };
 
-  const genres = [
-    "Action",
-    "Adventure",
-    "Comedy",
-    "Drama",
-    "Fantasy",
-    "Horror",
-    "Science Fiction",
-  ];
+  const handleGenreChange = (genre) => {
+    setNewMovie(prev => {
+      const updatedGenres = prev.genres.includes(genre)
+        ? prev.genres.filter(g => g !== genre)
+        : [...prev.genres, genre];
+      return {
+        ...prev,
+        genres: updatedGenres
+      };
+    });
+  };
 
   return (
     <motion.div
@@ -164,29 +188,33 @@ const CreateMovieForm = () => {
 
         {/* Genres Field */}
         <div>
-          <label
-            htmlFor="genres"
-            className="block text-sm font-medium text-gray-300"
-          >
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Genres
           </label>
-          <select
-            id="genres"
-            name="genres"
-            value={newMovie.genres}
-            onChange={(e) =>
-              setNewMovie({ ...newMovie, genres: e.target.value })
-            }
-            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            required
-          >
-            <option value="">Select a genre</option>
-            {genres.map((genre) => (
-              <option key={genre} value={genre}>
-                {genre}
-              </option>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {GENRES.map((genre) => (
+              <div key={genre} className="flex items-center">
+                <input
+                  type="checkbox"
+                  id={`genre-${genre}`}
+                  checked={newMovie.genres.includes(genre)}
+                  onChange={() => handleGenreChange(genre)}
+                  className="w-4 h-4 text-emerald-600 bg-gray-700 border-gray-600 rounded focus:ring-emerald-500"
+                />
+                <label
+                  htmlFor={`genre-${genre}`}
+                  className="ml-2 text-sm text-gray-300"
+                >
+                  {genre}
+                </label>
+              </div>
             ))}
-          </select>
+          </div>
+          {newMovie.genres.length === 0 && (
+            <p className="mt-1 text-xs text-red-500">
+              Please select at least one genre
+            </p>
+          )}
         </div>
 
         {/* Director Field */}

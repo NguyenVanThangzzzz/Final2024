@@ -16,6 +16,11 @@ function Index() {
     fetchAllMovies();
   }, [fetchAllMovies]);
 
+  const formatGenres = (genres) => {
+    if (!Array.isArray(genres)) return '';
+    return genres.join(', ');
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -36,8 +41,9 @@ function Index() {
                 />
                 <div className={styles.movieInfo}>
                   <h2 className={styles.movieName}>{movie.name}</h2>
-                  <p className={styles.movieGenre}>Genres: {movie.genres}</p>
-
+                  <p className={styles.movieGenre}>
+                    Genres: {formatGenres(movie.genres)}
+                  </p>
                   <p>
                     <strong>Director:</strong> {movie.director}
                   </p>

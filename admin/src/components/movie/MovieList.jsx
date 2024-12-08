@@ -15,6 +15,12 @@ const MovieList = () => {
     return <p>Loading...</p>;
   }
 
+  // Trong component MovieList, thêm hàm formatGenres
+  const formatGenres = (genres) => {
+    if (!Array.isArray(genres)) return '';
+    return genres.join(', '); // Thêm dấu phẩy và khoảng trắng giữa các thể loại
+  };
+
   return (
     <motion.div
       className="bg-gray-800 shadow-lg rounded-lg overflow-hidden max-w-8xl mx-auto"
@@ -86,7 +92,11 @@ const MovieList = () => {
               <td className="px-6 py-4 whitespace-normal">
                 {movie.description}
               </td>
-              <td className="px-6 py-4 whitespace-normal">{movie.genres}</td>
+              <td className="px-6 py-4 whitespace-normal">
+                <span className="text-gray-300">
+                  {formatGenres(movie.genres)}
+                </span>
+              </td>
               <td className="px-6 py-4 whitespace-normal">{movie.director}</td>
               <td className="px-6 py-4 whitespace-normal">{movie.actors}</td>
               <td className="px-6 py-4 whitespace-normal">
