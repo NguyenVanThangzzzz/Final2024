@@ -6,6 +6,15 @@ import { useCinemaStore } from "../../Store/cinemaStore";
 
 const EditCinemaForm = ({ cinema, onClose }) => {
   const { updateCinema, loading, fetchAllCinemas } = useCinemaStore();
+  
+  // Define requiredFields outside of handleSubmit
+  const requiredFields = {
+    name: "Cinema Name",
+    country: "Country",
+    state: "State", 
+    streetName: "Street Name"
+  };
+
   const [formData, setFormData] = useState({
     name: "",
     country: "",
@@ -32,8 +41,25 @@ const EditCinemaForm = ({ cinema, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Kiểm tra các trường bắt buộc
+    const emptyFields = [];
     
-    if (formData.image) {
+    if (!formData.name?.trim()) emptyFields.push("Cinema Name");
+    if (!formData.country?.trim()) emptyFields.push("Country");
+    if (!formData.state?.trim()) emptyFields.push("State");
+    if (!formData.streetName?.trim()) emptyFields.push("Street Name");
+
+    // Nếu có trường bắt buộc bị bỏ trống
+    if (emptyFields.length > 0) {
+      toast.error(
+        `Please fill in all required fields: ${emptyFields.join(", ")}`
+      );
+      return;
+    }
+
+    // Validate image if it's a new upload
+    if (formData.image && formData.image.startsWith('data:image')) {
       const imageSize = formData.image.length * (3 / 4) - 
         (formData.image.match(/=/g) ? formData.image.match(/=/g).length : 0);
       if (imageSize > 10 * 1024 * 1024) {
@@ -45,11 +71,19 @@ const EditCinemaForm = ({ cinema, onClose }) => {
     try {
       await updateCinema(cinema._id, formData);
       await fetchAllCinemas();
-      toast.success("Cinema updated successfully!");
       onClose();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error updating cinema");
       console.error("Error updating cinema:", error);
+    }
+  };
+
+  // Kiểm tra khi người dùng thay đổi giá trị input
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    
+    // Nếu xóa hết nội dung của trường bắt buộc
+    if (!value.trim() && ['name', 'country', 'state', 'streetName'].includes(field)) {
+      toast.error(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
     }
   };
 
@@ -84,12 +118,12 @@ const EditCinemaForm = ({ cinema, onClose }) => {
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-300">
-              Cinema Name
+              Cinema Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) => handleInputChange('name', e.target.value)}
               className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white"
               required
             />
@@ -98,12 +132,12 @@ const EditCinemaForm = ({ cinema, onClose }) => {
           {/* Country */}
           <div>
             <label className="block text-sm font-medium text-gray-300">
-              Country
+              Country <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.country}
-              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+              onChange={(e) => handleInputChange('country', e.target.value)}
               className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white"
               required
             />
@@ -112,12 +146,12 @@ const EditCinemaForm = ({ cinema, onClose }) => {
           {/* State */}
           <div>
             <label className="block text-sm font-medium text-gray-300">
-              State
+              State <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.state}
-              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+              onChange={(e) => handleInputChange('state', e.target.value)}
               className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white"
               required
             />
@@ -126,12 +160,12 @@ const EditCinemaForm = ({ cinema, onClose }) => {
           {/* Street Name */}
           <div>
             <label className="block text-sm font-medium text-gray-300">
-              Street Name
+              Street Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.streetName}
-              onChange={(e) => setFormData({ ...formData, streetName: e.target.value })}
+              onChange={(e) => handleInputChange('streetName', e.target.value)}
               className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white"
               required
             />

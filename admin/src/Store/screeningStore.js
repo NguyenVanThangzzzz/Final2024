@@ -49,4 +49,21 @@ export const useScreeningStore = create((set) => ({
       set({ loading: false });
     }
   },
+
+  updateScreening: async (id, data) => {
+    try {
+      set({ loading: true });
+      const response = await axios.put(`/api/screening/${id}`, data);
+      set(state => ({
+        screenings: state.screenings.map(screening => 
+          screening._id === id ? response.data : screening
+        )
+      }));
+      return response.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
 }));

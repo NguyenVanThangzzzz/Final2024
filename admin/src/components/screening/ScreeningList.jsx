@@ -1,72 +1,108 @@
+import { motion } from "framer-motion";
 import { Edit3, Trash } from "lucide-react";
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useScreeningStore } from "../../Store/screeningStore";
+import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
+import EditScreeningForm from "./EditScreeningForm";
 
 const ScreeningList = () => {
-  const { screenings, loading, fetchAllScreenings, deleteScreening } =
-    useScreeningStore();
+  const { deleteScreening, screenings, fetchAllScreenings } = useScreeningStore();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedScreeningId, setSelectedScreeningId] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedScreening, setSelectedScreening] = useState(null);
 
   useEffect(() => {
     fetchAllScreenings();
   }, [fetchAllScreenings]);
 
-  if (loading) return <p>Loading...</p>;
+  const handleDeleteClick = (screeningId) => {
+    setSelectedScreeningId(screeningId);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedScreeningId) {
+      await deleteScreening(selectedScreeningId);
+      setIsConfirmOpen(false);
+      setSelectedScreeningId(null);
+    }
+  };
+
+  const handleEditClick = (screening) => {
+    setSelectedScreening(screening);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedScreening(null);
+  };
 
   return (
-    <div className="bg-gray-900 p-6 rounded-lg">
-      <h2 className="text-2xl font-semibold text-green-500 mb-4">
-        Screening List
-      </h2>
-      {screenings.length > 0 ? (
-        <table className="min-w-full bg-gray-800 text-gray-200">
-          <thead>
+    <>
+      <motion.div
+        className="bg-gray-800 shadow-lg rounded-lg overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <table className="min-w-full divide-y divide-gray-700">
+          <thead className="bg-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-medium">
-                Movie Name
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Movie
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium">Room</th>
-              <th className="px-6 py-3 text-left text-sm font-medium">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Room
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Show Time
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 End Time
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Price
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Seat Capacity
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium">Price</th>
-              <th className="px-6 py-3 text-left text-sm font-medium">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody>
-            {screenings.map((screening) => (
-              <tr
-                key={screening._id}
-                className="border-t border-gray-700 hover:bg-gray-700"
-              >
-                <td className="px-6 py-4">
-                  {screening.movieId?.name || "N/A"}
+          <tbody className="bg-gray-800 divide-y divide-gray-700">
+            {screenings?.map((screening) => (
+              <tr key={screening._id} className="hover:bg-gray-700">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {screening.movieId?.name}
                 </td>
-                <td className="px-6 py-4">{screening.roomId?.name || "N/A"}</td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {screening.roomId?.name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
                   {new Date(screening.showTime).toLocaleString()}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
                   {new Date(screening.endTime).toLocaleString()}
                 </td>
-                <td className="px-6 py-4">{screening.seatCapacity}</td>
-                <td className="px-6 py-4">${screening.price}</td>
-                <td className="px-6 py-4 flex items-center">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  ${screening.price}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {screening.seatCapacity}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap flex items-center">
                   <button
-                    onClick={() => console.log(`Edit screening ${screening._id}`)}
+                    onClick={() => handleEditClick(screening)}
                     className="text-yellow-400 hover:text-yellow-500 focus:outline-none mr-4"
                   >
                     <Edit3 className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => deleteScreening(screening._id)}
+                    onClick={() => handleDeleteClick(screening._id)}
                     className="text-red-500 hover:text-red-600 focus:outline-none"
                   >
                     <Trash className="w-5 h-5" />
@@ -76,10 +112,23 @@ const ScreeningList = () => {
             ))}
           </tbody>
         </table>
-      ) : (
-        <p className="text-gray-400">No screenings available to display</p>
+      </motion.div>
+
+      {isEditModalOpen && selectedScreening && (
+        <EditScreeningForm
+          screening={selectedScreening}
+          onClose={handleCloseEditModal}
+        />
       )}
-    </div>
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Screening"
+        message="Are you sure you want to delete this screening? This action cannot be undone."
+      />
+    </>
   );
 };
 

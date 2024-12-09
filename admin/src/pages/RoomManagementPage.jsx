@@ -41,6 +41,7 @@ const RoomManagementPage = () => {
             </button>
           ))}
         </div>
+
         {activeTab === "create" && <CreateRoomForm />}
         {activeTab === "rooms" && <RoomList />}
         {/* {activeTab === "analytics" && <AnalyticsTab />} */}

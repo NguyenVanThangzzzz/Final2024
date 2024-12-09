@@ -3,29 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useCinemaStore } from "../../Store/cinemaStore";
 import { useRoomStore } from "../../Store/roomStore";
 import { Loader, PlusCircle } from "lucide-react";
-
-// Định nghĩa các loại phòng
-const roomTypes = [
-  "Regular",
-  "VIP",
-  "Premium",
-  "Couple",
-  "Family",
-  "Deluxe",
-  "Suite",
-  "IMAX",
-];
-
-// Định nghĩa các loại màn hình
-const screenTypes = [
-  "Standard/Digital",
-  "IMAX",
-  "3D",
-  "4DX",
-  "ScreenX",
-  "Dolby Cinema",
-  "VIP/Luxury Cinemas",
-];
+import { SCREEN_TYPES, ROOM_TYPES } from "../../constants/roomConstants";
 
 const CreateRoomForm = () => {
   const { createRoom, loading } = useRoomStore();
@@ -114,7 +92,7 @@ const CreateRoomForm = () => {
             required
           >
             <option value="">Select Screen Type</option>
-            {screenTypes.map((type) => (
+            {SCREEN_TYPES.map((type) => (
               <option key={type} value={type}>
                 {type}
               </option>
@@ -134,7 +112,7 @@ const CreateRoomForm = () => {
             required
           >
             <option value="">Select Room Type</option>
-            {roomTypes.map((type) => (
+            {ROOM_TYPES.map((type) => (
               <option key={type} value={type}>
                 {type}
               </option>

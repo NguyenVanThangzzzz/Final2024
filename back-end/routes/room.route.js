@@ -14,27 +14,15 @@ import {
 import { adminRoute, protectRoute } from "../Middlewares/adminMiddlewares.js";
 const router = express.Router();
 
-// Route để tạo phòng mới
-router.post("/", createRoom, protectRoute, adminRoute);
-
-// Route để lấy danh sách tất cả các phòng
+// Đặt middleware đúng vị trí (trước hàm controller)
+router.post("/", protectRoute, adminRoute, createRoom);
 router.get("/", getAllRooms);
-
-// Route để lấy danh sách các phòng theo ID của rạp chiếu
 router.get("/cinema/:cinemaId", getRoomByCinema);
-
-// Route để lấy thông tin một phòng theo ID
 router.get("/:id", getRoomById);
-
-// Route để cập nhật thông tin phòng
-router.put("/:id", updateRoom, protectRoute, adminRoute);
-
-// Route để xóa phòng
-router.delete("/:id", deleteRoom, protectRoute, adminRoute);
-
-// Thêm các routes mới cho quản lý ghế
+router.put("/:id", protectRoute, adminRoute, updateRoom);
+router.delete("/:id", protectRoute, adminRoute, deleteRoom);
 router.get("/:id/seats", getRoomSeats);
-router.put("/:roomId/seats/:seatId", updateSeatStatus, protectRoute);
-router.put("/:roomId/seats", updateMultipleSeats, protectRoute);
+router.put("/:roomId/seats/:seatId", protectRoute, updateSeatStatus);
+router.put("/:roomId/seats", protectRoute, updateMultipleSeats);
 
 export default router;

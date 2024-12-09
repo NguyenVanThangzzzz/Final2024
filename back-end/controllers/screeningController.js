@@ -34,8 +34,15 @@ export const createScreening = async (req, res) => {
 export const getAllScreenings = async (req, res) => {
   try {
     const screenings = await Screening.find({})
-      .populate("roomId", "name") // Populate thông tin phòng
-      .populate("movieId", "name"); // Populate thông tin phim
+      .populate('movieId', 'name') // Populate thông tin phim
+      .populate({
+        path: 'roomId',
+        select: 'name screenType roomType',
+        populate: {
+          path: 'cinemaId',
+          select: 'name'
+        }
+      }); // Populate thông tin phòng và rạp
     res.json(screenings);
   } catch (error) {
     console.log("Error in getAllScreenings controller", error.message);
@@ -48,13 +55,13 @@ export const getAllScreenings = async (req, res) => {
 export const getScreeningById = async (req, res) => {
   try {
     const screening = await Screening.findById(req.params.id)
-      .populate('movieId', 'name image')
+      .populate('movieId', 'name')
       .populate({
         path: 'roomId',
-        select: 'name screenType roomType cinemaId',
+        select: 'name screenType roomType',
         populate: {
           path: 'cinemaId',
-          select: 'name country state streetName'
+          select: 'name'
         }
       });
 

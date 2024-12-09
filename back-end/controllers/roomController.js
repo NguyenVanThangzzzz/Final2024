@@ -49,8 +49,8 @@ export const createRoom = async (req, res) => {
 export const getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.find()
-      .populate("cinemaId")
-      .select("name cinemaId screenType roomType");
+      .populate('cinemaId', 'name')
+      .select('name cinemaId screenType roomType');
     res.status(200).json({ rooms });
   } catch (error) {
     console.log("Error in getAllRooms controller", error.message);
@@ -62,7 +62,7 @@ export const getAllRooms = async (req, res) => {
 // @route   GET /api/room/:id
 export const getRoomById = async (req, res) => {
   try {
-    const room = await Room.findById(req.params.id).populate("cinemaId");
+    const room = await Room.findById(req.params.id).populate('cinemaId', 'name');
     if (!room) {
       return res.status(404).json({ message: "Room not found" });
     }
@@ -77,7 +77,7 @@ export const getRoomById = async (req, res) => {
 // @route   PUT /api/room/:id
 export const updateRoom = async (req, res) => {
   try {
-    const { name, screenType, roomType } = req.body;
+    const { name, screenType, roomType, cinemaId } = req.body;
 
     const room = await Room.findById(req.params.id);
     if (!room) {
@@ -88,8 +88,9 @@ export const updateRoom = async (req, res) => {
     room.name = name || room.name;
     room.screenType = screenType || room.screenType;
     room.roomType = roomType || room.roomType;
+    room.cinemaId = cinemaId || room.cinemaId;
 
-    const updatedRoom = await room.save();
+    const updatedRoom = await (await room.save()).populate('cinemaId', 'name');
     res.json(updatedRoom);
   } catch (error) {
     console.log("Error in updateRoom controller", error.message);
