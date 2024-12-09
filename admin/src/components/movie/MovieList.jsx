@@ -113,14 +113,12 @@ const MovieList = () => {
                 </button>
               </td>
               <td className="px-6 py-4 whitespace-nowrap flex items-center">
-                {/* Edit Action */}
                 <button
                   onClick={() => console.log(`Edit movie ${movie._id}`)}
                   className="text-yellow-400 hover:text-yellow-500 focus:outline-none mr-4"
                 >
                   <Edit3 className="w-5 h-5" />
                 </button>
-                {/* Delete Action */}
                 <button
                   onClick={() => deleteMovie(movie._id)}
                   className="text-red-500 hover:text-red-600 focus:outline-none"

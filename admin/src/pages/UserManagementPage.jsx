@@ -1,322 +1,271 @@
 import React, { useEffect, useState } from "react";
-import { FaSearch, FaEdit, FaTrash, FaCheck, FaTimes } from "react-icons/fa";
 import { useAdminStore } from "../Store/adminStore";
-import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
-import Toast, { TOAST_TYPES } from "../components/Toast";
+import { Trash, CheckCircle, XCircle, Search, AlertCircle } from "lucide-react";
+import Toast from '../components/Toast/Toast';
+import ConfirmDialog from '../components/ConfirmDialog/ConfirmDialog';
+import useToast from '../hooks/useToast';
 
-function UserManagementPage() {
-  const {
-    users,
-    getUsers,
-    createUser,
-    updateUser,
-    deleteUser,
-    searchUsers,
-  } = useAdminStore();
-  
-  const [searchName, setSearchName] = useState("");
-  const [searchEmail, setSearchEmail] = useState("");
-  const [editingUser, setEditingUser] = useState(null);
-  const [editForm, setEditForm] = useState({
+const UserManagementPage = () => {
+  const { users, fetchAllUsers, deleteUser, searchUsers } = useAdminStore();
+  const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [searchParams, setSearchParams] = useState({
     name: "",
     email: "",
   });
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [deleteModalData, setDeleteModalData] = useState({
-    isOpen: false,
-    userId: null,
-    userName: "",
-  });
-  const [toast, setToast] = useState({
-    isVisible: false,
-    message: "",
-    type: TOAST_TYPES.SUCCESS
-  });
+  const { toast, showToast, hideToast } = useToast();
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, userId: null });
 
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+    const loadUsers = async () => {
+      try {
+        await fetchAllUsers();
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadUsers();
+  }, [fetchAllUsers]);
 
-  const showToast = (message, type = TOAST_TYPES.SUCCESS) => {
-    setToast({
-      isVisible: true,
-      message,
-      type
-    });
-  };
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setSearching(true);
+    setSearchError(null);
 
-  const hideToast = () => {
-    setToast(prev => ({
-      ...prev,
-      isVisible: false
-    }));
-  };
+    try {
+      // Kiểm tra nếu cả hai trường đều trống
+      if (!searchParams.name.trim() && !searchParams.email.trim()) {
+        await fetchAllUsers(); // Load lại tất cả users
+        return;
+      }
 
-  const handleSearch = () => {
-    const searchParams = {};
-    if (searchName.trim()) searchParams.name = searchName.trim();
-    if (searchEmail.trim()) searchParams.email = searchEmail.trim();
-    searchUsers(searchParams);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
+      await searchUsers(searchParams);
+    } catch (error) {
+      setSearchError(error.response?.data?.message || "Search failed. Please try again.");
+    } finally {
+      setSearching(false);
     }
   };
 
-  const openEditModal = (user) => {
-    setEditingUser(user);
-    setEditForm({
-      name: user.name,
-      email: user.email,
-    });
-    setIsEditModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setEditingUser(null);
-    setEditForm({
-      name: "",
-      email: "",
-    });
-    setIsEditModalOpen(false);
-  };
-
-  const handleEditFormChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditForm(prev => ({
+    setSearchParams(prev => ({
       ...prev,
       [name]: value
     }));
+    // Reset error khi user bắt đầu nhập
+    setSearchError(null);
   };
 
-  const handleUpdateUser = async (e) => {
-    e.preventDefault();
+  const handleResetSearch = async () => {
+    setSearchParams({ name: "", email: "" });
+    setSearchError(null);
+    await fetchAllUsers();
+  };
+
+  const handleDeleteClick = (userId) => {
+    setConfirmDialog({ isOpen: true, userId });
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await updateUser(editingUser._id, editForm);
-      closeEditModal();
-      showToast("User updated successfully!");
+      await deleteUser(confirmDialog.userId);
+      showToast({
+        type: 'success',
+        message: 'User deleted successfully'
+      });
     } catch (error) {
-      console.error("Error updating user:", error);
-      showToast("Failed to update user. Please try again.", TOAST_TYPES.ERROR);
+      showToast({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to delete user'
+      });
+    } finally {
+      setConfirmDialog({ isOpen: false, userId: null });
     }
   };
 
-  const openDeleteModal = (user) => {
-    setDeleteModalData({
-      isOpen: true,
-      userId: user._id,
-      userName: user.name,
-    });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteModalData({
-      isOpen: false,
-      userId: null,
-      userName: "",
-    });
-  };
-
-  const handleDeleteSuccess = () => {
-    closeDeleteModal();
-    showToast("Successfully deleted!");
-  };
-
-  const handleDeleteUser = async () => {
-    try {
-      await deleteUser(deleteModalData.userId);
-      handleDeleteSuccess();
-      return true;
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      showToast("Failed to delete user. Please try again.", TOAST_TYPES.ERROR);
-      return false;
-    }
-  };
-
-  const handleClearSearch = () => {
-    setSearchName("");
-    setSearchEmail("");
-    getUsers();
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* Header Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-100 mb-2">User Management</h1>
-        <p className="text-gray-400">Manage and monitor user accounts</p>
-      </div>
-      
-      {/* Search Section */}
-      <div className="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaSearch className="text-gray-400" />
+    <div className="container mx-auto px-4">
+      <h1 className="text-2xl font-bold mb-4">User Management</h1>
+
+      {/* Search Form */}
+      <form onSubmit={handleSearch} className="mb-6 bg-gray-800 p-4 rounded-lg shadow">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
+              Search by Name
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={searchParams.name}
+                onChange={handleInputChange}
+                className="block w-full bg-gray-700 border border-gray-600 rounded-md py-2 pl-3 pr-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="Enter name..."
+              />
+              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-            <input
-              type="text"
-              placeholder="Search by name..."
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="pl-10 w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
           </div>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaSearch className="text-gray-400" />
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+              Search by Email
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={searchParams.email}
+                onChange={handleInputChange}
+                className="block w-full bg-gray-700 border border-gray-600 rounded-md py-2 pl-3 pr-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="Enter email..."
+              />
+              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-            <input
-              type="text"
-              placeholder="Search by email..."
-              value={searchEmail}
-              onChange={(e) => setSearchEmail(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="pl-10 w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={handleSearch}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out flex items-center justify-center"
-            >
-              <FaSearch className="mr-2" />
-              Search
-            </button>
-            <button
-              onClick={handleClearSearch}
-              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out"
-            >
-              Clear
-            </button>
           </div>
         </div>
-      </div>
 
-      {/* Users Table */}
-      <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-700">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-4 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Email Verified</th>
-              <th className="px-6 py-4 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-700">
-            {users.map((user) => (
-              <tr key={user._id} className="hover:bg-gray-700 transition-colors duration-200">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-white">{user.name}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">{user.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  {user.isVerified ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      <FaCheck className="mr-1" /> Verified
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                      <FaTimes className="mr-1" /> Not Verified
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className="flex items-center justify-center space-x-3">
-                    <button
-                      onClick={() => openEditModal(user)}
-                      className="text-blue-400 hover:text-blue-500 transition-colors duration-200"
-                      title="Edit user"
-                    >
-                      <FaEdit size={20} />
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(user)}
-                      className="text-red-400 hover:text-red-500 transition-colors duration-200"
-                      title="Delete user"
-                    >
-                      <FaTrash size={20} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        {/* Error Message */}
+        {searchError && (
+          <div className="mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md flex items-center text-red-500">
+            <AlertCircle className="h-5 w-5 mr-2" />
+            <span>{searchError}</span>
+          </div>
+        )}
 
-      {/* Edit Modal */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-          <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Edit User</h2>
-            <form onSubmit={handleUpdateUser} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={editForm.name}
-                  onChange={handleEditFormChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={editForm.email}
-                  onChange={handleEditFormChange}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={closeEditModal}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition duration-200 ease-in-out"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 ease-in-out"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
+        <div className="mt-4 flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={handleResetSearch}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          >
+            Reset
+          </button>
+          <button
+            type="submit"
+            disabled={searching}
+            className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 flex items-center"
+          >
+            {searching ? (
+              <>
+                <span className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
+                Searching...
+              </>
+            ) : (
+              'Search Users'
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* No Results Message */}
+      {!loading && users.length === 0 && (
+        <div className="text-center py-8 bg-gray-800 rounded-lg mb-6">
+          <div className="text-gray-400 flex flex-col items-center">
+            <AlertCircle className="h-12 w-12 mb-3" />
+            <h3 className="text-lg font-medium mb-2">No Users Found</h3>
+            <p className="text-sm">
+              No users match your search criteria. Try different keywords or{' '}
+              <button
+                onClick={handleResetSearch}
+                className="text-emerald-500 hover:text-emerald-400 underline"
+              >
+                reset your search
+              </button>
+            </p>
           </div>
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        isOpen={deleteModalData.isOpen}
-        onClose={closeDeleteModal}
-        onConfirm={handleDeleteUser}
-        itemName={deleteModalData.userName}
-      />
+      {/* Users Table */}
+      {users.length > 0 && (
+        <div className="bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Verified
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-gray-800 divide-y divide-gray-700">
+              {users.map((user) => (
+                <tr key={user._id} className="hover:bg-gray-700">
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-300">
+                    {user.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-300">
+                    {user.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-300">
+                    {user.role}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {user.isVerified ? (
+                      <div className="flex items-center text-green-400">
+                        <CheckCircle className="w-5 h-5 mr-1" />
+                        Verified
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-red-400">
+                        <XCircle className="w-5 h-5 mr-1" />
+                        Not Verified
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => handleDeleteClick(user._id)}
+                      className="text-red-500 hover:text-red-600 focus:outline-none"
+                    >
+                      <Trash className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      {/* Toast Notification */}
-      <Toast
-        isVisible={toast.isVisible}
-        message={toast.message}
-        type={toast.type}
-        onClose={hideToast}
+      {/* Add Toast and ConfirmDialog */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+          duration={toast.duration}
+        />
+      )}
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, userId: null })}
+        onConfirm={handleConfirmDelete}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
       />
     </div>
   );
-}
+};
 
 export default UserManagementPage;

@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Loader, PlusCircle, Upload } from "lucide-react";
 import React, { useState } from "react";
-import { toast } from "react-hot-toast";
 import { useMovieStore } from "../../Store/movieStore";
 
 const GENRES = [
@@ -35,9 +34,7 @@ const CreateMovieForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate genres
     if (newMovie.genres.length === 0) {
-      toast.error("Please select at least one genre");
       return;
     }
 
@@ -45,7 +42,6 @@ const CreateMovieForm = () => {
       const imageSize = newMovie.image.length * (3 / 4) -
         (newMovie.image.match(/=/g) ? newMovie.image.match(/=/g).length : 0);
       if (imageSize > 10 * 1024 * 1024) {
-        toast.error("Image size exceeds 10MB limit.");
         return;
       }
     }
@@ -56,7 +52,7 @@ const CreateMovieForm = () => {
         name: "",
         description: "",
         image: "",
-        genres: [], // Reset to empty array
+        genres: [],
         director: "",
         actors: "",
         isFeatured: false,

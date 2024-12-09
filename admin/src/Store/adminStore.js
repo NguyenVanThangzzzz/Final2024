@@ -102,6 +102,7 @@ export const useAdminStore = create((set) => ({
 
   deleteUser: async (userId) => {
     try {
+      set({ loading: true });
       await axios.delete(
         `http://localhost:8080/api/admin/users/${userId}`,
         { withCredentials: true }
@@ -112,6 +113,8 @@ export const useAdminStore = create((set) => ({
     } catch (error) {
       console.error("Error deleting user:", error);
       throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
@@ -147,6 +150,20 @@ export const useAdminStore = create((set) => ({
     } catch (error) {
       console.error("Error assigning role:", error);
       throw error;
+    }
+  },
+
+  fetchAllUsers: async () => {
+    try {
+      set({ loading: true });
+      const response = await axios.get('http://localhost:8080/api/admin/users', {
+        withCredentials: true
+      });
+      set({ users: response.data.data });
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      set({ loading: false });
     }
   },
 }));
