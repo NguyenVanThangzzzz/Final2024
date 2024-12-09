@@ -7,44 +7,91 @@ axios.defaults.withCredentials = true;
 export const useMovieStore = create((set) => ({
   movies: [],
   loading: false,
+  error: null,
 
   setMovies: (movies) => set({ movies }),
   createMovie: async (movieData) => {
     set({ loading: true });
     try {
-      const res = await axios.post(`${API_URL}/`, movieData);
-      set((prevState) => ({
-        movies: [...prevState.movies, res.data],
-        loading: false,
+      const response = await axios.post(
+        "http://localhost:8080/api/movie",
+        movieData,
+        { withCredentials: true }
+      );
+      set((state) => ({
+        movies: [...state.movies, response.data.movie],
       }));
+      toast.success(response.data.message || "Movie created successfully");
     } catch (error) {
-      toast.error(error.response.data.error);
+      toast.error(error.response?.data?.message || "Failed to create movie");
+      console.error("Error creating movie:", error);
+    } finally {
+      set({ loading: false });
+    }
+  },
+  updateMovie: async (id, movieData) => {
+    set({ loading: true });
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/api/movie/${id}`,
+        movieData,
+        { withCredentials: true }
+      );
+      
+      if (response.data.success) {
+        set((state) => ({
+          movies: state.movies.map((movie) =>
+            movie._id === id ? response.data.movie : movie
+          ),
+        }));
+        toast.success(response.data.message);
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Failed to update movie";
+      toast.error(errorMessage);
+      console.error("Error updating movie:", error);
+    } finally {
+      set({ loading: false });
+    }
+  },
+  deleteMovie: async (id) => {
+    set({ loading: true });
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/movie/${id}`,
+        { withCredentials: true }
+      );
+      
+      if (response.data.success) {
+        set((state) => ({
+          movies: state.movies.filter((movie) => movie._id !== id),
+        }));
+        toast.success(response.data.message || "Movie deleted successfully");
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Failed to delete movie";
+      toast.error(errorMessage);
+      console.error("Error deleting movie:", error);
+    } finally {
       set({ loading: false });
     }
   },
   fetchAllMovies: async () => {
     set({ loading: true });
     try {
-      const response = await axios.get(`${API_URL}/`);
-      set({ movies: response.data.movies, loading: false });
+      const response = await axios.get("http://localhost:8080/api/movie", {
+        withCredentials: true,
+      });
+      set({ movies: response.data.movies });
     } catch (error) {
-      set({ error: "Failed to fetch movies", loading: false });
-      toast.error(error.response.data.error || "Failed to fetch movies");
-    }
-  },
-  deleteMovie: async (movieId) => {
-    set({ loading: true });
-    try {
-      await axios.delete(`${API_URL}/delete/${movieId}`);
-      set((prevMovies) => ({
-        movies: prevMovies.movies.filter(
-          (movie) => movie._id !== movieId
-        ),
-        loading: false,
-      }));
-    } catch (error) {
+      toast.error("Failed to fetch movies");
+      console.error("Error fetching movies:", error);
+    } finally {
       set({ loading: false });
-      toast.error(error.response.data.error || "Failed to delete movie");
     }
   },
   toggleFeatured: async (movieId) => {

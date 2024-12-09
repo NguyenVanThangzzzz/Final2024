@@ -72,10 +72,18 @@ export const createMovie = async (req, res) => {
       isFeatured,
     });
 
-    res.status(201).json({ movie });
+    res.status(201).json({ 
+      success: true,
+      message: "Movie created successfully",
+      movie 
+    });
   } catch (error) {
     console.log("Error in createMovie controller", error.message);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to create movie",
+      error: error.message 
+    });
   }
 };
 
@@ -83,26 +91,48 @@ export const updateMovie = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
 
-  // Validate genres array if it's being updated
-  if (updateData.genres && (!Array.isArray(updateData.genres) || updateData.genres.length === 0)) {
-    return res.status(400).json({ 
-      message: "At least one genre must be selected" 
-    });
-  }
-
   try {
-    const updatedMovie = await Movie.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedMovie) {
-      return res.status(404).json({ message: "Movie not found" });
+    // Validate genres array if it's being updated
+    if (updateData.genres && (!Array.isArray(updateData.genres) || updateData.genres.length === 0)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "At least one genre must be selected" 
+      });
     }
 
-    res.status(200).json(updatedMovie);
+    // Handle image upload if new image is provided
+    if (updateData.image && updateData.image.startsWith('data:image')) {
+      const cloudinaryResponse = await cloudinary.uploader.upload(updateData.image, {
+        folder: "movies",
+      });
+      updateData.image = cloudinaryResponse.secure_url;
+    }
+
+    const updatedMovie = await Movie.findByIdAndUpdate(
+      id, 
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedMovie) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Movie not found" 
+      });
+    }
+
+    res.status(200).json({
+      success: true, 
+      message: "Movie updated successfully",
+      movie: updatedMovie
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update movie", error });
+    console.error("Error in updateMovie controller:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to update movie", 
+      error: error.message 
+    });
   }
 };
 
@@ -136,23 +166,24 @@ export const deleteMovie = async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id);
     if (!movie) {
-      res.status(404);
-      throw new Error("Movie not found");
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
     }
-    if (movie.imageUrl) {
-      const publicId = movie.imageUrl.split("/").pop().split(".")[0];
-      try {
-        await cloudinary.uploader.destroy(`movies/${publicId}`);
-        console.log("Image deleted from cloudinary");
-      } catch (error) {
-        console.log("Error deleting image from cloudinary", error);
-      }
-    }
+
     await Movie.findByIdAndDelete(req.params.id);
-    res.json({ message: "Movie removed successfully" });
+    res.json({ 
+      success: true,
+      message: "Movie deleted successfully" 
+    });
   } catch (error) {
     console.log("Error in deleteMovie controller", error.message);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to delete movie",
+      error: error.message 
+    });
   }
 };
 
