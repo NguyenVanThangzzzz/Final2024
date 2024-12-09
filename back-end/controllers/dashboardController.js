@@ -284,7 +284,7 @@ export const getCinemaStats = async (req, res) => {
 
 export const getGenreStats = async (req, res) => {
   try {
-    const genreStats = await Order.aggregate([
+    const orders = await Order.aggregate([
       {
         $lookup: {
           from: "tickets",
@@ -303,11 +303,21 @@ export const getGenreStats = async (req, res) => {
         }
       },
       { $unwind: "$movie" },
+      // Unwind genres array để tách từng thể loại thành document riêng
+      { $unwind: "$movie.genres" },
       {
         $group: {
-          _id: "$movie.genres",
+          _id: "$movie.genres", // Nhóm theo từng thể loại riêng lẻ
           totalTickets: { $sum: 1 },
           totalRevenue: { $sum: "$totalAmount" }
+        }
+      },
+      {
+        $project: {
+          genre: "$_id",
+          totalTickets: 1,
+          totalRevenue: 1,
+          _id: 0
         }
       },
       {
@@ -317,7 +327,7 @@ export const getGenreStats = async (req, res) => {
 
     res.json({
       success: true,
-      data: genreStats
+      data: orders
     });
   } catch (error) {
     console.error("Error in getGenreStats:", error);
