@@ -1,98 +1,135 @@
-import { 
-  BarChart3,
-  Building2, 
-  Clapperboard, 
-  DoorOpen, 
-  CalendarDays,
+import { Link, useLocation } from "react-router-dom";
+import {
   LayoutDashboard,
-  Settings,
+  Film,
+  Building2,
   Users,
-  SlidersHorizontal
+  Settings,
+  DoorClosed,
+  Calendar,
+  LogOut,
+  Menu,
+  X
 } from "lucide-react";
-import React from "react";
-import { Link } from "react-router-dom";
 import { useAdminStore } from "../Store/adminStore";
+import { useState } from "react";
 
 const Sidebar = () => {
-  const { user } = useAdminStore();
-  
-  // Define menu items based on user role
-  const getMenuItems = () => {
-    const baseItems = [
-      {
-        path: "/",
-        name: "Dashboard",
-        icon: <LayoutDashboard className="w-5 h-5" />,
-      },
-      {
-        path: "/movie-dashboard",
-        name: "Movie Analytics",
-        icon: <BarChart3 className="w-5 h-5" />,
-      },
-    ];
+  const location = useLocation();
+  const { user, logout } = useAdminStore();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    // Additional items only for admin role
-    const adminItems = [
-      {
-        path: "/user-management",
-        name: "User Management",
-        icon: <Users className="w-5 h-5" />,
-      },
-      {
-        path: "/cinema-management",
-        name: "Cinema Management",
-        icon: <Building2 className="w-5 h-5" />,
-      },
-      {
-        path: "/movie-management",
-        name: "Movie Management",
-        icon: <Clapperboard className="w-5 h-5" />,
-      },
-      {
-        path: "/room-management",
-        name: "Room Management",
-        icon: <DoorOpen className="w-5 h-5" />,
-      },
-      {
-        path: "/screening-management",
-        name: "Screening Management",
-        icon: <CalendarDays className="w-5 h-5" />,
-      },
-      {
-        path: "/settings",
-        name: "Settings",
-        icon: <Settings className="w-5 h-5" />,
-      },
-    ];
+  const navigation = [
+    { name: "Dashboard", href: "/", icon: LayoutDashboard },
+    { name: "Movie Dashboard", href: "/movie-dashboard", icon: Film },
+    ...(user?.role === "admin"
+      ? [
+          { name: "Cinema Management", href: "/cinema-management", icon: Building2 },
+          { name: "Room Management", href: "/room-management", icon: DoorClosed },
+          { name: "Movie Management", href: "/movie-management", icon: Film },
+          {
+            name: "Screening Management",
+            href: "/screening-management",
+            icon: Calendar,
+          },
+          { name: "User Management", href: "/user-management", icon: Users },
+          { name: "Settings", href: "/settings", icon: Settings },
+        ]
+      : []),
+  ];
 
-    return user?.role === 'admin' ? [...baseItems, ...adminItems] : baseItems;
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const menuItems = getMenuItems();
-
   return (
-    <div className="bg-gray-800 text-white h-screen w-64 fixed left-0 top-0 overflow-y-auto">
-      <div className="p-4">
-        <div className="flex items-center justify-center mb-8">
-          <img src="/Linux.png" alt="Logo" className="h-12" />
-        </div>
-        <nav>
-          <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
-                >
-                  {item.icon}
-                  <span>{item.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <>
+      {/* Mobile Menu Button */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-gray-800 z-50 px-4 py-2">
+        <button
+          onClick={toggleMobileMenu}
+          className="text-white p-2 hover:bg-gray-700 rounded-md"
+        >
+          {isMobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </button>
       </div>
-    </div>
+
+      {/* Mobile Sidebar */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed top-12 left-0 right-0 bg-gray-800 z-40 shadow-lg">
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            {navigation.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`${
+                    isActive
+                      ? "bg-emerald-600 text-white"
+                      : "text-gray-300 hover:bg-gray-700"
+                  } flex items-center px-3 py-2 rounded-md text-sm font-medium`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <item.icon className="h-5 w-5 mr-2" />
+                  {item.name}
+                </Link>
+              );
+            })}
+            <button
+              onClick={logout}
+              className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 rounded-md"
+            >
+              <LogOut className="h-5 w-5 mr-2" />
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 bg-gray-800">
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex items-center h-16 flex-shrink-0 px-4 bg-gray-900">
+            <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
+          </div>
+          <div className="flex-1 flex flex-col overflow-y-auto">
+            <nav className="flex-1 px-2 py-4 space-y-1">
+              {navigation.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`${
+                      isActive
+                        ? "bg-emerald-600 text-white"
+                        : "text-gray-300 hover:bg-gray-700"
+                    } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
+                  >
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+          <div className="flex-shrink-0 flex border-t border-gray-700 p-4">
+            <button
+              onClick={logout}
+              className="flex items-center text-gray-300 hover:text-white"
+            >
+              <LogOut className="h-5 w-5 mr-3" />
+              <span className="text-sm font-medium">Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
