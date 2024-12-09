@@ -2,7 +2,6 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames/bind";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import loginBanner from "~/asset/images/LINUXdoc.png";
 import { useAuthStore } from "../../../store/authStore";
 import styles from "./LoginPage.module.scss";
@@ -14,7 +13,7 @@ function LoginPage({ onSuccess, onSwitchToSignup }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, loginError, clearErrors } = useAuthStore();
+  const { login, loginError, clearErrors, setShowForgotPasswordModal } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -38,6 +37,11 @@ function LoginPage({ onSuccess, onSwitchToSignup }) {
   const handleSwitchToSignup = () => {
     clearErrors();
     onSwitchToSignup();
+  };
+
+  const handleForgotPasswordClick = (e) => {
+    e.preventDefault();
+    setShowForgotPasswordModal(true);
   };
 
   return (
@@ -75,7 +79,9 @@ function LoginPage({ onSuccess, onSwitchToSignup }) {
               <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
             </button>
           </div>
-          <Link to="/forgot-password">Forgot password?</Link>
+          <a href="#" onClick={handleForgotPasswordClick}>
+            Forgot password?
+          </a>
           {loginError && !isSubmitting && (
             <p className={cx("error")}>{loginError}</p>
           )}

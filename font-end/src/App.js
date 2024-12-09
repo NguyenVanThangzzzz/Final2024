@@ -5,6 +5,7 @@ import { DefaultLayout } from "~/layouts";
 import AuthProvider from "~/components/AuthProvider";
 import CheckAuth from "~/components/CheckAuth";
 import VerifyEmailModal from '~/components/VerifyEmailModal';
+import ForgotPasswordModal from '~/components/ForgotPasswordModal';
 import { useAuthStore } from '~/store/authStore';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,7 +15,9 @@ function App() {
     showVerifyEmailModal, 
     setShowVerifyEmailModal,
     pendingVerificationEmail,
-    verifyEmail 
+    verifyEmail,
+    showForgotPasswordModal,
+    setShowForgotPasswordModal
   } = useAuthStore();
 
   return (
@@ -78,6 +81,12 @@ function App() {
               onClose={() => setShowVerifyEmailModal(false)}
               onVerify={verifyEmail}
               email={pendingVerificationEmail}
+            />
+          )}
+
+          {showForgotPasswordModal && (
+            <ForgotPasswordModal
+              onClose={() => setShowForgotPasswordModal(false)}
             />
           )}
           
