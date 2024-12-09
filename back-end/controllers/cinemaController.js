@@ -81,15 +81,15 @@ export const updateCinema = async (req, res) => {
     cinema.phoneNumber = phoneNumber || cinema.phoneNumber;
 
     // Cập nhật hình ảnh nếu có
-    if (image) {
+    if (image && image !== cinema.image) {
       const cloudinaryResponse = await cloudinary.uploader.upload(image, {
         folder: "cinemas",
       });
-      cinema.image = cloudinaryResponse.secure_url; // Cập nhật URL hình ảnh
+      cinema.image = cloudinaryResponse.secure_url;
     }
 
     const updatedCinema = await cinema.save();
-    res.json({ updatedCinema });
+    res.json({ cinema: updatedCinema });
   } catch (error) {
     console.log("Error in updateCinema controller", error.message);
     res.status(500).json({ message: error.message });
