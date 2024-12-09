@@ -30,13 +30,27 @@ const ScreeningList = () => {
   };
 
   const handleEditClick = (screening) => {
-    setSelectedScreening(screening);
-    setIsEditModalOpen(true);
+    if (screening && screening.movieId && screening.roomId) {
+      setSelectedScreening({
+        ...screening,
+        movieId: {
+          _id: screening.movieId._id,
+          name: screening.movieId.name
+        },
+        roomId: {
+          _id: screening.roomId._id,
+          name: screening.roomId.name,
+          cinemaId: screening.roomId.cinemaId
+        }
+      });
+      setIsEditModalOpen(true);
+    }
   };
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setSelectedScreening(null);
+    fetchAllScreenings();
   };
 
   return (
@@ -55,6 +69,9 @@ const ScreeningList = () => {
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Room
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                Cinema
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                 Show Time
@@ -77,10 +94,13 @@ const ScreeningList = () => {
             {screenings?.map((screening) => (
               <tr key={screening._id} className="hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {screening.movieId?.name}
+                  {screening.movieId?.name || "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {screening.roomId?.name}
+                  {screening.roomId?.name || "N/A"}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {screening.roomId?.cinemaId?.name || "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {new Date(screening.showTime).toLocaleString()}

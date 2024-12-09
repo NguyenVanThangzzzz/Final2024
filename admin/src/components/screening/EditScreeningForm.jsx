@@ -3,9 +3,12 @@ import { Loader, Save } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useScreeningStore } from "../../Store/screeningStore";
+import axios from "axios";
 
 const EditScreeningForm = ({ screening, onClose }) => {
   const { updateScreening, loading } = useScreeningStore();
+  const [rooms, setRooms] = useState([]);
+  const [movies, setMovies] = useState([]);
   
   const [formData, setFormData] = useState({
     roomId: "",
@@ -16,15 +19,31 @@ const EditScreeningForm = ({ screening, onClose }) => {
     seatCapacity: ""
   });
 
+  // Fetch rooms and movies when component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [roomsResponse, moviesResponse] = await Promise.all([
+          axios.get('http://localhost:8080/api/room'),
+          axios.get('http://localhost:8080/api/movie')
+        ]);
+        setRooms(roomsResponse.data.rooms);
+        setMovies(moviesResponse.data.movies);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load rooms and movies');
+      }
+    };
+    fetchData();
+  }, []);
+
   useEffect(() => {
     if (screening) {
-      // Format dates for datetime-local input
       const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toISOString().slice(0, 16);
       };
 
-      // Safely access nested properties
       const roomId = screening.roomId?._id || screening.roomId || "";
       const movieId = screening.movieId?._id || screening.movieId || "";
 
@@ -101,38 +120,44 @@ const EditScreeningForm = ({ screening, onClose }) => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Room ID */}
+          {/* Room Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-300">
               Room <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              value={screening.roomId?.name || ''}
-              disabled
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white opacity-70"
-            />
-            <input
-              type="hidden"
+            <select
               value={formData.roomId}
-            />
+              onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
+              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white"
+              required
+            >
+              <option value="">Select a room</option>
+              {rooms.map((room) => (
+                <option key={room._id} value={room._id}>
+                  {room.name} - {room.cinemaId?.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Movie ID */}
+          {/* Movie Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-300">
               Movie <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              value={screening.movieId?.name || ''}
-              disabled
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white opacity-70"
-            />
-            <input
-              type="hidden"
+            <select
               value={formData.movieId}
-            />
+              onChange={(e) => setFormData({ ...formData, movieId: e.target.value })}
+              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white"
+              required
+            >
+              <option value="">Select a movie</option>
+              {movies.map((movie) => (
+                <option key={movie._id} value={movie._id}>
+                  {movie.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Show Time */}

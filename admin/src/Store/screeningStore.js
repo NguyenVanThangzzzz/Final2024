@@ -18,7 +18,8 @@ export const useScreeningStore = create((set) => ({
       await useScreeningStore.getState().fetchAllScreenings();
       toast.success("Screening created successfully!");
     } catch (error) {
-      toast.error(error.response.data.message || "Failed to create screening");
+      toast.error(error.response?.data?.message || "Failed to create screening");
+    } finally {
       set({ loading: false });
     }
   },
@@ -27,9 +28,11 @@ export const useScreeningStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.get(`${API_URL}/`);
-      set({ screenings: response.data, loading: false }); // Set the entire response as screenings
+      set({ screenings: response.data, loading: false });
     } catch (error) {
       console.error("Failed to fetch screenings:", error);
+      toast.error("Failed to fetch screenings");
+    } finally {
       set({ loading: false });
     }
   },
@@ -42,10 +45,12 @@ export const useScreeningStore = create((set) => ({
         screenings: state.screenings.filter(
           (screening) => screening._id !== screeningId
         ),
-        loading: false,
       }));
+      toast.success("Screening deleted successfully");
     } catch (error) {
       console.error("Failed to delete screening:", error);
+      toast.error("Failed to delete screening");
+    } finally {
       set({ loading: false });
     }
   },
@@ -53,7 +58,7 @@ export const useScreeningStore = create((set) => ({
   updateScreening: async (id, data) => {
     try {
       set({ loading: true });
-      const response = await axios.put(`/api/screening/${id}`, data);
+      const response = await axios.put(`${API_URL}/${id}`, data);
       set(state => ({
         screenings: state.screenings.map(screening => 
           screening._id === id ? response.data : screening
@@ -61,6 +66,7 @@ export const useScreeningStore = create((set) => ({
       }));
       return response.data;
     } catch (error) {
+      console.error("Failed to update screening:", error);
       throw error;
     } finally {
       set({ loading: false });
