@@ -3,9 +3,10 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
 import styles from "./ResetPassword.module.scss";
-import loginBanner from "~/asset/images/LINUXdoc.png";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import loginBanner from "~/asset/images/LINUXdoc.png";
+import { toast } from 'react-toastify';
 
 const cx = classNames.bind(styles);
 
@@ -31,72 +32,95 @@ function ResetPassword() {
     try {
       await resetPassword(token, password);
       setFormError("");
-      alert("Password reset successfully, redirecting to login page...");
+      toast.success('Password reset successfully!', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
       }, 2000);
     } catch (error) {
       console.error(error);
       setFormError(error.message || "Error resetting password");
+      toast.error(error.message || "Error resetting password", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
 
   return (
     <div className={cx("reset-container")}>
-      <div className={cx("reset-form-container")}>
-        <form className={cx("form-container")} onSubmit={handleSubmit}>
-          <img
-            src={loginBanner}
-            alt="Reset Password banner"
-            className={cx("reset-banner")}
-          />
-          <h1>Reset Password</h1>
-          
-          <div className={cx("password-input-container")}>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="New Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type="button"
-              className={cx("toggle-password")}
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
-            </button>
+      <div className={cx("content-wrapper")}>
+        <div className={cx("form-section")}>
+          <a href="/" className={cx("back-link")}>Back to Login</a>
+          <div className={cx("form-header")}>
+            <h1>Reset Password</h1>
+            <p>Please choose your new password</p>
           </div>
 
-          <div className={cx("password-input-container")}>
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="Confirm New Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+          <form onSubmit={handleSubmit} className={cx("form")}>
+            <div className={cx("input-group")}>
+              <label>New Password</label>
+              <div className={cx("password-input")}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your new password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className={cx("toggle-password")}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                </button>
+              </div>
+            </div>
+
+            <div className={cx("input-group")}>
+              <label>Confirm Password</label>
+              <div className={cx("password-input")}>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm your new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className={cx("toggle-password")}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                </button>
+              </div>
+            </div>
+
+            {(formError || error) && (
+              <div className={cx("error")}>{formError || error}</div>
+            )}
+
             <button
-              type="button"
-              className={cx("toggle-password")}
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              type="submit"
+              className={cx("submit-button")}
+              disabled={isLoading}
             >
-              <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+              {isLoading ? "Processing..." : "Save New Password"}
             </button>
-          </div>
+          </form>
+        </div>
 
-          {formError && <div className={cx("error")}>{formError}</div>}
-          {error && <div className={cx("error")}>{error}</div>}
-
-          <button
-            type="submit"
-            className={cx("reset-btn")}
-            disabled={isLoading}
-          >
-            {isLoading ? <div className={cx("button-spinner")} /> : "Reset Password"}
-          </button>
-        </form>
+        <div className={cx("logo-section")}>
+          <img src={loginBanner} alt="Linux Light Logo" />
+        </div>
       </div>
     </div>
   );
