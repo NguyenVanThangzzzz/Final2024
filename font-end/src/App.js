@@ -4,8 +4,19 @@ import { publicRoutes, privateRoutes } from "~/routes";
 import { DefaultLayout } from "~/layouts";
 import AuthProvider from "~/components/AuthProvider";
 import CheckAuth from "~/components/CheckAuth";
+import VerifyEmailModal from '~/components/VerifyEmailModal';
+import { useAuthStore } from '~/store/authStore';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
+  const { 
+    showVerifyEmailModal, 
+    setShowVerifyEmailModal,
+    pendingVerificationEmail,
+    verifyEmail 
+  } = useAuthStore();
+
   return (
     <Router>
       <AuthProvider>
@@ -61,6 +72,16 @@ function App() {
               );
             })}
           </Routes>
+
+          {showVerifyEmailModal && (
+            <VerifyEmailModal
+              onClose={() => setShowVerifyEmailModal(false)}
+              onVerify={verifyEmail}
+              email={pendingVerificationEmail}
+            />
+          )}
+          
+          <ToastContainer />
         </div>
       </AuthProvider>
     </Router>
