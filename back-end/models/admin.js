@@ -5,38 +5,29 @@ const adminSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Please provide a name"],
+      required: true,
     },
     email: {
       type: String,
-      required: [true, "Please provide an email"],
+      required: true,
       unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    img: {
-      type: String,
-      default: "default-avatar.png"
     },
     password: {
       type: String,
-      required: [true, "Please provide a password"],
-      minlength: [6, "Password must be at least 6 characters"],
+      required: true,
     },
-
     role: {
       type: String,
-      enum: ["user", "admin", "manager"],
-      default: "user",
+      enum: ["admin", "manager"],
+      default: "manager",
     },
   },
   { timestamps: true }
 );
 
-// Pre-save hook to hash password before saving to database
+// Hash password before saving
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -46,8 +37,13 @@ adminSchema.pre("save", async function (next) {
   }
 });
 
-adminSchema.methods.comparePassword = async function (password) {
-  return bcrypt.compare(password, this.password);
+// Compare password method
+adminSchema.methods.comparePassword = async function (candidatePassword) {
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    throw error;
+  }
 };
 
 const Admin = mongoose.model("Admin", adminSchema);

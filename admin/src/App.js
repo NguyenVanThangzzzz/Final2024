@@ -23,6 +23,15 @@ function App() {
 
   if (checkingAuth) return <LoadingSpinner />;
 
+  // Helper function to check if route is allowed for user role
+  const isRouteAllowed = (path) => {
+    if (user?.role === 'admin') return true;
+    
+    // Routes allowed for manager
+    const managerRoutes = ['/', '/movie-dashboard'];
+    return managerRoutes.includes(path);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white relative flex">
       {/* Background gradient */}
@@ -47,31 +56,26 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<Navigate to="/" />} />
-                <Route path="/settings" element={<SettingPage />} />
-                <Route
-                  path="/user-management"
-                  element={<UserManagementPage />}
-                />
-                <Route
-                  path="/cinema-management"
-                  element={<CinemaManagementPage />}
-                />
-                <Route
-                  path="/room-management"
-                  element={<RoomManagementPage />}
-                />
-                <Route
-                  path="/movie-management"
-                  element={<MovieManagementPage />}
-                />
-                <Route
-                  path="/screening-management"
-                  element={<ScreeningManagementPage />}
-                />
-                <Route
-                  path="/movie-dashboard"
-                  element={<MovieDashBard />}
-                />
+                
+                {/* Protected routes */}
+                {isRouteAllowed('/movie-dashboard') && (
+                  <Route path="/movie-dashboard" element={<MovieDashBard />} />
+                )}
+                
+                {/* Admin only routes */}
+                {user.role === 'admin' && (
+                  <>
+                    <Route path="/settings" element={<SettingPage />} />
+                    <Route path="/user-management" element={<UserManagementPage />} />
+                    <Route path="/cinema-management" element={<CinemaManagementPage />} />
+                    <Route path="/room-management" element={<RoomManagementPage />} />
+                    <Route path="/movie-management" element={<MovieManagementPage />} />
+                    <Route path="/screening-management" element={<ScreeningManagementPage />} />
+                  </>
+                )}
+
+                {/* Redirect unauthorized access */}
+                <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
           </div>

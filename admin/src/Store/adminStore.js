@@ -1,185 +1,152 @@
 import axios from "axios";
 import { create } from "zustand";
 
-const API_URL = "http://localhost:8080/api/admin";
-axios.defaults.withCredentials = true;
-
-export const useAdminStore = create((set, get) => ({
+export const useAdminStore = create((set) => ({
   user: null,
   users: [],
-  loading: false,
   checkingAuth: true,
+  loading: false,
+  error: null,
 
   login: async (email, password) => {
-    set({ loading: true });
     try {
-      const response = await axios.post(`${API_URL}/login`, {
-        email,
-        password,
-      });
-      set({ user: response.data, loading: false }); // Cập nhật user sau khi đăng nhập
+      set({ loading: true, error: null });
+      const response = await axios.post(
+        "http://localhost:8080/api/admin/login",
+        { email, password },
+        { withCredentials: true }
+      );
+      set({ user: response.data, loading: false });
+      return response.data;
     } catch (error) {
-      set({ loading: false });
+      set({
+        error: error.response?.data?.message || "An error occurred",
+        loading: false,
+      });
       throw error;
     }
   },
 
   logout: async () => {
     try {
-      await axios.post(`${API_URL}/logout`);
-      set({ user: null }); // Đặt user về null khi đăng xuất
+      await axios.post(
+        "http://localhost:8080/api/admin/logout",
+        {},
+        { withCredentials: true }
+      );
+      set({ user: null });
     } catch (error) {
       console.error("Logout error:", error);
     }
   },
 
   checkAuth: async () => {
-    set({ checkingAuth: true });
     try {
-      const response = await axios.get(`${API_URL}/profile`);
+      const response = await axios.get(
+        "http://localhost:8080/api/admin/profile",
+        { withCredentials: true }
+      );
       set({ user: response.data, checkingAuth: false });
     } catch (error) {
-      console.log(error.message);
-      set({ checkingAuth: false, user: null });
+      set({ user: null, checkingAuth: false });
     }
   },
 
-  refreshToken: async () => {
-    // Prevent multiple simultaneous refresh attempts
-    if (get().checkingAuth) return;
-
-    set({ checkingAuth: true });
+  // User management functions
+  getUsers: async () => {
     try {
-      const response = await axios.post(`${API_URL}/refresh-token`);
-      set({ checkingAuth: false });
-      return response.data;
+      const response = await axios.get(
+        "http://localhost:8080/api/admin/users",
+        { withCredentials: true }
+      );
+      set({ users: response.data.data });
     } catch (error) {
-      set({ user: null, checkingAuth: false });
+      console.error("Error fetching users:", error);
       throw error;
     }
   },
 
-  getUsers: async () => {
-    set({ loading: true });
-    try {
-      const response = await axios.get(`${API_URL}/users`);
-      set({ users: response.data.data, loading: false });
-    } catch (error) {
-      set({ loading: false });
-      console.error("Get users error:", error);
-    }
-  },
-
   createUser: async (userData) => {
-    set({ loading: true });
     try {
-      const response = await axios.post(`${API_URL}/users`, userData);
+      const response = await axios.post(
+        "http://localhost:8080/api/admin/users",
+        userData,
+        { withCredentials: true }
+      );
       set((state) => ({
         users: [...state.users, response.data.data],
-        loading: false,
       }));
     } catch (error) {
-      set({ loading: false });
+      console.error("Error creating user:", error);
       throw error;
     }
   },
 
   updateUser: async (userId, userData) => {
-    set({ loading: true });
     try {
-      const response = await axios.put(`${API_URL}/users/${userId}`, userData);
+      const response = await axios.put(
+        `http://localhost:8080/api/admin/users/${userId}`,
+        userData,
+        { withCredentials: true }
+      );
       set((state) => ({
         users: state.users.map((user) =>
           user._id === userId ? { ...user, ...response.data.user } : user
         ),
-        loading: false,
       }));
     } catch (error) {
-      set({ loading: false });
+      console.error("Error updating user:", error);
       throw error;
     }
   },
 
   deleteUser: async (userId) => {
-    set({ loading: true });
     try {
-      await axios.delete(`${API_URL}/users/${userId}`);
+      await axios.delete(
+        `http://localhost:8080/api/admin/users/${userId}`,
+        { withCredentials: true }
+      );
       set((state) => ({
         users: state.users.filter((user) => user._id !== userId),
-        loading: false,
       }));
     } catch (error) {
-      set({ loading: false });
+      console.error("Error deleting user:", error);
       throw error;
     }
   },
 
-  searchUsers: async (query) => {
-    set({ loading: true });
+  searchUsers: async ({ name, email }) => {
     try {
-      const response = await axios.get(`${API_URL}/users/search`, {
-        params: query,
-      });
-      set({ users: response.data.data, loading: false });
+      let url = "http://localhost:8080/api/admin/users/search?";
+      const params = [];
+      if (name) params.push(`name=${encodeURIComponent(name)}`);
+      if (email) params.push(`email=${encodeURIComponent(email)}`);
+      
+      url += params.join('&');
+      
+      const response = await axios.get(url, { withCredentials: true });
+      set({ users: response.data.data });
     } catch (error) {
-      set({ loading: false });
-      console.error("Search users error:", error);
+      console.error("Error searching users:", error);
+      throw error;
     }
   },
 
   assignRole: async (userId, role) => {
-    set({ loading: true });
     try {
-      const response = await axios.post(`${API_URL}/assign-role`, {
-        userId,
-        role,
-      });
+      const response = await axios.post(
+        "http://localhost:8080/api/admin/assign-role",
+        { userId, role },
+        { withCredentials: true }
+      );
       set((state) => ({
         users: state.users.map((user) =>
-          user._id === userId
-            ? { ...user, role: response.data.user.role }
-            : user
+          user._id === userId ? { ...user, ...response.data.user } : user
         ),
-        loading: false,
       }));
     } catch (error) {
-      set({ loading: false });
+      console.error("Error assigning role:", error);
       throw error;
     }
   },
 }));
-
-// TODO: Implement the axios interceptors for refreshing access token
-
-// Axios interceptor for token refresh
-let refreshPromise = null;
-
-axios.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        // If a refresh is already in progress, wait for it to complete
-        if (refreshPromise) {
-          await refreshPromise;
-          return axios(originalRequest);
-        }
-
-        // Start a new refresh process
-        refreshPromise = useAdminStore.getState().refreshToken();
-        await refreshPromise;
-        refreshPromise = null;
-
-        return axios(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails, redirect to login or handle as needed
-        useAdminStore.getState().logout();
-        return Promise.reject(refreshError);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
