@@ -1,14 +1,12 @@
 import { motion } from "framer-motion";
-import { BarChart, PlusCircle, ShoppingBasket } from "lucide-react";
+import { BarChart, PlusCircle, Building2 } from "lucide-react";
 import React, { useState } from "react";
 
-import CinemaList from "../components/cinema/CinemasList";
 import CreateCinemaForm from "../components/cinema/CreateCinemaForm";
 
 const tabs = [
   { id: "create", label: "Create cinemas", icon: PlusCircle },
-  { id: "cinemas", label: "Cinemas", icon: ShoppingBasket },
-  { id: "analytics", label: "Analytics", icon: BarChart },
+  { id: "cinemas", label: "Cinemas", icon: Building2 }
 ];
 
 const CinemaManagementPage = () => {
@@ -43,8 +41,6 @@ const CinemaManagementPage = () => {
           ))}
         </div>
         {activeTab === "create" && <CreateCinemaForm />}
-        {activeTab === "cinemas" && <CinemaList />}
-        {/* {activeTab === "analytics" && <AnalyticsTab />} */}
       </div>
     </div>
   );

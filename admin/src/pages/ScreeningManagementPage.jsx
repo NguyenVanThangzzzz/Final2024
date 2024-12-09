@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
-import { PlusCircle, ShoppingBasket } from "lucide-react";
+import { BarChart, PlusCircle, CalendarDays } from "lucide-react";
 import React, { useState } from "react";
 import CreateScreeningForm from "../components/screening/CreateScreeningForm";
 import ScreeningList from "../components/screening/ScreeningList";
 
 const tabs = [
-  { id: "create", label: "Create Screening", icon: PlusCircle },
-  { id: "screenings", label: "Screenings", icon: ShoppingBasket },
+  { id: "create", label: "Create screenings", icon: PlusCircle },
+  { id: "screenings", label: "Screenings", icon: CalendarDays }
 ];
 
 const ScreeningManagementPage = () => {

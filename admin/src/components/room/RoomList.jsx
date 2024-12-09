@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Edit3, Trash } from "lucide-react";
+import { Edit3, Trash, DoorOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRoomStore } from "../../Store/roomStore";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
@@ -81,7 +81,7 @@ const RoomList = () => {
                     onClick={() => handleEditClick(room)}
                     className="text-yellow-400 hover:text-yellow-500 focus:outline-none mr-4"
                   >
-                    <Edit3 className="w-5 h-5" />
+                    <DoorOpen className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => handleDeleteClick(room._id)}

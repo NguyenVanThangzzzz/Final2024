@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
-import { BarChart, PlusCircle, ShoppingBasket } from "lucide-react";
+import { BarChart, PlusCircle, DoorOpen } from "lucide-react";
 import React, { useState } from "react";
 import CreateRoomForm from "../components/room/CreateRoomForm";
 import RoomList from "../components/room/RoomList";
 
 const tabs = [
   { id: "create", label: "Create rooms", icon: PlusCircle },
-  { id: "rooms", label: "Rooms", icon: ShoppingBasket },
-  { id: "analytics", label: "Analytics", icon: BarChart },
+  { id: "rooms", label: "Rooms", icon: DoorOpen }
 ];
 
 const RoomManagementPage = () => {

@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
-import { BarChart, PlusCircle, ShoppingBasket } from "lucide-react";
+import { BarChart, PlusCircle, Clapperboard } from "lucide-react";
 import React, { useState } from "react";
 import CreateMovieForm from "../components/movie/CreateMovieForm";
 import MovieList from "../components/movie/MovieList";
 
 const tabs = [
-  { id: "create", label: "Create Product", icon: PlusCircle },
-  { id: "movies", label: "Movies", icon: ShoppingBasket },
-  { id: "analytics", label: "Analytics", icon: BarChart },
+  { id: "create", label: "Create movies", icon: PlusCircle },
+  { id: "movies", label: "Movies", icon: Clapperboard }
 ];
 
 const MovieManagementPage = () => {

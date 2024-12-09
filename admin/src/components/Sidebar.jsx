@@ -1,12 +1,13 @@
-import {
+import { 
   BarChart3,
-  Building2,
-  DoorOpen,
-  Film,
+  Building2, 
+  Clapperboard, 
+  DoorOpen, 
+  CalendarDays,
   LayoutDashboard,
   Settings,
-  SlidersHorizontal,
   Users,
+  SlidersHorizontal
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -45,7 +46,7 @@ const Sidebar = () => {
       {
         path: "/movie-management",
         name: "Movie Management",
-        icon: <Film className="w-5 h-5" />,
+        icon: <Clapperboard className="w-5 h-5" />,
       },
       {
         path: "/room-management",
@@ -55,7 +56,7 @@ const Sidebar = () => {
       {
         path: "/screening-management",
         name: "Screening Management",
-        icon: <SlidersHorizontal className="w-5 h-5" />,
+        icon: <CalendarDays className="w-5 h-5" />,
       },
       {
         path: "/settings",

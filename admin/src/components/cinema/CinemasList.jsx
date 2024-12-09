@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Edit3, Trash } from "lucide-react"; // Icons for delete and edit actions
+import { Edit3, Trash, Building2, Pencil, Trash2 } from "lucide-react"; // Icons for delete and edit actions
 import { useEffect, useState } from "react";
 import { useCinemaStore } from "../../Store/cinemaStore";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
@@ -125,14 +125,14 @@ const CinemasList = () => {
                     onClick={() => handleEditClick(cinema)}
                     className="text-yellow-400 hover:text-yellow-500 focus:outline-none mr-4"
                   >
-                    <Edit3 className="w-5 h-5" />
+                    <Pencil className="w-5 h-5" />
                   </button>
                   {/* Delete Action */}
                   <button
                     onClick={() => handleDeleteClick(cinema._id)}
                     className="text-red-500 hover:text-red-600 focus:outline-none"
                   >
-                    <Trash className="w-5 h-5" />
+                    <Trash2 className="w-5 h-5" />
                   </button>
                 </td>
               </tr>
