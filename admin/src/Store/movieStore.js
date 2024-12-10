@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { create } from "zustand";
+
 const API_URL = `${process.env.REACT_APP_API_URL}/api/movie`;
 axios.defaults.withCredentials = true;
 

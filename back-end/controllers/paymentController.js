@@ -111,56 +111,41 @@ export const checkoutSuccess = async (req, res) => {
         const { session_id } = req.query;
 
         if (!session_id) {
-            return res.status(400).json({ message: "Thiếu session_id" });
-        }
-
-        const order = await Order.findOne({ stripeSessionId: session_id });
-        if (!order) {
-            return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
-        }
-
-        const session = await stripe.checkout.sessions.retrieve(session_id);
-
-        if (session.payment_status === "paid") {
-            if (order.status !== "paid") {
-                // Cập nhật trạng thái order
-                order.status = "paid";
-                order.paymentDate = new Date();
-                await order.save();
-
-                // Cập nhật trạng thái ticket
-                const ticket = await Ticket.findById(order.ticketId);
-                if (ticket) {
-                    ticket.status = "confirmed";
-                    await ticket.save();
-
-                    // Cập nhật trạng thái ghế thành booked
-                    await Screening.updateMany(
-                        { _id: ticket.screeningId },
-                        {
-                            $set: {
-                                "seats.$[elem].status": "booked"
-                            }
-                        },
-                        {
-                            arrayFilters: [{ "elem.seatNumber": { $in: ticket.seatNumbers } }]
-                        }
-                    );
-                }
-            }
-
-            return res.status(200).json({
-                message: "Thanh toán thành công",
-                order: order
+            return res.status(400).json({ 
+                success: false,
+                message: "Thiếu session_id" 
             });
         }
 
-        res.status(400).json({ message: "Thanh toán chưa hoàn tất" });
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+        const order = await Order.findOne({ stripeSessionId: session_id })
+            .populate({
+                path: 'ticketId',
+                populate: [
+                    { path: 'movieId', select: 'name' },
+                    { path: 'screeningId', select: 'showTime' }
+                ]
+            });
+
+        if (!order) {
+            return res.status(404).json({ 
+                success: false,
+                message: "Không tìm thấy đơn hàng" 
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Thanh toán thành công",
+            order: order
+        });
+
     } catch (error) {
         console.error("Error in checkoutSuccess:", error);
         res.status(500).json({
+            success: false,
             message: "Lỗi khi xử lý thanh toán",
-            error: error.message,
+            error: error.message
         });
     }
 };
@@ -175,34 +160,66 @@ export const handleStripeWebhook = async (req, res) => {
             sig,
             process.env.STRIPE_WEBHOOK_SECRET
         );
+
+        // Handle the event
+        switch (event.type) {
+            case "checkout.session.completed":
+                const session = event.data.object;
+                
+                try {
+                    // Cập nhật trạng thái đơn hàng
+                    const order = await Order.findOne({ 
+                        stripeSessionId: session.id 
+                    });
+
+                    if (!order) {
+                        console.log('Order not found for session:', session.id);
+                        return res.status(200).json({ received: true });
+                    }
+
+                    if (order.status === 'paid') {
+                        return res.status(200).json({ received: true });
+                    }
+
+                    order.status = "paid";
+                    order.paymentDate = new Date();
+                    await order.save();
+
+                    // Cập nhật ticket
+                    const ticket = await Ticket.findById(order.ticketId);
+                    if (ticket) {
+                        ticket.status = "confirmed";
+                        await ticket.save();
+
+                        // Cập nhật trạng thái ghế
+                        await Screening.updateMany(
+                            { _id: ticket.screeningId },
+                            {
+                                $set: {
+                                    "seats.$[elem].status": "booked"
+                                }
+                            },
+                            {
+                                arrayFilters: [{ "elem.seatNumber": { $in: ticket.seatNumbers } }]
+                            }
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error processing webhook:', error);
+                    // Vẫn trả về 200 để Stripe không gửi lại webhook
+                    return res.status(200).json({ received: true });
+                }
+                break;
+
+            default:
+                console.log(`Unhandled event type ${event.type}`);
+        }
+
+        res.status(200).json({ received: true });
     } catch (err) {
+        console.error('Webhook signature verification failed:', err);
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
-
-    // Handle the event
-    switch (event.type) {
-        case "payment_intent.succeeded":
-            const paymentIntent = event.data.object;
-            // Cập nhật trạng thái đơn hàng
-            const order = await Order.findOne({ stripeSessionId: paymentIntent.id });
-            if (order) {
-                order.status = "paid";
-                order.paymentDate = new Date();
-                await order.save();
-
-                const ticket = await Ticket.findById(order.ticketId);
-                if (ticket) {
-                    ticket.status = "confirmed";
-                    await ticket.save();
-                }
-            }
-            break;
-        case "payment_intent.payment_failed":
-            // Xử lý khi thanh toán thất bại
-            break;
-    }
-
-    res.json({ received: true });
 };
 
 export const cancelPayment = async (req, res) => {

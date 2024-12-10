@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { connectDB } from "./db/connectDB.js";
+import { handleStripeWebhook } from "./controllers/paymentController.js";
 import adminRoutes from "./routes/admin.route.js";
 import authRoutes from "./routes/auth.route.js";
 import cartRoutes from "./routes/cart.route.js";
@@ -21,42 +22,38 @@ const PORT = process.env.PORT || 8080;
 
 // List of allowed origins
 const allowedOrigins = [
-  "http://localhost:3005",
-  "http://localhost:5173",
-  "http://localhost:3000", // Common React development port
-  "http://127.0.0.1:5173", // Alternative localhost
-  "http://127.0.0.1:3000",
-  "https://linuxcinema.com",
-  "https://final2024-production-33e1.up.railway.app",
-  "https://final2024-production-7196.up.railway.app",
+  "https://your-frontend-domain.com",
+  "https://www.your-frontend-domain.com",
+  "http://localhost:3000",
+  // Thêm tất cả domain front-end hợp lệ
 ];
 
 // CORS configuration
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (allowedOrigins.indexOf(origin) !== -1) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        console.log(`Blocked request from origin: ${origin}`); // Add logging
         callback(new Error(`Origin ${origin} not allowed by CORS`));
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Explicitly specify allowed methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
 
 app.use(express.json({ limit: "10mb" })); // Tăng giới hạn kích thước payload lên 10MB
-app.use(cookieParser()); // Parse cookies
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // Routes
+app.post(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
+);
+
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/cart", cartRoutes);
@@ -83,6 +80,12 @@ app.use((err, req, res, next) => {
     error: "Internal Server Error",
     message: err.message,
   });
+});
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
+  next();
 });
 
 // Start the server

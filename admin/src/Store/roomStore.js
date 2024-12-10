@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const API_URL = `${process.env.REACT_APP_API_URL}/api/room`;
+axios.defaults.withCredentials = true;
 
 export const useRoomStore = create((set) => ({
   rooms: [],
