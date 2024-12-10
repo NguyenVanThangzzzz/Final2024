@@ -27,8 +27,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "REACT_APP_BACKEND_URL=https://final2024-production.up.railway.app react-scripts build",
-    "build:docker": "react-scripts build",
+    "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },

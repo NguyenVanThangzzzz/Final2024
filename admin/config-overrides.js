@@ -1,6 +1,6 @@
 /* config-overrides.js */
 
 module.exports = function override(config, env) {
-  //do stuff with the webpack config...
+  // Add any webpack config modifications here
   return config;
 };
