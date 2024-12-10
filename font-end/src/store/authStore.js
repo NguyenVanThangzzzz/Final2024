@@ -13,6 +13,7 @@ export const useAuthStore = create((set, get) => ({
   loginError: null,
   signupError: null,
   showLoginModal: false,
+  isInitialized: false,
 
   clearErrors: () => set({ loginError: null, signupError: null }),
 
@@ -148,6 +149,7 @@ export const useAuthStore = create((set, get) => ({
         user: response.data,
         isAuthenticated: true,
         isCheckingAuth: false,
+        isInitialized: true,
         loginError: null,
         signupError: null,
       });
@@ -156,6 +158,7 @@ export const useAuthStore = create((set, get) => ({
         user: null,
         isAuthenticated: false,
         isCheckingAuth: false,
+        isInitialized: true,
       });
       throw error;
     }

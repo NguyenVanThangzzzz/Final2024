@@ -1,41 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import LoadingSpinner from "~/components/LoadingSpinner";
 import { useAuthStore } from "~/store/authStore";
 
 function CheckAuth({ children }) {
   const { 
     isAuthenticated, 
-    isCheckingAuth, 
-    checkAuth, 
-    setShowLoginModal
+    isInitialized,
+    setShowLoginModal 
   } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isInitialCheck, setIsInitialCheck] = useState(true);
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        await checkAuth();
-      } catch (error) {
-        console.error("Auth check failed:", error);
-      } finally {
-        setIsInitialCheck(false);
-      }
-    };
-    verifyAuth();
-  }, [checkAuth]);
-
-  useEffect(() => {
-    if (!isCheckingAuth && !isAuthenticated && !isInitialCheck) {
+    if (isInitialized && !isAuthenticated) {
       setShowLoginModal(true);
-      navigate('/', { replace: true });
+      navigate('/', { 
+        replace: true,
+        state: { from: location } // Lưu lại trang người dùng đang cố truy cập
+      });
     }
-  }, [isCheckingAuth, isAuthenticated, setShowLoginModal, navigate, isInitialCheck]);
+  }, [isInitialized, isAuthenticated, setShowLoginModal, navigate, location]);
 
-  if (isCheckingAuth || isInitialCheck) {
-    return <LoadingSpinner />;
+  if (!isInitialized) {
+    return null;
   }
 
   return isAuthenticated ? children : null;

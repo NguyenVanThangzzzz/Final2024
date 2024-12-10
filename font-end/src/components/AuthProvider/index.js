@@ -1,29 +1,27 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useAuthStore } from '~/store/authStore';
-import { publicRoutes } from '~/routes';
+import LoadingSpinner from '~/components/LoadingSpinner';
 
 function AuthProvider({ children }) {
-    const { checkAuth } = useAuthStore();
-    const location = useLocation();
+    const { checkAuth, isInitialized, isCheckingAuth } = useAuthStore();
 
     useEffect(() => {
-        // Kiểm tra xem route hiện tại có yêu cầu đăng nhập không
-        const currentRoute = publicRoutes.find(route => route.path === location.pathname);
-        const requiresAuth = currentRoute?.requireLogin;
-
-        const initAuth = async () => {
-            if (requiresAuth) {
-                try {
-                    await checkAuth();
-                } catch (error) {
-                    console.error('Initial auth check failed:', error);
-                }
+        const initializeAuth = async () => {
+            try {
+                await checkAuth();
+            } catch (error) {
+                console.error('Initial auth check failed:', error);
             }
         };
 
-        initAuth();
-    }, [checkAuth, location.pathname]);
+        if (!isInitialized) {
+            initializeAuth();
+        }
+    }, [checkAuth, isInitialized]);
+
+    if (!isInitialized || isCheckingAuth) {
+        return <LoadingSpinner />;
+    }
 
     return children;
 }

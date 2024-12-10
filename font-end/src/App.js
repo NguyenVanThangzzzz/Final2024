@@ -17,7 +17,8 @@ function App() {
     pendingVerificationEmail,
     verifyEmail,
     showForgotPasswordModal,
-    setShowForgotPasswordModal
+    setShowForgotPasswordModal,
+    isInitialized
   } = useAuthStore();
 
   return (
@@ -76,6 +77,7 @@ function App() {
             })}
           </Routes>
 
+          {/* Modals */}
           {showVerifyEmailModal && (
             <VerifyEmailModal
               onClose={() => setShowVerifyEmailModal(false)}
