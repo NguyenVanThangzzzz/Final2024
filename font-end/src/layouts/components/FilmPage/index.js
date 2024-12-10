@@ -5,6 +5,7 @@ import { useCinemaStore } from "../../../store/cinemaStore";
 import { useMovieStore } from "../../../store/movieStore";
 import { useRoomStore } from "../../../store/roomStore";
 import styles from "./FilmPage.module.scss";
+import LoadingSpinner from '~/components/LoadingSpinner';
 
 const cx = classNames.bind(styles);
 
@@ -16,6 +17,7 @@ function FilmPage() {
   const { fetchRoomsByCinema } = useRoomStore();
   const [movie, setMovie] = useState(null);
   const [rooms, setRooms] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   // Lấy dữ liệu phim
   useEffect(() => {
@@ -47,7 +49,13 @@ function FilmPage() {
     });
   }, [cinemas, fetchRoomsByCinema]);
 
-  const handleRoomClick = (roomId) => {
+  const handleRoomClick = async (roomId) => {
+    setIsLoading(true);
+    
+    // Giả lập delay 1s
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setIsLoading(false);
     navigate(`/room/${roomId}?movieId=${movie._id}`);
   };
 
@@ -61,6 +69,12 @@ function FilmPage() {
 
   return (
     <div className={cx("wrapper")}>
+      {isLoading && (
+        <div className={cx('loading-overlay')}>
+          <LoadingSpinner />
+        </div>
+      )}
+
       <div className={cx("container")}>
         {/* Movie Details Section */}
         <div className={cx("movieDetail")}>
