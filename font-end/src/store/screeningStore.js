@@ -2,12 +2,14 @@ import axios from "axios";
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
 
-const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/screening`;
+const API_URL = "http://localhost:8080/api/screening";
 axios.defaults.withCredentials = true;
 
 export const useScreeningStore = create((set) => ({
   screenings: [],
+  selectedScreening: null,
   loading: false,
+  error: null,
 
   setScreenings: (screenings) => set({ screenings }),
 
@@ -72,6 +74,19 @@ export const useScreeningStore = create((set) => ({
       toast.error(
         error.response?.data?.message || "Failed to fetch screening seats"
       );
+      throw error;
+    }
+  },
+
+  fetchScreeningsByRoom: async (roomId) => {
+    try {
+      const response = await axios.get(`${API_URL}/room/${roomId}`);
+      if (!response.data) {
+        throw new Error('No screenings data received');
+      }
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching screenings by room:', error);
       throw error;
     }
   },

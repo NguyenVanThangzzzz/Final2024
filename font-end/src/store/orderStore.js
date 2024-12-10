@@ -1,13 +1,35 @@
 import axios from "axios";
 import { create } from "zustand";
+import { toast } from 'react-toastify';
 
-const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/order`;
+const API_URL = "http://localhost:8080/api/order";
 axios.defaults.withCredentials = true;
 
 export const useOrderStore = create((set) => ({
-    orderDetails: null,
+    orders: [],
     loading: false,
     error: null,
+
+    fetchMyOrders: async () => {
+        set({ loading: true });
+        try {
+            const response = await axios.get(`${API_URL}/my-orders`, {
+                withCredentials: true
+            });
+            set({ 
+                orders: response.data.orders,
+                loading: false,
+                error: null
+            });
+            return response.data;
+        } catch (error) {
+            set({ 
+                loading: false,
+                error: error.response?.data?.message || 'Failed to fetch orders'
+            });
+            throw error;
+        }
+    },
 
     // Tạo order mới
     createOrder: async (orderData) => {
@@ -38,22 +60,6 @@ export const useOrderStore = create((set) => ({
         }
     },
 
-    // Lấy danh sách order của user
-    getMyOrders: async () => {
-        try {
-            set({ loading: true, error: null });
-            const response = await axios.get(`${API_URL}/my-orders`);
-            set({ loading: false });
-            return response.data;
-        } catch (error) {
-            set({
-                loading: false,
-                error: error.response?.data?.message || 'Lỗi khi lấy danh sách đơn hàng'
-            });
-            throw error;
-        }
-    },
-
     // Hủy order
     cancelOrder: async (ticketId) => {
         try {
@@ -74,6 +80,38 @@ export const useOrderStore = create((set) => ({
     resetOrder: () => {
         set({
             orderDetails: null,
+            loading: false,
+            error: null
+        });
+    },
+
+    // Thêm function mới để lấy lịch sử đơn hàng
+    fetchUserOrders: async () => {
+        set({ loading: true });
+        try {
+            const response = await axios.get(`${API_URL}/user-orders`);
+            set({ 
+                orders: response.data.orders,
+                loading: false,
+                error: null
+            });
+            return response.data.orders;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Failed to fetch orders';
+            set({ 
+                loading: false,
+                error: errorMessage,
+                orders: []
+            });
+            toast.error(errorMessage);
+            throw error;
+        }
+    },
+
+    // Reset state
+    resetOrders: () => {
+        set({
+            orders: [],
             loading: false,
             error: null
         });

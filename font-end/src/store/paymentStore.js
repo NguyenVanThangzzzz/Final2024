@@ -1,7 +1,7 @@
 import axios from "axios";
 import { create } from "zustand";
 
-const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/payment`;
+const API_URL = "http://localhost:8080/api/payment";
 axios.defaults.withCredentials = true;
 
 export const usePaymentStore = create((set) => ({
