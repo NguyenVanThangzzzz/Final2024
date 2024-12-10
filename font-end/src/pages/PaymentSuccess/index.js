@@ -1,5 +1,6 @@
 import classNames from "classnames/bind";
 
+import Footer from "../../layouts/components/Footer/index";
 import PaymentSuccessPage from "../../layouts/components/PaymentSuccess/index";
 import styles from "./PaymentSuccess.module.scss";
 
@@ -11,6 +12,7 @@ function PaymentSuccess() {
       <div className={cx("container")}>
         <div className={cx("content")}>
           <PaymentSuccessPage />
+          <Footer />
         </div>
       </div>
     </div>

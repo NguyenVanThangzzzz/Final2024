@@ -1,0 +1,123 @@
+.filter-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 300px;
+    padding: 8px 40px 8px 15px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:focus {
+        outline: none;
+        border-color: #ff6700;
+        box-shadow: 0 0 0 1px rgba(255, 103, 0, 0.1);
+    }
+
+    &::placeholder {
+        color: #999;
+        font-size: 13px;
+    }
+}
+
+.search-icon {
+    position: absolute;
+    right: 12px;
+    color: #666;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    position: absolute;
+    right: 12px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #ff6700;
+    border-radius: 50%;
+    animation: spin 0.5s linear infinite;
+    pointer-events: none;
+}
+
+.select-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.genre-select {
+    width: 120px;
+    padding: 8px 30px 8px 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none;
+
+    &:focus {
+        outline: none;
+        border-color: #ff6700;
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: wait;
+    }
+
+    option {
+        background: #fff;
+        color: #333;
+        padding: 4px;
+    }
+}
+
+.select-loading-spinner {
+    position: absolute;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #ff6700;
+    border-radius: 50%;
+    animation: spin 0.5s linear infinite;
+    pointer-events: none;
+}
+
+.select-container::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #333;
+    pointer-events: none;
+    display: block;
+}
+
+.select-container.loading::after {
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
