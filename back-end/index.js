@@ -22,10 +22,10 @@ const PORT = process.env.PORT || 8080;
 
 // List of allowed origins
 const allowedOrigins = [
-  "https://your-frontend-domain.com",
-  "https://www.your-frontend-domain.com",
+  "https://final2024-production-7196.up.railway.app", // Admin site URL
+  "https://final2024-production-33e1.up.railway.app", // Frontend site URL
   "http://localhost:3000",
-  // Thêm tất cả domain front-end hợp lệ
+  "http://localhost:3005",
 ];
 
 // CORS configuration
@@ -35,12 +35,19 @@ app.use(
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
+        console.log(`Blocked request from origin: ${origin}`);
         callback(new Error(`Origin ${origin} not allowed by CORS`));
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: [
+      "Content-Type", 
+      "Authorization", 
+      "X-Requested-With",
+      "Accept"
+    ],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
 
@@ -84,7 +91,10 @@ app.use((err, req, res, next) => {
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie'
+  );
   next();
 });
 
