@@ -20,6 +20,7 @@ import classNames from "classnames/bind";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "tippy.js/dist/tippy.css";
+import LINUX1 from "~/asset/images/LINUX1.png";
 import Button from "~/components/Button";
 import Image from "~/components/Image";
 import LoadingSpinner from "~/components/LoadingSpinner";
@@ -31,7 +32,6 @@ import { useAuthStore } from "../../../store/authStore";
 import LoginPage from "../LoginPage/Index";
 import SignupPage from "../SignupPage";
 import styles from "./Header.module.scss";
-import LINUX1 from '~/asset/images/LINUX1.png';
 
 const cx = classNames.bind(styles);
 const MENU_ITEMS = [
@@ -207,10 +207,7 @@ function Header() {
           <div className={cx("row-header-main")}>
             <div className={cx("site-logo")}>
               <Link to={routesConfig.home}>
-                <img
-                  src={LINUX1}
-                  alt="Logo LINUX"
-                />
+                <img src={LINUX1} alt="Logo LINUX" />
               </Link>
             </div>
 
@@ -227,9 +224,9 @@ function Header() {
                   </li>
                   <li>
                     <Link
-                      to="/lich-chieu"
+                      to="/showtime"
                       className={cx("menu-item", {
-                        active: isActive("/lich-chieu"),
+                        active: isActive("/showtime"),
                       })}
                     >
                       Showtimes
@@ -237,17 +234,19 @@ function Header() {
                   </li>
                   <li>
                     <Link
-                      to="/phim"
-                      className={cx("menu-item", { active: isActive("/phim") })}
+                      to="/movies"
+                      className={cx("menu-item", {
+                        active: isActive("/movies"),
+                      })}
                     >
                       Movies
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/khuyen-mai"
+                      to="/promotions"
                       className={cx("menu-item", {
-                        active: isActive("/khuyen-mai"),
+                        active: isActive("/promotions"),
                       })}
                     >
                       Promotions
@@ -255,9 +254,9 @@ function Header() {
                   </li>
                   <li>
                     <Link
-                      to="/dien-anh"
+                      to="/cinema"
                       className={cx("menu-item", {
-                        active: isActive("/dien-anh"),
+                        active: isActive("/cinema"),
                       })}
                     >
                       Cinema
@@ -265,9 +264,9 @@ function Header() {
                   </li>
                   <li>
                     <Link
-                      to="/lien-he"
+                      to="/contact"
                       className={cx("menu-item", {
-                        active: isActive("/lien-he"),
+                        active: isActive("/contact"),
                       })}
                     >
                       Contact

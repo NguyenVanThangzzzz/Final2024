@@ -1,3 +1,5 @@
+import { Contact } from "lucide-react";
+
 const routes = {
   home: "/",
   login: "/login",
@@ -13,6 +15,13 @@ const routes = {
   paymentCancel: "/payment/cancel",
 
   // profile: "/@:nickname",
+  //Routes xem inforoom
+  showtime: "/showtime",
+  movies: "/movies",
+  promotions: "/promotions",
+  cinema: "/cinema",
+  contact: "/contact",
+
 
   upload: "/upload",
   search: "/search",
