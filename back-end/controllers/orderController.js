@@ -195,3 +195,68 @@ export const cancelOrder = async (req, res) => {
         });
     }
 };
+
+export const getUserOrders = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        const orders = await Order.find({ userId })
+            .populate({
+                path: 'ticketId',
+                populate: [
+                    {
+                        path: 'movieId',
+                        select: 'name image'
+                    },
+                    {
+                        path: 'screeningId',
+                        select: 'showTime price'
+                    },
+                    {
+                        path: 'roomId',
+                        select: 'name screenType',
+                        populate: {
+                            path: 'cinemaId',
+                            select: 'name streetName'
+                        }
+                    }
+                ]
+            })
+            .sort({ orderDate: -1 });
+
+        res.status(200).json({
+            success: true,
+            orders: orders.map(order => ({
+                _id: order._id,
+                orderDate: order.orderDate,
+                totalAmount: order.totalAmount,
+                status: order.status,
+                paymentMethod: order.paymentMethod,
+                movie: {
+                    name: order.ticketId.movieId.name,
+                    image: order.ticketId.movieId.image
+                },
+                screening: {
+                    showTime: order.ticketId.screeningId.showTime,
+                    price: order.ticketId.screeningId.price
+                },
+                seats: order.ticketId.seatNumbers,
+                cinema: {
+                    name: order.ticketId.roomId.cinemaId.name,
+                    streetName: order.ticketId.roomId.cinemaId.streetName
+                },
+                room: {
+                    name: order.ticketId.roomId.name,
+                    screenType: order.ticketId.roomId.screenType
+                }
+            }))
+        });
+    } catch (error) {
+        console.error('Error in getUserOrders:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching user orders',
+            error: error.message
+        });
+    }
+};

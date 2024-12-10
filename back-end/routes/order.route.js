@@ -1,5 +1,5 @@
 import express from "express";
-import { createOrder, getMyOrders, cancelOrder } from "../controllers/orderController.js";
+import { createOrder, getMyOrders, cancelOrder, getUserOrders } from "../controllers/orderController.js";
 import { userProtectRoute } from "../Middlewares/userMiddlewares.js";
 
 const router = express.Router();
@@ -12,5 +12,8 @@ router.get("/my-orders", userProtectRoute, getMyOrders);
 
 // Route hủy vé
 router.put("/cancel/:ticketId", userProtectRoute, cancelOrder);
+
+// Thêm route mới
+router.get('/user-orders', userProtectRoute, getUserOrders);
 
 export default router;

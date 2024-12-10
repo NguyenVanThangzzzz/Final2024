@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { User, KeyRound, ClipboardList } from 'lucide-react';
 import LoadingSpinner from '~/components/LoadingSpinner';
 import { useState } from 'react';
+import OrderHistory from '~/components/OrderHistory';
 
 const cx = classNames.bind(styles);
 
@@ -92,8 +93,7 @@ function ProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className={cx('section-title')}>Order History</h2>
-            <p className={cx('placeholder-text')}>Order history will be displayed here</p>
+            <OrderHistory />
           </motion.div>
         );
       default:
