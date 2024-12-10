@@ -55,7 +55,7 @@ export const createOrder = async (req, res) => {
             { _id: screeningId },
             {
                 $set: {
-                    "seats.$[elem].status": "booked"
+                    "seats.$[elem].status": "pending"
                 }
             },
             {

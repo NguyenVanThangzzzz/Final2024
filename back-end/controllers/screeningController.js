@@ -1,4 +1,6 @@
 import Screening from "../models/screening.js";
+import Ticket from "../models/ticket.js";
+import Order from "../models/order.js";
 
 // @desc    Tạo screening mới
 // @route   POST /api/screening
@@ -292,12 +294,15 @@ export const releaseSeat = async (req, res) => {
 const cleanupPendingSeats = async () => {
   try {
     const now = new Date();
+    
+    // Tìm tất cả screening có ghế pending đã hết hạn
     const screenings = await Screening.find({
       'seats.status': 'pending',
       'seats.pendingExpiration': { $lt: now }
     });
 
     for (const screening of screenings) {
+      // Cập nhật trạng thái các ghế pending đã hết hạn
       screening.seats.forEach(seat => {
         if (seat.status === 'pending' && seat.pendingExpiration < now) {
           seat.status = 'available';
@@ -305,6 +310,27 @@ const cleanupPendingSeats = async () => {
         }
       });
       await screening.save();
+
+      // Tìm và cập nhật các ticket và order liên quan
+      const tickets = await Ticket.find({
+        screeningId: screening._id,
+        status: 'pending'
+      });
+
+      for (const ticket of tickets) {
+        ticket.status = 'cancelled';
+        await ticket.save();
+
+        await Order.updateMany(
+          { ticketId: ticket._id, status: 'pending' },
+          { 
+            $set: { 
+              status: 'cancelled',
+              cancellationDate: now
+            }
+          }
+        );
+      }
     }
   } catch (error) {
     console.error('Error cleaning up pending seats:', error);

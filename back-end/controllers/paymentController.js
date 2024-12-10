@@ -1,6 +1,7 @@
 import { stripe } from "../db/stripe.js";
 import Order from "../models/order.js";
 import Ticket from "../models/ticket.js";
+import Screening from "../models/screening.js";
 
 export const createCheckoutSession = async (req, res) => {
     try {
@@ -109,87 +110,48 @@ export const checkoutSuccess = async (req, res) => {
     try {
         const { session_id } = req.query;
 
-        // Kiểm tra session_id
         if (!session_id) {
             return res.status(400).json({ message: "Thiếu session_id" });
         }
 
-        // Tìm order với session ID tương ứng
-        const order = await Order.findOne({ stripeSessionId: session_id })
-            .populate({
-                path: "ticketId",
-                populate: [
-                    {
-                        path: "movieId",
-                        select: "name image",
-                    },
-                    {
-                        path: "screeningId",
-                        select: "showTime",
-                    },
-                    {
-                        path: "roomId",
-                        select: "name screenType roomType",
-                        populate: {
-                            path: "cinemaId",
-                            select: "name streetName",
-                        },
-                    },
-                ],
-            })
-            .populate("userId", "name email");
-
+        const order = await Order.findOne({ stripeSessionId: session_id });
         if (!order) {
             return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
         }
 
-        // Kiểm tra trạng thái thanh toán với Stripe
         const session = await stripe.checkout.sessions.retrieve(session_id);
 
         if (session.payment_status === "paid") {
-            // Cập nhật trạng thái đơn hàng nếu chưa được cập nhật
             if (order.status !== "paid") {
+                // Cập nhật trạng thái order
                 order.status = "paid";
                 order.paymentDate = new Date();
                 await order.save();
 
-                // Cập nhật trạng thái vé
+                // Cập nhật trạng thái ticket
                 const ticket = await Ticket.findById(order.ticketId);
                 if (ticket) {
                     ticket.status = "confirmed";
                     await ticket.save();
+
+                    // Cập nhật trạng thái ghế thành booked
+                    await Screening.updateMany(
+                        { _id: ticket.screeningId },
+                        {
+                            $set: {
+                                "seats.$[elem].status": "booked"
+                            }
+                        },
+                        {
+                            arrayFilters: [{ "elem.seatNumber": { $in: ticket.seatNumbers } }]
+                        }
+                    );
                 }
             }
 
             return res.status(200).json({
                 message: "Thanh toán thành công",
-                order: {
-                    _id: order._id,
-                    totalAmount: order.totalAmount,
-                    status: order.status,
-                    paymentDate: order.paymentDate,
-                    ticketId: {
-                        movieId: {
-                            name: order.ticketId.movieId.name,
-                        },
-                        seatNumbers: order.ticketId.seatNumbers,
-                        screeningId: {
-                            showTime: order.ticketId.screeningId.showTime,
-                        },
-                        roomId: {
-                            name: order.ticketId.roomId.name,
-                            screenType: order.ticketId.roomId.screenType,
-                            cinemaId: {
-                                name: order.ticketId.roomId.cinemaId.name,
-                                streetName: order.ticketId.roomId.cinemaId.streetName,
-                            },
-                        },
-                    },
-                    userId: {
-                        name: order.userId.name,
-                        email: order.userId.email,
-                    },
-                },
+                order: order
             });
         }
 
@@ -252,16 +214,31 @@ export const cancelPayment = async (req, res) => {
             return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
         }
 
-        // Cập nhật trạng thái đơn hàng thành cancelled
-        order.status = "cancelled";
-        await order.save();
-
-        // Cập nhật trạng thái vé
         const ticket = await Ticket.findById(order.ticketId);
-        if (ticket) {
-            ticket.status = "cancelled";
-            await ticket.save();
+        if (!ticket) {
+            return res.status(404).json({ message: "Không tìm thấy vé" });
         }
+
+        // Cập nhật trạng thái ghế về available ngay lập tức
+        await Screening.updateMany(
+            { _id: ticket.screeningId },
+            {
+                $set: {
+                    "seats.$[elem].status": "available"
+                }
+            },
+            {
+                arrayFilters: [{ "elem.seatNumber": { $in: ticket.seatNumbers } }]
+            }
+        );
+
+        // Cập nhật trạng thái ticket và order
+        ticket.status = "cancelled";
+        order.status = "cancelled";
+        order.cancellationDate = new Date();
+
+        await ticket.save();
+        await order.save();
 
         res.status(200).json({
             message: "Đã hủy thanh toán thành công",
