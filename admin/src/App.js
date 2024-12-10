@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoadingSpinner from "./components/LoadingSpinner";
 import Navbar from "./components/Navbar";
@@ -6,15 +7,14 @@ import Sidebar from "./components/Sidebar";
 import CinemaManagementPage from "./pages/CinemaManagementPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
+import MovieDashBard from "./pages/MovieDashBard";
 import MovieManagementPage from "./pages/MovieManagementPage";
 import RoomManagementPage from "./pages/RoomManagementPage";
 import ScreeningManagementPage from "./pages/ScreeningManagementPage";
 import SettingPage from "./pages/SettingPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import { useAdminStore } from "./Store/adminStore";
-import MovieDashBard from "./pages/MovieDashBard";
-import { Toaster } from "react-hot-toast";
-
+//1
 function App() {
   const { user, checkingAuth, checkAuth } = useAdminStore();
 
@@ -26,10 +26,10 @@ function App() {
 
   // Helper function to check if route is allowed for user role
   const isRouteAllowed = (path) => {
-    if (user?.role === 'admin') return true;
-    
+    if (user?.role === "admin") return true;
+
     // Routes allowed for manager
-    const managerRoutes = ['/', '/movie-dashboard'];
+    const managerRoutes = ["/", "/movie-dashboard"];
     return managerRoutes.includes(path);
   };
 
@@ -40,14 +40,14 @@ function App() {
         toastOptions={{
           success: {
             style: {
-              background: '#10B981',
-              color: 'white',
+              background: "#10B981",
+              color: "white",
             },
           },
           error: {
             style: {
-              background: '#EF4444',
-              color: 'white',
+              background: "#EF4444",
+              color: "white",
             },
           },
           duration: 3000,
@@ -57,7 +57,7 @@ function App() {
         {user ? (
           <div className="flex flex-col md:flex-row w-full">
             <Sidebar />
-            
+
             {/* Main content area */}
             <div className="w-full md:ml-64 flex-1">
               {/* Add top padding for mobile menu */}
@@ -67,21 +67,39 @@ function App() {
                   <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<Navigate to="/" />} />
-                    
+
                     {/* Protected routes */}
-                    {isRouteAllowed('/movie-dashboard') && (
-                      <Route path="/movie-dashboard" element={<MovieDashBard />} />
+                    {isRouteAllowed("/movie-dashboard") && (
+                      <Route
+                        path="/movie-dashboard"
+                        element={<MovieDashBard />}
+                      />
                     )}
-                    
+
                     {/* Admin only routes */}
-                    {user.role === 'admin' && (
+                    {user.role === "admin" && (
                       <>
                         <Route path="/settings" element={<SettingPage />} />
-                        <Route path="/user-management" element={<UserManagementPage />} />
-                        <Route path="/cinema-management" element={<CinemaManagementPage />} />
-                        <Route path="/room-management" element={<RoomManagementPage />} />
-                        <Route path="/movie-management" element={<MovieManagementPage />} />
-                        <Route path="/screening-management" element={<ScreeningManagementPage />} />
+                        <Route
+                          path="/user-management"
+                          element={<UserManagementPage />}
+                        />
+                        <Route
+                          path="/cinema-management"
+                          element={<CinemaManagementPage />}
+                        />
+                        <Route
+                          path="/room-management"
+                          element={<RoomManagementPage />}
+                        />
+                        <Route
+                          path="/movie-management"
+                          element={<MovieManagementPage />}
+                        />
+                        <Route
+                          path="/screening-management"
+                          element={<ScreeningManagementPage />}
+                        />
                       </>
                     )}
 
