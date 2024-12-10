@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './ChangePassword.module.scss';
-import Button from '../Button';
-import PasswordStrengthMeter from '../PasswordStrengMeter';
 import { toast } from 'react-toastify';
+import { motion } from "framer-motion";
+import { Lock, Save, Loader } from 'lucide-react';
+import PasswordStrengthMeter from '../PasswordStrengMeter';
 
 const cx = classNames.bind(styles);
 
@@ -53,8 +54,17 @@ function ChangePassword() {
     };
 
     return (
-        <div className={cx('wrapper')}>
-            <h3 className={cx('title')}>Change Password</h3>
+        <motion.div
+            className={cx('wrapper')}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+        >
+            <div className={cx('header')}>
+                <Lock className={cx('header-icon')} />
+                <h3 className={cx('title')}>Change Password</h3>
+            </div>
+
             <form onSubmit={handleSubmit} className={cx('form')}>
                 <div className={cx('form-group')}>
                     <label htmlFor="currentPassword">Current Password</label>
@@ -63,6 +73,17 @@ function ChangePassword() {
                         id="currentPassword"
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
+                        required
+                    />
+                </div>
+
+                <div className={cx('form-group')}>
+                    <label htmlFor="confirmPassword">Confirm New Password</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                     />
                 </div>
@@ -79,26 +100,25 @@ function ChangePassword() {
                     <PasswordStrengthMeter password={newPassword} />
                 </div>
 
-                <div className={cx('form-group')}>
-                    <label htmlFor="confirmPassword">Confirm New Password</label>
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                    />
-                </div>
-
-                <Button 
-                    type="submit" 
-                    primary
+                <button
+                    type="submit"
+                    className={cx('submit-button')}
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? 'Changing...' : 'Change Password'}
-                </Button>
+                    {isSubmitting ? (
+                        <>
+                            <Loader className={cx('button-icon', 'animate-spin')} />
+                            <span>Changing...</span>
+                        </>
+                    ) : (
+                        <>
+                            <Save className={cx('button-icon')} />
+                            <span>Change Password</span>
+                        </>
+                    )}
+                </button>
             </form>
-        </div>
+        </motion.div>
     );
 }
 

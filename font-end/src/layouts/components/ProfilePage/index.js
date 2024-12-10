@@ -3,19 +3,27 @@ import { useAuthStore } from "~/store/authStore";
 import { formatDate } from "~/utils/date";
 import ChangePassword from '~/components/ChangePassword';
 import styles from './ProfilePage.module.scss';
+import { motion } from "framer-motion";
+import { User, KeyRound, ClipboardList } from 'lucide-react';
 import LoadingSpinner from '~/components/LoadingSpinner';
+import { useState } from 'react';
 
 const cx = classNames.bind(styles);
 
+const TABS = {
+  PROFILE: 'profile',
+  PASSWORD: 'password',
+  ORDERS: 'orders'
+};
+
 function ProfilePage() {
   const { user, isCheckingAuth } = useAuthStore();
+  const [activeTab, setActiveTab] = useState(TABS.PROFILE);
 
-  // Hiển thị loading khi đang kiểm tra auth
   if (isCheckingAuth) {
     return <LoadingSpinner />;
   }
 
-  // Kiểm tra nếu không có user
   if (!user) {
     return (
       <div className={cx('error-message')}>
@@ -25,30 +33,102 @@ function ProfilePage() {
     );
   }
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case TABS.PROFILE:
+        return (
+          <motion.div
+            className={cx('content-section')}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className={cx('section-title')}>Profile Information</h2>
+            <div className={cx('info-container')}>
+              <div className={cx('info-item')}>
+                <div className={cx('info-icon')}>
+                  <User className={cx('icon')} />
+                </div>
+                <div className={cx('info-content')}>
+                  <span className={cx('label')}>Name</span>
+                  <span className={cx('value')}>{user.name}</span>
+                </div>
+              </div>
+
+              <div className={cx('info-item')}>
+                <div className={cx('info-content')}>
+                  <span className={cx('label')}>Email</span>
+                  <span className={cx('value')}>{user.email}</span>
+                </div>
+              </div>
+
+              <div className={cx('info-item')}>
+                <div className={cx('info-content')}>
+                  <span className={cx('label')}>Last Login</span>
+                  <span className={cx('value')}>
+                    {user.lastLogin ? formatDate(user.lastLogin) : "No login yet"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        );
+      case TABS.PASSWORD:
+        return (
+          <motion.div
+            className={cx('content-section')}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <ChangePassword />
+          </motion.div>
+        );
+      case TABS.ORDERS:
+        return (
+          <motion.div
+            className={cx('content-section')}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className={cx('section-title')}>Order History</h2>
+            <p className={cx('placeholder-text')}>Order history will be displayed here</p>
+          </motion.div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className={cx('wrapper')}>
-      <div className={cx('profile-section')}>
-        <h2 className={cx('section-title')}>Profile Information</h2>
-        <div className={cx('info-container')}>
-          <div className={cx('info-item')}>
-            <span className={cx('label')}>Name:</span>
-            <span className={cx('value')}>{user.name}</span>
-          </div>
-          <div className={cx('info-item')}>
-            <span className={cx('label')}>Email:</span>
-            <span className={cx('value')}>{user.email}</span>
-          </div>
-          <div className={cx('info-item')}>
-            <span className={cx('label')}>Last Login:</span>
-            <span className={cx('value')}>
-              {user.lastLogin ? formatDate(user.lastLogin) : "No login yet"}
-            </span>
-          </div>
-        </div>
+      <div className={cx('tabs')}>
+        <button
+          className={cx('tab-button', { active: activeTab === TABS.PROFILE })}
+          onClick={() => setActiveTab(TABS.PROFILE)}
+        >
+          <User className={cx('tab-icon')} />
+          <span>Profile</span>
+        </button>
+        <button
+          className={cx('tab-button', { active: activeTab === TABS.PASSWORD })}
+          onClick={() => setActiveTab(TABS.PASSWORD)}
+        >
+          <KeyRound className={cx('tab-icon')} />
+          <span>Password</span>
+        </button>
+        <button
+          className={cx('tab-button', { active: activeTab === TABS.ORDERS })}
+          onClick={() => setActiveTab(TABS.ORDERS)}
+        >
+          <ClipboardList className={cx('tab-icon')} />
+          <span>Orders</span>
+        </button>
       </div>
 
-      <div className={cx('password-section')}>
-        <ChangePassword />
+      <div className={cx('content')}>
+        {renderContent()}
       </div>
     </div>
   );
