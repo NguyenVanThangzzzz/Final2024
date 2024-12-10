@@ -16,4 +16,5 @@ RUN npm install -g serve
 ENV PORT=5173
 EXPOSE 5173
 
+# Start server on port 5173
 CMD ["sh", "-c", "serve -s build -l ${PORT:-5173}"] 
