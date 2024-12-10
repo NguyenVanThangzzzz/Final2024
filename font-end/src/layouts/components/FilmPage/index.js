@@ -4,8 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useCinemaStore } from "../../../store/cinemaStore";
 import { useMovieStore } from "../../../store/movieStore";
 import { useRoomStore } from "../../../store/roomStore";
+import { useScreeningStore } from "../../../store/screeningStore";
 import styles from "./FilmPage.module.scss";
 import LoadingSpinner from '~/components/LoadingSpinner';
+import { toast } from 'react-hot-toast';
 
 const cx = classNames.bind(styles);
 
@@ -15,6 +17,7 @@ function FilmPage() {
   const { movies, fetchAllMovies, loading: movieLoading } = useMovieStore();
   const { cinemas, fetchAllCinemas, loading: cinemaLoading } = useCinemaStore();
   const { fetchRoomsByCinema } = useRoomStore();
+  const { fetchScreeningsByRoom } = useScreeningStore();
   const [movie, setMovie] = useState(null);
   const [rooms, setRooms] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -52,11 +55,30 @@ function FilmPage() {
   const handleRoomClick = async (roomId) => {
     setIsLoading(true);
     
-    // Giả lập delay 1s
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsLoading(false);
-    navigate(`/room/${roomId}?movieId=${movie._id}`);
+    try {
+      // Fetch screenings cho room được chọn
+      const screenings = await fetchScreeningsByRoom(roomId);
+      
+      // Lọc các screening có movieId trùng với phim hiện tại và chưa kết thúc
+      const validScreenings = screenings.filter(screening => 
+        screening.movieId?._id === movie._id && 
+        new Date(screening.endTime) > new Date()
+      );
+
+      if (!validScreenings || validScreenings.length === 0) {
+        toast.error("Phòng này chưa có suất chiếu cho phim này. Vui lòng chọn phòng khác!");
+        setIsLoading(false);
+        return;
+      }
+
+      // Nếu có suất chiếu hợp lệ, chuyển hướng đến trang room
+      navigate(`/room/${roomId}?movieId=${movie._id}`);
+    } catch (error) {
+      console.error("Error checking screenings:", error);
+      toast.error("Có lỗi xảy ra khi kiểm tra suất chiếu");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (movieLoading || cinemaLoading) {

@@ -119,12 +119,17 @@ export const deleteScreening = async (req, res) => {
   }
 };
 
-// @desc    Lấy tất cả screenings theo roomId
+// @desc    Lấy tất cả screenings theo roomId và movieId
 // @route   GET /api/screening/room/:roomId
 export const getScreeningsByRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
-    const screenings = await Screening.find({ roomId })
+    const currentTime = new Date();
+
+    const screenings = await Screening.find({
+      roomId,
+      endTime: { $gt: currentTime } // Chỉ lấy các suất chiếu chưa kết thúc
+    })
       .populate('movieId', 'name duration posterUrl')
       .populate({
         path: 'roomId',
@@ -139,7 +144,11 @@ export const getScreeningsByRoom = async (req, res) => {
     res.json(screenings);
   } catch (error) {
     console.log("Error in getScreeningsByRoom controller", error.message);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch screenings",
+      error: error.message 
+    });
   }
 };
 
