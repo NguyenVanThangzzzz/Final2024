@@ -222,7 +222,7 @@ function Header() {
                       Home
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
                       to="/showtime"
                       className={cx("menu-item", {
@@ -231,7 +231,7 @@ function Header() {
                     >
                       Showtimes
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       to="/movies"

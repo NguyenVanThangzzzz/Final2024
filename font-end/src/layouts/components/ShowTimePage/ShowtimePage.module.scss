@@ -1,0 +1,140 @@
+.showtime-container {
+  padding: 40px;
+}
+
+.date-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.date-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #e97242;
+  }
+
+  &.active {
+    background: #e97242;
+    color: white;
+    border-color: #e97242;
+  }
+
+  .day {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .date {
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+.cinema-listings {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.cinema-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cinema-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+
+  svg {
+    color: #e97242;
+    font-size: 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+.movie-listings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.movie-section {
+  padding: 15px;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
+.movie-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+
+  svg {
+    color: #e97242;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .duration {
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+.screening-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.time-slot {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #e97242;
+    color: white;
+    border-color: #e97242;
+  }
+
+  svg {
+    font-size: 12px;
+  }
+} 
