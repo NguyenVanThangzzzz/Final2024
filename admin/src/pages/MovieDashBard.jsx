@@ -8,7 +8,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  LineChart,
+  Line
 } from "recharts";
 import { Film, PlayCircle, DollarSign } from "lucide-react";
 import MovieDashboard from '../components/movie/MovieDashboard';
@@ -17,24 +19,33 @@ import GenreStatsChart from '../components/movie/GenreStatsChart';
 
 const MovieDashBard = () => {
   const [stats, setStats] = useState(null);
+  const [revenueData, setRevenueData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/movie-stats`, {
-          withCredentials: true
-        });
-        setStats(response.data.data);
+        const [statsResponse, revenueResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/movie-stats`, {
+            withCredentials: true
+          }),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/movie-revenue`, {
+            withCredentials: true
+          })
+        ]);
+
+        setStats(statsResponse.data.data);
+        setRevenueData(revenueResponse.data.data);
       } catch (err) {
         setError(err.message);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStats();
+    fetchData();
   }, []);
 
   const StatCard = ({ title, value, icon: Icon, gradient }) => (
@@ -152,7 +163,51 @@ const MovieDashBard = () => {
       </div>
 
       {/* Monthly Revenue Chart */}
-      <MovieDashboard />
+      {revenueData && (
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-700">
+          <h3 className="text-xl font-semibold mb-6 text-white">Monthly Revenue Trends</h3>
+          <div className="h-[400px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueData.monthlyRevenue}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.5} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="#9CA3AF"
+                  tick={{ fill: '#9CA3AF' }}
+                  axisLine={{ stroke: '#4B5563' }}
+                />
+                <YAxis 
+                  stroke="#9CA3AF"
+                  tick={{ fill: '#9CA3AF' }}
+                  axisLine={{ stroke: '#4B5563' }}
+                  tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1F2937',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    color: '#9CA3AF',
+                    padding: '10px'
+                  }}
+                  cursor={{ fill: 'transparent' }}
+                  formatter={(value) => [`$${value}`, 'Revenue']}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#10B981" 
+                  strokeWidth={2}
+                  dot={{ fill: '#10B981' }}
+                  activeDot={{ r: 8 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Cinema Stats */}
       <CinemaStatsChart />
