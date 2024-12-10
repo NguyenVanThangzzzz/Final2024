@@ -1,4 +1,5 @@
-import { faTicketAlt } from "@fortawesome/free-solid-svg-icons";
+import { useState } from 'react';
+import { faTicketAlt, faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect } from "react";
 import DefaultLayout from "~/layouts/DefaultLayout";
@@ -6,11 +7,15 @@ import { useMovieStore } from "../../store/movieStore";
 import styles from "./HomePage.module.scss";
 import classNames from 'classnames/bind';
 import SliderShow from '~/components/SliderShow';
+import ButtonMovie from '~/components/ButtonMovie';
 
 const cx = classNames.bind(styles);
 
+const MOVIES_PER_PAGE = 5; // Số lượng phim hiển thị ban đầu
+
 function Index() {
   const { movies, fetchAllMovies, loading } = useMovieStore();
+  const [visibleMovies, setVisibleMovies] = useState(MOVIES_PER_PAGE);
 
   useEffect(() => {
     fetchAllMovies();
@@ -19,6 +24,14 @@ function Index() {
   const formatGenres = (genres) => {
     if (!Array.isArray(genres)) return '';
     return genres.join(', ');
+  };
+
+  const showMoreMovies = () => {
+    setVisibleMovies(prev => prev + MOVIES_PER_PAGE);
+  };
+
+  const showLessMovies = () => {
+    setVisibleMovies(MOVIES_PER_PAGE);
   };
 
   if (loading) {
@@ -32,7 +45,7 @@ function Index() {
         <div className={styles.movieContainer}>
           <h1 className={styles.title}>Hot Movies : October</h1>
           <div className={styles.movieList}>
-            {movies.map((movie) => (
+            {movies.slice(0, visibleMovies).map((movie) => (
               <div key={movie._id} className={styles.movieCard}>
                 <img
                   src={movie.image}
@@ -67,6 +80,26 @@ function Index() {
               </div>
             ))}
           </div>
+          {movies.length > visibleMovies && (
+            <div className={styles.showMore}>
+              <ButtonMovie 
+                onClick={showMoreMovies}
+                leftIcon={<FontAwesomeIcon icon={faAngleDown} />}
+              >
+                SHOW MORE MOVIES
+              </ButtonMovie>
+            </div>
+          )}
+          {visibleMovies > MOVIES_PER_PAGE && (
+            <div className={styles.showMore}>
+              <ButtonMovie 
+                onClick={showLessMovies}
+                leftIcon={<FontAwesomeIcon icon={faAngleUp} />}
+              >
+                SHOW LESS
+              </ButtonMovie>
+            </div>
+          )}
         </div>
       </div>
     </DefaultLayout>

@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { publicRoutes, privateRoutes } from "~/routes";
-import { DefaultLayout } from "~/layouts";
+import { DefaultLayout, FooterOnly } from "~/layouts";
 import AuthProvider from "~/components/AuthProvider";
 import CheckAuth from "~/components/CheckAuth";
 import VerifyEmailModal from '~/components/VerifyEmailModal';

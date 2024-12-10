@@ -39,7 +39,6 @@ const publicRoutes = [
     component: ResetPassword,
     layout: HeaderOnly,
   },
-
   {
     path: config.routes.film,
     component: Film,
@@ -55,6 +54,7 @@ const privateRoutes = [
   {
     path: config.routes.profile,
     component: Profile,
+    layout: null,
   },
   {
     path: config.routes.room,

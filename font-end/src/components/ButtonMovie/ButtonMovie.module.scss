@@ -1,0 +1,31 @@
+.wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.4em;
+    font-weight: 600;
+    color: #ff6700;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 40px 0;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    font-size: 0.8em;
+    margin-right: 10px;
+}
+
+.title {
+    line-height: 1;
+} 

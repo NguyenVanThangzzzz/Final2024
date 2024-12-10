@@ -1,17 +1,20 @@
 .wrapper {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
   align-items: center;
 }
 
 .container {
   width: 1280px;
   display: flex;
+  margin-top: var(--default-layout-header-height);
 }
 
 .content {
+  width: 100%;
   flex: 1;
   background-color: #22272b;
-  min-height: 1000px;
   color: var(--text-color);
+  margin-bottom: 0;
 }

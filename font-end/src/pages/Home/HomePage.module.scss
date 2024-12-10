@@ -217,3 +217,33 @@
   font-size: 1.1em;
   margin-top: 12px;
 }
+
+.show-more {
+    display: flex;
+    justify-content: center;
+    margin: 80px 0;
+}
+
+.customShowMoreBtn {
+    font-size: 4em !important;
+    font-weight: 800 !important;
+    color: #ff6700 !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    letter-spacing: 2px !important;
+    box-shadow: none !important;
+    min-width: unset !important;
+    margin: 0 !important;
+
+    &:hover {
+        background: transparent !important;
+        opacity: 0.8 !important;
+    }
+
+    svg {
+        width: 1em !important;
+        height: 1em !important;
+        margin-right: 15px !important;
+    }
+}
