@@ -20,6 +20,7 @@ function FilmPage() {
   const { fetchScreeningsByRoom } = useScreeningStore();
   const [movie, setMovie] = useState(null);
   const [rooms, setRooms] = useState({});
+  const [roomScreenings, setRoomScreenings] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   // Lấy dữ liệu phim
@@ -42,15 +43,37 @@ function FilmPage() {
 
   // Lấy danh sách phòng theo từng rạp chiếu phim
   useEffect(() => {
-    cinemas.forEach((cinema) => {
-      fetchRoomsByCinema(cinema._id).then((response) => {
-        setRooms((prevRooms) => ({
+    const fetchRoomsAndScreenings = async () => {
+      for (const cinema of cinemas) {
+        const response = await fetchRoomsByCinema(cinema._id);
+        const roomsData = response?.data?.rooms || [];
+        
+        // Lưu rooms vào state
+        setRooms(prevRooms => ({
           ...prevRooms,
-          [cinema._id]: response?.data?.rooms || [],
+          [cinema._id]: roomsData,
         }));
-      });
-    });
-  }, [cinemas, fetchRoomsByCinema]);
+
+        // Kiểm tra screenings cho mỗi room
+        for (const room of roomsData) {
+          const screenings = await fetchScreeningsByRoom(room._id);
+          const validScreenings = screenings.filter(screening => 
+            screening.movieId?._id === movie?._id && 
+            new Date(screening.endTime) > new Date()
+          );
+          
+          setRoomScreenings(prev => ({
+            ...prev,
+            [room._id]: validScreenings.length > 0
+          }));
+        }
+      }
+    };
+
+    if (cinemas.length > 0 && movie) {
+      fetchRoomsAndScreenings();
+    }
+  }, [cinemas, movie, fetchRoomsByCinema, fetchScreeningsByRoom]);
 
   const handleRoomClick = async (roomId) => {
     setIsLoading(true);
@@ -155,8 +178,10 @@ function FilmPage() {
                 {rooms[cinema._id]?.map((room) => (
                   <div
                     key={room._id}
-                    className={cx("roomDetails")}
-                    onClick={() => handleRoomClick(room._id)}
+                    className={cx("roomDetails", {
+                      noScreenings: !roomScreenings[room._id]
+                    })}
+                    onClick={() => roomScreenings[room._id] && handleRoomClick(room._id)}
                   >
                     <p>
                       <strong>Room:</strong> {room.name}

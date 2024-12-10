@@ -131,9 +131,14 @@
 .roomDetails {
   padding-left: 20px;
   position: relative;
-  cursor: pointer; // Con trỏ chuột chỉ ra rằng phần này có thể nhấn
-  transition: background-color 0.3s ease; // Hiệu ứng mượt khi hover
+  cursor: pointer;
+  transition: background-color 0.3s ease;
   font-size: 14px;
+  padding-bottom: 30px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 
   p {
     margin: 8px 0;
@@ -148,7 +153,37 @@
   }
 
   &:hover {
-    background-color: rgba(255, 103, 0, 0.2); // Tăng độ đậm lên 20%
+    background-color: rgba(255, 103, 0, 0.2);
+  }
+
+  &::after {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    white-space: nowrap;
+    font-style: italic;
+    padding-top: 4px;
+  }
+
+  &:not(.noScreenings)::after {
+    content: 'Now Showing';
+    color: #ff6700;
+  }
+
+  &.noScreenings {
+    opacity: 0.6;
+    cursor: not-allowed;
+    
+    &::after {
+      content: 'No Screenings Available';
+      color: #ff4444;
+    }
+
+    &:hover {
+      background-color: transparent;
+    }
   }
 }
 
