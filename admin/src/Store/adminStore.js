@@ -1,7 +1,8 @@
 import axios from "axios";
 import { create } from "zustand";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+axios.defaults.withCredentials = true;
 
 export const useAdminStore = create((set) => ({
   user: null,
@@ -44,12 +45,15 @@ export const useAdminStore = create((set) => ({
 
   checkAuth: async () => {
     try {
+      console.log('API URL:', process.env.REACT_APP_BACKEND_URL);
       const response = await axios.get(
         `${API_URL}/api/admin/profile`,
         { withCredentials: true }
       );
+      console.log('Response:', response.data);
       set({ user: response.data, checkingAuth: false });
     } catch (error) {
+      console.error('Auth Error:', error);
       set({ user: null, checkingAuth: false });
     }
   },

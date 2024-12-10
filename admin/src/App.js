@@ -14,6 +14,7 @@ import ScreeningManagementPage from "./pages/ScreeningManagementPage";
 import SettingPage from "./pages/SettingPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import { useAdminStore } from "./Store/adminStore";
+import ErrorBoundary from './components/ErrorBoundary';
 //1
 function App() {
   const { user, checkingAuth, checkAuth } = useAdminStore();
@@ -34,7 +35,7 @@ function App() {
   };
 
   return (
-    <>
+    <ErrorBoundary>
       <Toaster
         position="top-right"
         toastOptions={{
@@ -119,7 +120,7 @@ function App() {
           </div>
         )}
       </div>
-    </>
+    </ErrorBoundary>
   );
 }
 
