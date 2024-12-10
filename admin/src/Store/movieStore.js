@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { create } from "zustand";
-const API_URL = "http://localhost:8080/api/movie";
+const API_URL = `${process.env.REACT_APP_API_URL}/api/movie`;
 axios.defaults.withCredentials = true;
 
 export const useMovieStore = create((set) => ({
@@ -14,7 +14,7 @@ export const useMovieStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/movie",
+        `${API_URL}`,
         movieData,
         { withCredentials: true }
       );
@@ -33,7 +33,7 @@ export const useMovieStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/movie/${id}`,
+        `${API_URL}/${id}`,
         movieData,
         { withCredentials: true }
       );
@@ -60,7 +60,7 @@ export const useMovieStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/movie/${id}`,
+        `${API_URL}/${id}`,
         { withCredentials: true }
       );
       
@@ -83,7 +83,7 @@ export const useMovieStore = create((set) => ({
   fetchAllMovies: async () => {
     set({ loading: true });
     try {
-      const response = await axios.get("http://localhost:8080/api/movie", {
+      const response = await axios.get(`${API_URL}`, {
         withCredentials: true,
       });
       set({ movies: response.data.movies });

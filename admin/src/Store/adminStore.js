@@ -1,6 +1,8 @@
 import axios from "axios";
 import { create } from "zustand";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 export const useAdminStore = create((set) => ({
   user: null,
   users: [],
@@ -12,7 +14,7 @@ export const useAdminStore = create((set) => ({
     try {
       set({ loading: true, error: null });
       const response = await axios.post(
-        "http://localhost:8080/api/admin/login",
+        `${API_URL}/api/admin/login`,
         { email, password },
         { withCredentials: true }
       );
@@ -30,7 +32,7 @@ export const useAdminStore = create((set) => ({
   logout: async () => {
     try {
       await axios.post(
-        "http://localhost:8080/api/admin/logout",
+        `${API_URL}/api/admin/logout`,
         {},
         { withCredentials: true }
       );
@@ -43,7 +45,7 @@ export const useAdminStore = create((set) => ({
   checkAuth: async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/api/admin/profile",
+        `${API_URL}/api/admin/profile`,
         { withCredentials: true }
       );
       set({ user: response.data, checkingAuth: false });
@@ -56,7 +58,7 @@ export const useAdminStore = create((set) => ({
   getUsers: async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/api/admin/users",
+        `${API_URL}/api/admin/users`,
         { withCredentials: true }
       );
       set({ users: response.data.data });
@@ -69,7 +71,7 @@ export const useAdminStore = create((set) => ({
   createUser: async (userData) => {
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/admin/users",
+        `${API_URL}/api/admin/users`,
         userData,
         { withCredentials: true }
       );
@@ -85,7 +87,7 @@ export const useAdminStore = create((set) => ({
   updateUser: async (userId, userData) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/admin/users/${userId}`,
+        `${API_URL}/api/admin/users/${userId}`,
         userData,
         { withCredentials: true }
       );
@@ -104,7 +106,7 @@ export const useAdminStore = create((set) => ({
     try {
       set({ loading: true });
       await axios.delete(
-        `http://localhost:8080/api/admin/users/${userId}`,
+        `${API_URL}/api/admin/users/${userId}`,
         { withCredentials: true }
       );
       set((state) => ({
@@ -120,7 +122,7 @@ export const useAdminStore = create((set) => ({
 
   searchUsers: async ({ name, email }) => {
     try {
-      let url = "http://localhost:8080/api/admin/users/search?";
+      let url = `${API_URL}/api/admin/users/search?`;
       const params = [];
       if (name) params.push(`name=${encodeURIComponent(name)}`);
       if (email) params.push(`email=${encodeURIComponent(email)}`);
@@ -138,7 +140,7 @@ export const useAdminStore = create((set) => ({
   assignRole: async (userId, role) => {
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/admin/assign-role",
+        `${API_URL}/api/admin/assign-role`,
         { userId, role },
         { withCredentials: true }
       );
@@ -156,7 +158,7 @@ export const useAdminStore = create((set) => ({
   fetchAllUsers: async () => {
     try {
       set({ loading: true });
-      const response = await axios.get('http://localhost:8080/api/admin/users', {
+      const response = await axios.get(`${API_URL}/api/admin/users`, {
         withCredentials: true
       });
       set({ users: response.data.data });

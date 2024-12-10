@@ -11,5 +11,9 @@ FROM node:18-alpine
 WORKDIR /app
 COPY --from=builder /app/build ./build
 RUN npm install -g serve
-EXPOSE 3000
-CMD ["serve", "-s", "build", "-l", "3000"] 
+
+# Use PORT from environment variable with fallback to 5173
+ENV PORT=5173
+EXPOSE 5173
+
+CMD ["sh", "-c", "serve -s build -l ${PORT:-5173}"] 

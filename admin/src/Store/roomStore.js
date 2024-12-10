@@ -2,6 +2,8 @@ import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
+const API_URL = `${process.env.REACT_APP_API_URL}/api/room`;
+
 export const useRoomStore = create((set) => ({
   rooms: [],
   loading: false,
@@ -11,7 +13,7 @@ export const useRoomStore = create((set) => ({
   fetchAllRooms: async () => {
     set({ loading: true });
     try {
-      const response = await axios.get("http://localhost:8080/api/room", {
+      const response = await axios.get(`${API_URL}`, {
         withCredentials: true,
       });
       set({ rooms: response.data.rooms });
@@ -29,7 +31,7 @@ export const useRoomStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/room",
+        `${API_URL}`,
         roomData,
         { withCredentials: true }
       );
@@ -51,7 +53,7 @@ export const useRoomStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/room/${roomId}`,
+        `${API_URL}/${roomId}`,
         roomData,
         { withCredentials: true }
       );
@@ -73,7 +75,7 @@ export const useRoomStore = create((set) => ({
   deleteRoom: async (roomId) => {
     set({ loading: true });
     try {
-      await axios.delete(`http://localhost:8080/api/room/${roomId}`, {
+      await axios.delete(`${API_URL}/${roomId}`, {
         withCredentials: true,
       });
       set((state) => ({
