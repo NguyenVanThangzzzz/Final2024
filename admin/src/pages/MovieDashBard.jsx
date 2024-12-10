@@ -23,7 +23,7 @@ const MovieDashBard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/dashboard/movie-stats', {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/movie-stats`, {
           withCredentials: true
         });
         setStats(response.data.data);

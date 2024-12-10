@@ -24,8 +24,8 @@ const EditScreeningForm = ({ screening, onClose }) => {
     const fetchData = async () => {
       try {
         const [roomsResponse, moviesResponse] = await Promise.all([
-          axios.get('http://localhost:8080/api/room'),
-          axios.get('http://localhost:8080/api/movie')
+          axios.get(`${process.env.REACT_APP_API_URL}/api/room`),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/movie`)
         ]);
         setRooms(roomsResponse.data.rooms);
         setMovies(moviesResponse.data.movies);

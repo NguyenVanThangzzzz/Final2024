@@ -20,7 +20,7 @@ const DashboardStats = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/dashboard/user-stats', {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/user-stats`, {
           withCredentials: true
         });
         
