@@ -14,7 +14,6 @@ function PaymentCancelPage() {
   const { cancelReason, paymentStatus, resetPaymentState } = usePaymentStore();
 
   useEffect(() => {
-    // Reset payment state khi component unmount
     return () => {
       resetPaymentState();
     };
@@ -25,7 +24,7 @@ function PaymentCancelPage() {
   };
 
   const handleTryAgain = () => {
-    navigate("/booking"); // hoặc quay lại trang đặt vé
+    navigate("/booking");
   };
 
   return (
@@ -33,9 +32,9 @@ function PaymentCancelPage() {
       <div className={cx("container")}>
         <div className={cx("content")}>
           <FontAwesomeIcon icon={faCircleXmark} className={cx("icon")} />
-          <h2>Thanh toán đã bị hủy</h2>
+          <h2>Payment Cancelled</h2>
           <p className={cx("message")}>
-            {cancelReason || "Rất tiếc, thanh toán của bạn đã bị hủy. Bạn có thể thử lại hoặc chọn một phương thức thanh toán khác."}
+            {cancelReason || "Sorry, your payment has been cancelled. You can try again or choose another payment method."}
           </p>
 
           <div className={cx("buttons")}>
@@ -43,21 +42,21 @@ function PaymentCancelPage() {
               className={cx("button", "primary")}
               onClick={handleTryAgain}
             >
-              Thử lại
+              Try Again
             </button>
             <button
               className={cx("button", "secondary")}
               onClick={handleReturnHome}
             >
-              Về trang chủ
+              Home
             </button>
           </div>
 
           {paymentStatus === 'error' && (
             <div className={cx("details")}>
-              <h3>Chi tiết lỗi</h3>
+              <h3>Error Details</h3>
               <p className={cx("info")}>
-                Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp tục.
+                An error occurred during payment. Please try again later or contact support if the problem persists.
               </p>
             </div>
           )}
