@@ -1,7 +1,11 @@
 .wrapper {
     width: 1280px;
     height: 600px;
-    background-color: #22272b;
+    background: linear-gradient(rgba(34, 39, 43, 0.9), rgba(34, 39, 43, 0.9)),
+                url('../../../asset/images/bgs2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     padding: 40px 0 20px;
 }
 

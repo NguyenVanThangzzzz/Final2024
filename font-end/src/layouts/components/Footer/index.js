@@ -13,7 +13,7 @@ function Footer() {
                     <div className={cx('column')}>
                         <h3 className={cx('title')}>About Us</h3>
                         <p className={cx('description')}>
-                            Cinema Tickets - Your premium movie ticket booking platform. Experience the best movies with comfort and convenience.
+                           Linux Cinema Tickets - Your premium movie ticket booking platform. Experience the best movies with comfort and convenience.
                         </p>
                         <div className={cx('social-links')}>
                             <Link to="https://facebook.com" className={cx('social-link')}><Facebook size={20} /></Link>
@@ -43,11 +43,11 @@ function Footer() {
                             </li>
                             <li>
                                 <Mail size={16} />
-                                <span>support@cinematickets.com</span>
+                                <span>support@linuxcinematickets.com</span>
                             </li>
                             <li>
                                 <MapPin size={16} />
-                                <span>123 Cinema Street, Ho Chi Minh City</span>
+                                <span>123 Cinema Street, Da Nang City</span>
                             </li>
                         </ul>
                     </div>
@@ -55,7 +55,7 @@ function Footer() {
 
                 <div className={cx('bottom')}>
                     <p className={cx('copyright')}>
-                        © {new Date().getFullYear()} Cinema Tickets. All rights reserved.
+                        © {new Date().getFullYear()} Linux Cinema Tickets. All rights reserved.
                     </p>
                 </div>
             </div>
