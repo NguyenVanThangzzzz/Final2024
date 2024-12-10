@@ -8,6 +8,7 @@ import { useRoomStore } from "~/store/roomStore";
 import { useScreeningStore } from "~/store/screeningStore";
 import { useTicketStore } from "~/store/ticketStore";
 import styles from "./RoomPage.module.scss";
+import LoadingSpinner from "~/components/LoadingSpinner";
 
 const cx = classNames.bind(styles);
 
@@ -30,6 +31,8 @@ function RoomPage() {
   const [selectedScreening, setSelectedScreening] = useState(null);
   const SEATS_PER_ROW = 20;
   const [showNotification, setShowNotification] = useState(false);
+  const [isLoadingScreening, setIsLoadingScreening] = useState(false);
+  const [isLoadingContinue, setIsLoadingContinue] = useState(false);
 
   // Sửa lại hàm để lấy screening có showTime sớm nhất
   const getFirstScreening = (screenings) => {
@@ -132,8 +135,12 @@ function RoomPage() {
   // Hàm xử lý khi chọn suất chiếu
   const handleScreeningSelect = async (screening) => {
     try {
+      setIsLoadingScreening(true);
       // Reset selection trước khi load screening mới
       resetSelection();
+
+      // Thêm delay 1s
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       const screeningData = await fetchScreeningById(screening._id);
       if (!screeningData.roomId?.cinemaId) {
@@ -145,6 +152,8 @@ function RoomPage() {
     } catch (error) {
       console.error("Error fetching screening details:", error);
       toast.error("Cannot load screening details");
+    } finally {
+      setIsLoadingScreening(false);
     }
   };
 
@@ -200,7 +209,11 @@ function RoomPage() {
     }
 
     try {
-      // Sửa lại URL API
+      setIsLoadingContinue(true);
+      
+      // Thêm delay 1s
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       const promises = selectedSeats.map((seat) =>
         axios.post(
           `http://localhost:8080/api/screening/${selectedScreening._id}/hold-seat`,
@@ -249,6 +262,8 @@ function RoomPage() {
     } catch (error) {
       console.error("Error holding seats:", error);
       toast.error("Cannot hold seat, please try again");
+    } finally {
+      setIsLoadingContinue(false);
     }
   };
 
@@ -291,6 +306,12 @@ function RoomPage() {
 
   return (
     <div className={cx("wrapper")}>
+      {(isLoadingScreening || isLoadingContinue) && (
+        <div className={cx('loading-overlay')}>
+          <LoadingSpinner />
+        </div>
+      )}
+
       <div className={cx("container")}>
         <div className={cx("content")}>
           <h2>Room Seats</h2>
@@ -307,8 +328,9 @@ function RoomPage() {
                     key={screening._id}
                     className={cx("screening-item", {
                       active: selectedScreening?._id === screening._id,
+                      disabled: isLoadingScreening
                     })}
-                    onClick={() => handleScreeningSelect(screening)}
+                    onClick={() => !isLoadingScreening && handleScreeningSelect(screening)}
                   >
                     <div className={cx("movie-name")}>
                       <span>Name Movie: </span>
@@ -475,7 +497,7 @@ function RoomPage() {
               <button
                 className={cx("next-button")}
                 onClick={handleNext}
-                disabled={selectedSeats.length === 0}
+                disabled={selectedSeats.length === 0 || isLoadingContinue}
               >
                 Continue
               </button>
