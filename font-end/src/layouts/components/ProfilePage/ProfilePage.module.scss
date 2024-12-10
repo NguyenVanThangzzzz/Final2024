@@ -1,0 +1,69 @@
+.wrapper {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.profile-section {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 2.4rem;
+    color: var(--text-color-menu);
+    margin-bottom: 2rem;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.label {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text-color-menu);
+    min-width: 100px;
+}
+
+.value {
+    font-size: 1.6rem;
+    color: #666;
+}
+
+.password-section {
+    // Styles sẽ được áp dụng từ component ChangePassword
+}
+
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-color-menu);
+
+    h2 {
+        font-size: 2.4rem;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        font-size: 1.6rem;
+        color: #666;
+    }
+} 
