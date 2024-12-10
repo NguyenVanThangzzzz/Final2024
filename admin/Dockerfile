@@ -11,11 +11,13 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the app
-RUN npm run build
+# Use the specific build script for docker
+RUN npm run build:docker
 
 # Production stage
 FROM nginx:alpine
+
+# Copy build files
 COPY --from=build /app/build /usr/share/nginx/html
 
 # Copy nginx config
