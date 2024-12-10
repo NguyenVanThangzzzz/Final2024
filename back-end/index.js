@@ -27,7 +27,8 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",  // Alternative localhost
   "http://127.0.0.1:3000",
   "https://linuxcinema.com",
-  "https://final2024-production-33e1.up.railway.app"
+  "https://final2024-production-33e1.up.railway.app",
+  "https://final2024-production-3d43.up.railway.app"
 ];
 
 // CORS configuration
