@@ -4,8 +4,9 @@ import { formatDate } from '~/utils/date';
 import classNames from 'classnames/bind';
 import styles from './OrderHistory.module.scss';
 import { motion } from "framer-motion";
-import { Clock, Film, MapPin, Ticket } from 'lucide-react';
+import { Clock, Film, MapPin, Ticket, ShoppingBag } from 'lucide-react';
 import LoadingSpinner from '../LoadingSpinner';
+import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -18,7 +19,24 @@ function OrderHistory() {
 
     if (loading) return <LoadingSpinner />;
     if (error) return <div className={cx('error')}>{error}</div>;
-    if (!orders.length) return <div className={cx('no-orders')}>No orders found</div>;
+
+    if (!orders.length) {
+        return (
+            <motion.div 
+                className={cx('empty-state')}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <ShoppingBag className={cx('empty-icon')} />
+                <h3>No Orders Yet</h3>
+                <p>Looks like you haven't made any orders yet.</p>
+                <Link to="/movies" className={cx('browse-button')}>
+                    Browse Movies
+                </Link>
+            </motion.div>
+        );
+    }
 
     return (
         <motion.div

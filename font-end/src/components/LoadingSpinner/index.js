@@ -1,18 +1,13 @@
 import classNames from "classnames/bind";
-import { motion } from "framer-motion";
-
 import styles from "./LoadingSpinner.module.scss";
+import infiniteSpinner from "~/asset/animation/infinite-spinner.svg";
 
 const cx = classNames.bind(styles);
 
 function LoadingSpinner() {
   return (
     <div className={cx("wrapper")}>
-      <motion.div
-        className={cx("spinner")}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-      />
+      <img src={infiniteSpinner} alt="Loading..." className={cx("spinner")} />
     </div>
   );
 }

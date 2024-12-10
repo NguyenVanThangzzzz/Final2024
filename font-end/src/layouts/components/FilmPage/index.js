@@ -72,13 +72,18 @@ function FilmPage() {
           <div className={cx("movieInfo")}>
             <h2>{movie.name}</h2>
             <p>
-              <strong className={cx("label")}>Genre:</strong> {movie.genres}
+              <strong className={cx("label")}>Genre:</strong>{" "}
+              {Array.isArray(movie.genres) 
+                ? movie.genres.join(", ")
+                : typeof movie.genres === 'string' 
+                  ? movie.genres.split(" ").join(", ")
+                  : movie.genres}
             </p>
             <p>
               <strong className={cx("label")}>Director:</strong> {movie.director}
             </p>
             <p>
-              <strong className={cx("label")}>Cast:</strong> {movie.actors}
+              <strong className={cx("label")}>Actors:</strong> {movie.actors}
             </p>
             <p className={cx("description")}>{movie.description}</p>
           </div>

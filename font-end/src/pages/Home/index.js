@@ -42,13 +42,13 @@ function Index() {
                 <div className={styles.movieInfo}>
                   <h2 className={styles.movieName}>{movie.name}</h2>
                   <p className={styles.movieGenre}>
-                    Genres: {formatGenres(movie.genres)}
+                    <strong>Genres:</strong> {formatGenres(movie.genres)}
                   </p>
                   <p>
                     <strong>Director:</strong> {movie.director}
                   </p>
                   <p>
-                    <strong>Cast:</strong> {movie.actors}
+                    <strong>Actors:</strong> {movie.actors}
                   </p>
                   <p>
                     <strong>Description:</strong> {movie.description}

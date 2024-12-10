@@ -1,22 +1,21 @@
 .wrapper {
   min-height: 100vh;
-  background: linear-gradient(
-    to bottom right,
-    #ff9800,
-    #ffcc80
-  ); /* Nền gradient từ cam đậm đến cam nhạt */
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
 }
 
 .spinner {
-  width: 4rem;
-  height: 4rem;
-  border: 4px solid #ffcc80; /* Border màu cam nhạt */
-  border-top-color: #ff9800; /* Border top màu cam đậm */
-  border-radius: 50%;
-  animation: spin 1s linear infinite; /* Nếu bạn vẫn muốn có hiệu ứng xoay */
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

@@ -3,10 +3,10 @@ import classNames from "classnames/bind";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import NotificationSeat from "~/components/NotificationSeat";
 import { useRoomStore } from "~/store/roomStore";
 import { useScreeningStore } from "~/store/screeningStore";
 import { useTicketStore } from "~/store/ticketStore";
-import NotificationSeat from '~/components/NotificationSeat';
 import styles from "./RoomPage.module.scss";
 
 const cx = classNames.bind(styles);
@@ -203,7 +203,7 @@ function RoomPage() {
       // Sửa lại URL API
       const promises = selectedSeats.map((seat) =>
         axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/screening/${selectedScreening._id}/hold-seat`,
+          `http://localhost:8080/api/screening/${selectedScreening._id}/hold-seat`,
           {
             seatNumber: seat.seatNumber,
           }
@@ -217,7 +217,7 @@ function RoomPage() {
         try {
           const releasePromises = selectedSeats.map((seat) =>
             axios.post(
-              `${process.env.REACT_APP_BACKEND_URL}/api/screening/${selectedScreening._id}/release-seat`,
+              `http://localhost:8080/api/screening/${selectedScreening._id}/release-seat`,
               {
                 seatNumber: seat.seatNumber,
               }
@@ -384,7 +384,7 @@ function RoomPage() {
                             selected: selectedSeats.some(
                               (s) => s.seatNumber === seat.seatNumber
                             ),
-                            pending: seat.status === "pending"
+                            pending: seat.status === "pending",
                           })}
                           onClick={() => handleSeatClick(seat)}
                         >
@@ -483,7 +483,7 @@ function RoomPage() {
           </div>
         </div>
       </div>
-      <NotificationSeat 
+      <NotificationSeat
         message="You can only select up to 10 seats at a time"
         isVisible={showNotification}
         onClose={() => setShowNotification(false)}
