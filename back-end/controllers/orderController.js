@@ -39,7 +39,7 @@ export const createOrder = async (req, res) => {
             roomId,
             seatNumbers,
             totalPrice,
-            status: "pending",
+            status: "confirmed",
         });
 
         const newOrder = await Order.create({
@@ -55,7 +55,7 @@ export const createOrder = async (req, res) => {
             { _id: screeningId },
             {
                 $set: {
-                    "seats.$[elem].status": "pending"
+                    "seats.$[elem].status": "booked"
                 }
             },
             {

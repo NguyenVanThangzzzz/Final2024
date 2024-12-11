@@ -181,30 +181,7 @@ export const handleStripeWebhook = async (req, res) => {
                     order.paymentDate = new Date();
                     await order.save();
 
-                    // Cập nhật ticket và seat status
-                    const ticket = await Ticket.findById(order.ticketId);
-                    if (ticket) {
-                        // Cập nhật trạng thái ticket thành confirmed
-                        ticket.status = "confirmed";
-                        await ticket.save();
-
-                        // Cập nhật trạng thái ghế thành booked
-                        await Screening.updateOne(
-                            { _id: ticket.screeningId },
-                            {
-                                $set: {
-                                    "seats.$[elem].status": "booked"
-                                }
-                            },
-                            {
-                                arrayFilters: [{ 
-                                    "elem.seatNumber": { $in: ticket.seatNumbers },
-                                    "elem.status": { $in: ["pending", "available"] }
-                                }]
-                            }
-                        );
-                    }
-
+                    // Không cần cập nhật trạng thái ghế vì đã được set là booked từ trước
                     console.log('Payment successful, order updated:', order._id);
                 } catch (error) {
                     console.error('Error processing webhook:', error);
@@ -236,7 +213,7 @@ export const cancelPayment = async (req, res) => {
             return res.status(404).json({ message: "Không tìm thấy vé" });
         }
 
-        // Cập nhật trạng thái ghế về available ngay lập tức
+        // Cập nhật trạng thái ghế về available
         await Screening.updateMany(
             { _id: ticket.screeningId },
             {
