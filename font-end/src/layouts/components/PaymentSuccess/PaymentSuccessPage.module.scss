@@ -107,9 +107,27 @@
 
 .loading {
     text-align: center;
-    font-size: 24px;
-    color: #fff;
-    padding: 50px 0;
+    padding: 40px;
+
+    &-spinner {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #ff6b00;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 20px;
+    }
+
+    p {
+        color: #fff;
+        font-size: 18px;
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 .error {

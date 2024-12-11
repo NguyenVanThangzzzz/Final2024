@@ -61,7 +61,12 @@ function PaymentSuccessPage() {
   return (
     <div className={cx("wrapper")}>
       <div className={cx("content")}>
-        {paymentStatus === "success" ? (
+        {isLoading ? (
+          <div className={cx("loading")}>
+            <div className={cx("loading-spinner")}></div>
+            <p>Processing payment...</p>
+          </div>
+        ) : paymentStatus === "success" ? (
           <>
             <div className={cx("success-icon")}>
               <FontAwesomeIcon icon={faCheckCircle} />

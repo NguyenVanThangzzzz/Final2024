@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import axios from '~/utils/axios';
+import axios from 'axios';
+
+const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/payment`;
 
 export const usePaymentStore = create((set) => ({
     paymentStatus: null,
@@ -10,7 +12,9 @@ export const usePaymentStore = create((set) => ({
     checkPaymentStatus: async (sessionId) => {
         try {
             set({ isLoading: true });
-            const response = await axios.get(`/api/payment/success?session_id=${sessionId}`);
+            const response = await axios.get(`${API_URL}/success?session_id=${sessionId}`, {
+                withCredentials: true
+            });
             
             if (response.data.success) {
                 set({ 
