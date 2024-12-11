@@ -2,7 +2,7 @@ import axios from "axios";
 import { create } from "zustand";
 import { toast } from 'react-toastify';
 
-const API_URL = "http://localhost:8080/api/order";
+const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/order`;
 axios.defaults.withCredentials = true;
 
 export const useOrderStore = create((set) => ({

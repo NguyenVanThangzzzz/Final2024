@@ -2,7 +2,7 @@ import axios from "axios";
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
 
-const API_URL = "http://localhost:8080/api/screening";
+const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/screening`;
 axios.defaults.withCredentials = true;
 
 export const useScreeningStore = create((set) => ({

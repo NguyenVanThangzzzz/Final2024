@@ -22,8 +22,8 @@ const PORT = process.env.PORT || 8080;
 
 // List of allowed origins
 const allowedOrigins = [
-  "https://linuxcinema.com", // Frontend URL
-  "https://final2024-production-7196.up.railway.app", // Admin URL
+  "https://linuxcinema.com",
+  "https://final2024-production-7196.up.railway.app",
   "http://localhost:3000",
   "http://localhost:3005",
 ];

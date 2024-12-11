@@ -1,7 +1,8 @@
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { create } from "zustand";
-const API_URL = "http://localhost:8080/api/cinema";
+
+const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/cinema`;
 axios.defaults.withCredentials = true;
 
 export const useCinemaStore = create((set) => ({

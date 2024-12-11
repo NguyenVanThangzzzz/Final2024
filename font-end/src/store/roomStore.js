@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { create } from "zustand";
 
-const API_URL = "http://localhost:8080/api/room";
+const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/room`;
 axios.defaults.withCredentials = true;
 
 export const useRoomStore = create((set) => ({
@@ -52,7 +52,7 @@ export const useRoomStore = create((set) => ({
   fetchScreeningsByRoom: async (roomId) => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/screening/room/${roomId}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/screening/room/${roomId}`
       );
       set({ screenings: response.data });
       return response.data;

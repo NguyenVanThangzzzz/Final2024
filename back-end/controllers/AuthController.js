@@ -36,8 +36,6 @@ const setCookies = (res, accessToken, refreshToken) => {
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
     path: '/',
-    domain: isProduction ? '.linuxcinema.com'
-                        : 'localhost',
   };
 
   res.cookie('accessToken', accessToken, {

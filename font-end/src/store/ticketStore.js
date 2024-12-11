@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
+const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/ticket`;
+axios.defaults.withCredentials = true;
+
 export const useTicketStore = create((set) => ({
     selectedSeats: [],
     totalPrice: 0,
@@ -43,7 +46,7 @@ export const useTicketStore = create((set) => ({
     createTemporaryTicket: async (screeningId, userId, movieId, roomId, seatNumber) => {
         try {
             set({ loading: true, error: null });
-            const response = await axios.post('/api/ticket', {
+            const response = await axios.post(`${API_URL}`, {
                 screeningId,
                 userId,
                 movieId,
