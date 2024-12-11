@@ -33,19 +33,21 @@ const setCookies = (res, accessToken, refreshToken) => {
   
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    secure: true,
+    sameSite: 'none',
     path: '/',
-    maxAge: isProduction ? 15 * 60 * 1000 : undefined, // 15 phút cho production
+    domain: isProduction ? '.railway.app' : undefined
   };
 
-  const refreshCookieOptions = {
+  res.cookie('accessToken', accessToken, {
     ...cookieOptions,
-    maxAge: isProduction ? 7 * 24 * 60 * 60 * 1000 : undefined, // 7 ngày cho production
-  };
+    maxAge: 15 * 60 * 1000
+  });
 
-  res.cookie('accessToken', accessToken, cookieOptions);
-  res.cookie('refreshToken', refreshToken, refreshCookieOptions);
+  res.cookie('refreshToken', refreshToken, {
+    ...cookieOptions,
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  });
 };
 
 export const signup = async (req, res) => {
@@ -289,8 +291,21 @@ export const refreshToken = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-    res.json(req.user);
+    const accessToken = req.cookies.accessToken;
+    if (!accessToken) {
+      return res.status(401).json({ message: "No access token provided" });
+    }
+
+    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(decoded.userId).select("-password");
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Error in getProfile:", error);
+    res.status(401).json({ message: "Invalid or expired token" });
   }
 };

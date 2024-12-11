@@ -6,6 +6,8 @@ const axiosClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
 // Add request interceptor
@@ -19,7 +21,7 @@ axiosClient.interceptors.request.use(
   }
 );
 
-// Add response interceptor để xử lý refresh token
+// Add response interceptor
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -29,11 +31,10 @@ axiosClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Gọi API refresh token
         await axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/api/auth/refresh-token`,
           {},
-          { 
+          {
             withCredentials: true,
             headers: {
               'Content-Type': 'application/json'
@@ -41,15 +42,14 @@ axiosClient.interceptors.response.use(
           }
         );
 
-        // Thử lại request ban đầu
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         return axiosClient(originalRequest);
       } catch (refreshError) {
-        // Nếu refresh token thất bại, logout user
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
-
     return Promise.reject(error);
   }
 );
