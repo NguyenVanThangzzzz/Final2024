@@ -30,21 +30,25 @@ const storeRefreshToken = async (refreshToken, userId) => {
 
 const setCookies = (res, accessToken, refreshToken) => {
   const isProduction = process.env.NODE_ENV === 'production';
+  
   const cookieOptions = {
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
     path: '/',
-    maxAge: 15 * 60 * 1000, // 15 minutes
+    domain: isProduction ? '.linuxcinema.com'
+                        : 'localhost',
   };
 
-  const refreshCookieOptions = {
+  res.cookie('accessToken', accessToken, {
     ...cookieOptions,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  };
+    maxAge: 15 * 60 * 1000, // 15 phút
+  });
 
-  res.cookie('accessToken', accessToken, cookieOptions);
-  res.cookie('refreshToken', refreshToken, refreshCookieOptions);
+  res.cookie('refreshToken', refreshToken, {
+    ...cookieOptions,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+  });
 };
 
 export const signup = async (req, res) => {
