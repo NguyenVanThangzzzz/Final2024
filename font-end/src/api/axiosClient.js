@@ -25,7 +25,6 @@ axiosClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Nếu lỗi 401 và chưa thử refresh token
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -34,7 +33,12 @@ axiosClient.interceptors.response.use(
         await axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/api/auth/refresh-token`,
           {},
-          { withCredentials: true }
+          { 
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
         );
 
         // Thử lại request ban đầu

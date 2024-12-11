@@ -36,17 +36,16 @@ const setCookies = (res, accessToken, refreshToken) => {
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
     path: '/',
+    maxAge: isProduction ? 15 * 60 * 1000 : undefined, // 15 phút cho production
   };
 
-  res.cookie('accessToken', accessToken, {
+  const refreshCookieOptions = {
     ...cookieOptions,
-    maxAge: 15 * 60 * 1000, // 15 phút
-  });
+    maxAge: isProduction ? 7 * 24 * 60 * 60 * 1000 : undefined, // 7 ngày cho production
+  };
 
-  res.cookie('refreshToken', refreshToken, {
-    ...cookieOptions,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
-  });
+  res.cookie('accessToken', accessToken, cookieOptions);
+  res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 };
 
 export const signup = async (req, res) => {
