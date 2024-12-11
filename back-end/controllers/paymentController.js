@@ -81,8 +81,8 @@ export const createCheckoutSession = async (req, res) => {
                 },
             ],
             mode: "payment",
-            success_url: `${process.env.CLIENT_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.CLIENT_URL}/payment/cancel`,
+            success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.FRONTEND_URL}/payment/cancel`,
             metadata: {
                 orderId: order._id.toString(),
                 movieName: order.ticketId.movieId.name,

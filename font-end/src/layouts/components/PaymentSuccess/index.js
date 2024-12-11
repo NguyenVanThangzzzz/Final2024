@@ -36,6 +36,7 @@ function PaymentSuccessPage() {
 
     const verifyPayment = async () => {
       try {
+        setIsLoading(true);
         await checkPaymentStatus(sessionId);
       } catch (error) {
         console.error("Payment verification failed:", error);
