@@ -160,60 +160,64 @@ export const getMovieStats = async (req, res) => {
 
 export const getMovieRevenue = async (req, res) => {
   try {
-    const currentYear = new Date().getFullYear();
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
     
-    // Aggregate monthly revenue from orders
-    const monthlyRevenue = await Order.aggregate([
-      {
-        $match: {
-          status: "paid",
-          paymentDate: {
-            $gte: new Date(currentYear, 0, 1),
-            $lte: new Date(currentYear, 11, 31, 23, 59, 59)
-          }
-        }
-      },
-      {
-        $group: {
-          _id: { $month: "$paymentDate" },
-          revenue: { $sum: "$totalAmount" }
-        }
-      },
-      {
-        $sort: { "_id": 1 }
+    // Tạo mảng chứa doanh thu từng tháng
+    const monthlyRevenue = new Array(12).fill(0);
+    
+    // Lấy tất cả orders đã thanh toán trong năm hiện tại
+    const orders = await Order.find({
+      status: "paid",
+      paymentDate: {
+        $gte: new Date(currentYear, 0, 1),
+        $lte: new Date(currentYear, 11, 31)
       }
-    ]);
-
-    // Initialize revenue data for all months
-    const revenueData = Array(12).fill(0);
-    
-    // Fill in actual revenue data
-    monthlyRevenue.forEach(item => {
-      revenueData[item._id - 1] = item.revenue;
     });
 
-    // Calculate total revenue and other stats
-    const totalRevenue = revenueData.reduce((sum, amount) => sum + amount, 0);
-    const averageRevenue = totalRevenue / 12;
+    // Tính tổng doanh thu
+    let totalRevenue = 0;
     
-    // Get current month's revenue
-    const currentMonth = new Date().getMonth();
-    const currentMonthRevenue = revenueData[currentMonth];
+    // Tính doanh thu theo tháng
+    orders.forEach(order => {
+      const month = new Date(order.paymentDate).getMonth();
+      monthlyRevenue[month] += order.totalAmount;
+      totalRevenue += order.totalAmount;
+    });
+
+    // Tính doanh thu trung bình
+    const averageRevenue = totalRevenue / 12;
+
+    // Lấy doanh thu tháng hiện tại
+    const currentMonth = currentDate.getMonth();
+    const currentMonthRevenue = monthlyRevenue[currentMonth];
+
+    // Format dữ liệu để hiển thị theo tháng
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    const formattedMonthlyRevenue = monthlyRevenue.map((revenue, index) => ({
+      name: monthNames[index],
+      revenue: revenue
+    }));
 
     res.json({
       success: true,
       data: {
-        monthlyRevenue: revenueData,
+        monthlyRevenue: formattedMonthlyRevenue,
         totalRevenue,
         averageRevenue,
         currentMonthRevenue
       }
     });
+
   } catch (error) {
-    console.error("Error in getMovieRevenue:", error);
+    console.error('Error getting movie revenue:', error);
     res.status(500).json({
       success: false,
-      message: "Error fetching revenue data",
+      message: "Error getting movie revenue",
       error: error.message
     });
   }
