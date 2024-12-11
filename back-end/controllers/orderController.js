@@ -46,9 +46,10 @@ export const createOrder = async (req, res) => {
             userId,
             ticketId: newTicket._id,
             totalAmount: totalPrice,
-            status: "pending",
+            status: "paid",
             paymentMethod: "stripe",
-            orderDate: new Date()
+            orderDate: new Date(),
+            paymentDate: new Date()
         });
 
         await Screening.updateMany(

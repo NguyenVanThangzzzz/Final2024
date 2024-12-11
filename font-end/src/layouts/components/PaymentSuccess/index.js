@@ -1,156 +1,83 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
+import axiosClient from "~/api/axiosClient";
+import LoadingSpinner from "~/components/LoadingSpinner";
 import classNames from "classnames/bind";
-import styles from "./PaymentSuccessPage.module.scss";
-import { usePaymentStore } from "~/store/paymentStore";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCheckCircle,
-  faFilm,
-  faClock,
-  faBuilding,
-  faLocationDot,
-  faVideo,
-  faCouch,
-  faUser,
-  faEnvelope,
-  faDollarSign
-} from "@fortawesome/free-solid-svg-icons";
+import styles from "./PaymentSuccess.module.scss";
 
 const cx = classNames.bind(styles);
 
-function PaymentSuccessPage() {
-  const location = useLocation();
+function PaymentSuccess() {
+  const [searchParams] = useSearchParams();
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-  const { checkPaymentStatus, paymentStatus, orderDetails, paymentError } = usePaymentStore();
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const sessionId = queryParams.get("session_id");
-
+    const sessionId = searchParams.get("session_id");
     if (!sessionId) {
-      navigate("/");
+      setError("Invalid session ID");
+      setLoading(false);
       return;
     }
 
     const verifyPayment = async () => {
       try {
-        setIsLoading(true);
-        await checkPaymentStatus(sessionId);
+        const response = await axiosClient.get(`/api/payment/success?session_id=${sessionId}`);
+        if (response.data.success) {
+          setOrderDetails(response.data.order);
+        } else {
+          setError("Payment verification failed");
+        }
       } catch (error) {
-        console.error("Payment verification failed:", error);
+        console.error("Error verifying payment:", error);
+        setError(error.response?.data?.message || "An error occurred");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     verifyPayment();
-  }, [location, checkPaymentStatus, navigate]);
+  }, [searchParams]);
 
-  if (isLoading) {
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
     return (
-      <div className={cx("wrapper")}>
-        <div className={cx("content")}>
-          <div className={cx("loading")}>Processing payment...</div>
-        </div>
+      <div className={cx("error-container")}>
+        <h2>Payment Error</h2>
+        <p>{error}</p>
+        <button onClick={() => navigate("/")}>Return to Home</button>
       </div>
     );
   }
 
   return (
-    <div className={cx("wrapper")}>
-      <div className={cx("content")}>
-        {paymentStatus === "success" ? (
-          <>
-            <div className={cx("success-icon")}>
-              <FontAwesomeIcon icon={faCheckCircle} />
-            </div>
-            <h2>Payment Successful!</h2>
-            {orderDetails && (
-              <div className={cx("order-details")}>
-                <h3>Order Details:</h3>
-                <div className={cx("detail-item")}>
-                  <span>
-                    <FontAwesomeIcon icon={faFilm} className={cx("icon")} /> Movie:
-                  </span>
-                  <span>{orderDetails.ticketId.movieId.name}</span>
-                </div>
-                <div className={cx("detail-item")}>
-                  <span>
-                    <FontAwesomeIcon icon={faClock} className={cx("icon")} /> Showtime:
-                  </span>
-                  <span>{orderDetails.ticketId.screeningId.showTime}</span>
-                </div>
-                <div className={cx("detail-item")}>
-                  <span>
-                    <FontAwesomeIcon icon={faBuilding} className={cx("icon")} /> Cinema:
-                  </span>
-                  <span>{orderDetails.ticketId.roomId.cinemaId.name}</span>
-                </div>
-                <div className={cx("detail-item")}>
-                  <span>
-                    <FontAwesomeIcon icon={faLocationDot} className={cx("icon")} /> Address:
-                  </span>
-                  <span>{orderDetails.ticketId.roomId.cinemaId.streetName}</span>
-                </div>
-                <div className={cx("detail-item")}>
-                  <span>
-                    <FontAwesomeIcon icon={faVideo} className={cx("icon")} /> Room:
-                  </span>
-                  <span>{`${orderDetails.ticketId.roomId.name} (${orderDetails.ticketId.roomId.screenType})`}</span>
-                </div>
-                <div className={cx("detail-item")}>
-                  <span>
-                    <FontAwesomeIcon icon={faCouch} className={cx("icon")} /> Seats:
-                  </span>
-                  <span>{orderDetails.ticketId.seatNumbers.join(", ")}</span>
-                </div>
-                <div className={cx("detail-item")}>
-                  <span>
-                    <FontAwesomeIcon icon={faUser} className={cx("icon")} /> Customer:
-                  </span>
-                  <span>{orderDetails.userId.name}</span>
-                </div>
-                <div className={cx("detail-item")}>
-                  <span>
-                    <FontAwesomeIcon icon={faEnvelope} className={cx("icon")} /> Email:
-                  </span>
-                  <span>{orderDetails.userId.email}</span>
-                </div>
-                <div className={cx("detail-item", "total")}>
-                  <span>
-                    <FontAwesomeIcon icon={faDollarSign} className={cx("icon")} /> Total:
-                  </span>
-                  <span>${parseFloat(orderDetails.totalAmount).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })}</span>
-                </div>
-              </div>
-            )}
-            <button
-              className={cx("home-button")}
-              onClick={() => navigate("/")}
-            >
-              Back to Home
-            </button>
-          </>
-        ) : (
-          <div className={cx("error")}>
-            <h2>Error Occurred</h2>
-            <p>{paymentError}</p>
-            <button
-              className={cx("retry-button")}
-              onClick={() => navigate("/payment")}
-            >
-              Try Again
-            </button>
+    <div className={cx("success-container")}>
+      <div className={cx("success-content")}>
+        <CheckCircle className={cx("success-icon")} />
+        <h2>Payment Successful!</h2>
+        {orderDetails && (
+          <div className={cx("order-details")}>
+            <h3>Order Details</h3>
+            <p>Order ID: {orderDetails._id}</p>
+            <p>Movie: {orderDetails.ticketId.movieId.name}</p>
+            <p>Show Time: {new Date(orderDetails.ticketId.screeningId.showTime).toLocaleString()}</p>
+            <p>Amount Paid: ${orderDetails.totalAmount}</p>
+            <p>Status: {orderDetails.status}</p>
           </div>
         )}
+        <div className={cx("action-buttons")}>
+          <button onClick={() => navigate("/profile/orders")}>View Orders</button>
+          <button onClick={() => navigate("/")}>Return to Home</button>
+        </div>
       </div>
     </div>
   );
 }
 
-export default PaymentSuccessPage;
+export default PaymentSuccess;
