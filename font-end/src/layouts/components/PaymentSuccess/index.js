@@ -67,7 +67,7 @@ function PaymentSuccessPage() {
               <FontAwesomeIcon icon={faCheckCircle} />
             </div>
             <h2>Payment Successful!</h2>
-            {orderDetails && (
+            {orderDetails && orderDetails.status === 'paid' && (
               <div className={cx("order-details")}>
                 <h3>Order Details:</h3>
                 <div className={cx("detail-item")}>
@@ -126,6 +126,12 @@ function PaymentSuccessPage() {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}</span>
+                </div>
+                <div className={cx("detail-item", "status")}>
+                  <span>
+                    <FontAwesomeIcon icon={faCheckCircle} className={cx("icon")} /> Status:
+                  </span>
+                  <span className={cx("status-paid")}>Paid</span>
                 </div>
               </div>
             )}

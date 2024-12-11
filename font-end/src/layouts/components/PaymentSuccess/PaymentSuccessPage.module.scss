@@ -128,3 +128,14 @@
         font-size: 20px;
     }
 }
+
+.status-paid {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.detail-item.status {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}

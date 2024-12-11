@@ -161,7 +161,6 @@ export const handleStripeWebhook = async (req, res) => {
             process.env.STRIPE_WEBHOOK_SECRET
         );
 
-        // Handle the event
         switch (event.type) {
             case "checkout.session.completed":
                 const session = event.data.object;
@@ -170,22 +169,36 @@ export const handleStripeWebhook = async (req, res) => {
                     // Cập nhật trạng thái đơn hàng
                     const order = await Order.findOne({ 
                         stripeSessionId: session.id 
-                    });
+                    }).populate({
+                        path: 'ticketId',
+                        populate: [
+                            { path: 'movieId', select: 'name' },
+                            { path: 'screeningId', select: 'showTime' },
+                            { path: 'roomId', select: 'name screenType', 
+                                populate: {
+                                    path: 'cinemaId',
+                                    select: 'name streetName'
+                                }
+                            }
+                        ]
+                    }).populate('userId', 'name email');
 
                     if (!order) {
                         console.log('Order not found for session:', session.id);
                         return res.status(200).json({ received: true });
                     }
 
+                    // Kiểm tra nếu đơn hàng đã được xử lý
                     if (order.status === 'paid') {
                         return res.status(200).json({ received: true });
                     }
 
+                    // Cập nhật trạng thái đơn hàng thành paid
                     order.status = "paid";
                     order.paymentDate = new Date();
                     await order.save();
 
-                    // Cập nhật ticket
+                    // Cập nhật ticket status
                     const ticket = await Ticket.findById(order.ticketId);
                     if (ticket) {
                         ticket.status = "confirmed";
@@ -204,9 +217,10 @@ export const handleStripeWebhook = async (req, res) => {
                             }
                         );
                     }
+
+                    console.log('Payment successful, order updated:', order._id);
                 } catch (error) {
                     console.error('Error processing webhook:', error);
-                    // Vẫn trả về 200 để Stripe không gửi lại webhook
                     return res.status(200).json({ received: true });
                 }
                 break;
