@@ -166,46 +166,30 @@ export const handleStripeWebhook = async (req, res) => {
                 const session = event.data.object;
                 
                 try {
-                    // Cập nhật trạng thái đơn hàng
+                    // Tìm và cập nhật order
                     const order = await Order.findOne({ 
                         stripeSessionId: session.id 
-                    }).populate({
-                        path: 'ticketId',
-                        populate: [
-                            { path: 'movieId', select: 'name' },
-                            { path: 'screeningId', select: 'showTime' },
-                            { path: 'roomId', select: 'name screenType', 
-                                populate: {
-                                    path: 'cinemaId',
-                                    select: 'name streetName'
-                                }
-                            }
-                        ]
-                    }).populate('userId', 'name email');
+                    });
 
                     if (!order) {
                         console.log('Order not found for session:', session.id);
                         return res.status(200).json({ received: true });
                     }
 
-                    // Kiểm tra nếu đơn hàng đã được xử lý
-                    if (order.status === 'paid') {
-                        return res.status(200).json({ received: true });
-                    }
-
-                    // Cập nhật trạng thái đơn hàng thành paid
+                    // Cập nhật trạng thái order thành paid
                     order.status = "paid";
                     order.paymentDate = new Date();
                     await order.save();
 
-                    // Cập nhật ticket status
+                    // Cập nhật ticket và seat status
                     const ticket = await Ticket.findById(order.ticketId);
                     if (ticket) {
+                        // Cập nhật trạng thái ticket thành confirmed
                         ticket.status = "confirmed";
                         await ticket.save();
 
-                        // Cập nhật trạng thái ghế
-                        await Screening.updateMany(
+                        // Cập nhật trạng thái ghế thành booked
+                        await Screening.updateOne(
                             { _id: ticket.screeningId },
                             {
                                 $set: {
@@ -213,7 +197,10 @@ export const handleStripeWebhook = async (req, res) => {
                                 }
                             },
                             {
-                                arrayFilters: [{ "elem.seatNumber": { $in: ticket.seatNumbers } }]
+                                arrayFilters: [{ 
+                                    "elem.seatNumber": { $in: ticket.seatNumbers },
+                                    "elem.status": { $in: ["pending", "available"] }
+                                }]
                             }
                         );
                     }
@@ -221,7 +208,6 @@ export const handleStripeWebhook = async (req, res) => {
                     console.log('Payment successful, order updated:', order._id);
                 } catch (error) {
                     console.error('Error processing webhook:', error);
-                    return res.status(200).json({ received: true });
                 }
                 break;
 

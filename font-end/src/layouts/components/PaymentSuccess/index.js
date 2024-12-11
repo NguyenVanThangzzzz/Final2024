@@ -61,18 +61,13 @@ function PaymentSuccessPage() {
   return (
     <div className={cx("wrapper")}>
       <div className={cx("content")}>
-        {isLoading ? (
-          <div className={cx("loading")}>
-            <div className={cx("loading-spinner")}></div>
-            <p>Processing payment...</p>
-          </div>
-        ) : paymentStatus === "success" ? (
+        {paymentStatus === "success" ? (
           <>
             <div className={cx("success-icon")}>
               <FontAwesomeIcon icon={faCheckCircle} />
             </div>
             <h2>Payment Successful!</h2>
-            {orderDetails && orderDetails.status === 'paid' && (
+            {orderDetails && (
               <div className={cx("order-details")}>
                 <h3>Order Details:</h3>
                 <div className={cx("detail-item")}>
@@ -131,12 +126,6 @@ function PaymentSuccessPage() {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}</span>
-                </div>
-                <div className={cx("detail-item", "status")}>
-                  <span>
-                    <FontAwesomeIcon icon={faCheckCircle} className={cx("icon")} /> Status:
-                  </span>
-                  <span className={cx("status-paid")}>Paid</span>
                 </div>
               </div>
             )}
